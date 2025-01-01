@@ -32,7 +32,7 @@ const Signup = () => {
     <div className="flex justify-center items-center min-h-screen bg-white relative">
       <form
         onSubmit={handleSubmit}
-        className="bg-gray-800 p-6 rounded-lg shadow-md w-96"
+        className="bg-bodyColor p-6 rounded-lg shadow-md w-96"
       >
         <div className="text-center text-2xl font-semibold py-2 text-white">
           SIGNUP
@@ -51,7 +51,7 @@ const Signup = () => {
           />
         </div>
         <div className="my-4">
-          <label className="block text-gray-300 text-sm mb-2" htmlFor="email">
+          <label className="block text-white text-sm mb-2" htmlFor="email">
             Email:
           </label>
           <input
@@ -59,12 +59,12 @@ const Signup = () => {
             id="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-2 rounded bg-gray-700 text-gray-300 focus:outline-none"
+            className="w-full px-4 py-2 rounded bg-gray-700 text-white focus:outline-none"
             placeholder="Enter your email"
           />
         </div>
         <div className="my-4">
-          <label className="block text-gray-300 text-sm mb-2" htmlFor="password">
+          <label className="block text-white text-sm mb-2" htmlFor="password">
             Password:
           </label>
           <input
@@ -72,14 +72,14 @@ const Signup = () => {
             id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-2 rounded bg-gray-700 text-gray-300 focus:outline-none"
+            className="w-full px-4 py-2 rounded bg-gray-700 text-white focus:outline-none"
             placeholder="Create a password"
           />
         </div>
         <div className="mb-4">
-  <label className="block text-gray-300 text-sm mb-2">Gender:</label>
+  <label className="block text-white text-sm mb-2">Gender:</label>
   <div className="flex items-center space-x-4">
-    <label className="text-gray-300">
+    <label className="text-white">
       <input
         type="radio"
         name="gender"
@@ -88,7 +88,7 @@ const Signup = () => {
       />
       Male
     </label>
-    <label className="text-gray-300">
+    <label className="text-white">
       <input
         type="radio"
         name="gender"
@@ -97,7 +97,7 @@ const Signup = () => {
       />
       Female
     </label>
-    <label className="text-gray-300">
+    <label className="text-white">
       <input
         type="radio"
         name="gender"
@@ -111,13 +111,13 @@ const Signup = () => {
 
         <button
           type="submit"
-          className="w-full bg-blue-500 text-white py-2 rounded mt-4 hover:bg-blue-600"
+          className="w-full bg-designColor text-white py-2 rounded mt-4 hover:bg-opacity-70"
         >
           SIGN UP
         </button>
         <div className="text-sm text-textColor py-3">
           Already have an account?{" "}
-          <span className="text-blue-500 cursor-pointer hover:text-blue-600">
+          <span className="text-designColor cursor-pointer hover:text-opacity-70">
             <Link to="/signin">Login</Link>
           </span>
         </div>

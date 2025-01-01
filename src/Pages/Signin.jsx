@@ -12,13 +12,18 @@ const Signin = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("Submitting form with data:", { email, password });
+  
     axios
       .post("http://localhost:5001/signin", { email, password })
       .then((result) => {
         console.log(result);
-        if (result.data === "success") {
+        if (result.data.message === "success") {
           setPopupMessage("Login Successful!"); // Set success message
           setShowPopup(true); // Show popup
+  
+          // Redirect to the specified route after the popup closes
+          const redirectPath = result.data.redirect || "/";
+          setTimeout(() => navigate(redirectPath), 1000); // Delay navigation for effect
         } else {
           setPopupMessage("Login Failed: Incorrect email or password."); // Set error message
           setShowPopup(true); // Show popup
@@ -30,6 +35,7 @@ const Signin = () => {
         setShowPopup(true); // Show popup
       });
   };
+  
 
   const handleClosePopup = () => {
     setShowPopup(false); // Hide popup
@@ -42,13 +48,13 @@ const Signin = () => {
     <div className="flex justify-center items-center bg-white min-h-screen">
       <form
         onSubmit={handleSubmit}
-        className="bg-gray-800 p-6 rounded-lg shadow-md w-96"
+        className="bg-bodyColor p-6 rounded-lg shadow-md w-96"
       >
         <div className="text-center text-2xl font-semibold py-2 text-white">
           LOGIN
         </div>
         <div className="my-4">
-          <label className="text-gray-300 text-sm mb-2" htmlFor="email">
+          <label className="text-white  text-sm mb-2" htmlFor="email">
             Email:
           </label>
           <input
@@ -61,7 +67,7 @@ const Signin = () => {
           />
         </div>
         <div className="my-4">
-          <label className="text-gray-300 text-sm mb-2" htmlFor="password">
+          <label className="text-white text-sm mb-2" htmlFor="password">
             Password:
           </label>
           <input
@@ -75,13 +81,13 @@ const Signin = () => {
         </div>
         <button
           type="submit"
-          className="w-full bg-blue-500 text-white py-2 rounded mt-4 hover:bg-blue-600"
+          className="w-full bg-designColor text-white py-2 rounded mt-4 hover:bg-opacity-70"
         >
           SIGN IN
         </button>
         <div className="text- text-textColor py-3">
           Don't have an account?{" "}
-          <span className="text-blue-500 cursor-pointer hover:text-blue-600">
+          <span className="text-designColor cursor-pointer hover:bg-opacity-70">
             <Link to="/signup">Signup</Link>
           </span>
         </div>
@@ -90,14 +96,14 @@ const Signin = () => {
       {/* Popup */}
       {showPopup && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50">
-          <div className="bg-gray-800 text-white rounded-lg p-6 w-80 text-center shadow-lg">
+          <div className="bg-bodyColor text-white rounded-lg p-6 w-80 text-center shadow-lg">
             <div className="text-lg font-semibold mb-2">
               {popupMessage.includes("Successful") ? "Success!" : "Error"}
             </div>
             <p className="text-sm mb-4">{popupMessage}</p>
             <button
               onClick={handleClosePopup}
-              className="bg-blue-500 px-4 py-2 rounded hover:bg-blue-600"
+              className="bg-designColor px-4 py-2 rounded hover:bg-opacity-70"
             >
               OK
             </button>
