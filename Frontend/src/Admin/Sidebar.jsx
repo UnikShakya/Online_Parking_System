@@ -1,7 +1,13 @@
-import React from "react";
-import { FaSearch, FaChartBar, FaFolder, FaCar, FaFile, FaUsers, FaCogs } from "react-icons/fa";
+import { FaSearch, FaChartBar, FaFolder, FaCar, FaFile, FaUsers, FaCogs, FaHome } from "react-icons/fa";
 
-const Sidebar = () => {
+const Sidebar = ({setShowLogin}) => {
+
+  const logout = () => {
+    localStorage.removeItem("token");  // Remove the token on logout
+    localStorage.removeItem("username");  // Remove the username on logout
+    setShowLogin(true);  // Show the login popup again
+};
+
   return (
     <div className="h-screen w-64 bg-bodyColor text-white flex flex-col">
       {/* Logo Section */}
@@ -39,6 +45,10 @@ const Sidebar = () => {
           <li className="flex items-center space-x-4 hover:bg-designColor p-2 rounded cursor-pointer">
             <FaCogs />
             <span>Services</span>
+          </li>
+          <li onClick={logout} className="flex items-center space-x-4 hover:bg-designColor p-2 rounded cursor-pointer">
+            <FaHome/>
+            <span >Logout</span>
           </li>
         </ul>
       </nav>

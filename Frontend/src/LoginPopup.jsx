@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';  // Import useNavigate
+import { useNavigate } from 'react-router-dom';
 import StoreContext from './Context/StoreContext';
 import { IoIosClose } from "react-icons/io";
 import "./LoginPopup.css";
@@ -15,7 +15,7 @@ const LoginPopup = ({ setShowLogin }) => {
         password: ""
     });
 
-    const navigate = useNavigate();  // Initialize useNavigate for programmatic navigation
+    const navigate = useNavigate();
 
     const onChangeHandler = (event) => {
         const name = event.target.name;
@@ -28,9 +28,9 @@ const LoginPopup = ({ setShowLogin }) => {
 
         let new_url = url;
         if (currState === "Login") {
-            new_url += "/api/user/login";  // Login API endpoint
+            new_url += "/api/user/login"; // Login API endpoint
         } else if (currState === "Sign Up") {
-            new_url += "/api/user/register";  // Register API endpoint
+            new_url += "/api/user/register"; // Register API endpoint
         }
 
         try {
@@ -50,9 +50,13 @@ const LoginPopup = ({ setShowLogin }) => {
                     toast.success("Successfully logged in!");
 
                     // Redirect based on the response (admin or normal user)
-                    navigate(redirect);  // Redirect to the path specified in the response (e.g., /admin)
+                    if (redirect === '/admin') {
+                        navigate('/admin'); // Navigate to admin dashboard
+                    } else {
+                        navigate('/'); // Navigate to home for normal users
+                    }
                 } else if (currState === "Sign Up") {
-                    setCurrState("Login");  // Switch to login state after successful signup
+                    setCurrState("Login"); // Switch to login state after successful signup
                     toast.success("Account created successfully! Please log in.");
                 }
             } else {
@@ -68,14 +72,6 @@ const LoginPopup = ({ setShowLogin }) => {
                 toast.error("An error occurred. Please try again.");
             }
         }
-    };
-
-    // Function to handle logout
-    const onLogout = () => {
-        setToken(null);  // Clear the token from context
-        localStorage.removeItem("token");  // Remove the token from localStorage
-        setShowLogin(true);  // Show the login popup again
-        toast.success("Logged out successfully!");
     };
 
     return (

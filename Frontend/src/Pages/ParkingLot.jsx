@@ -131,13 +131,13 @@ const ParkingLot = () => {
                                     <tr key={index}>
                                         <td className="py-2 px-4 border-b border-gray-600">{spot}</td>
                                         <td className="py-2 px-4 border-b border-gray-600">1</td>
-                                        <td className="py-2 px-4 border-b border-gray-600">$10</td>
+                                        <td className="py-2 px-4 border-b border-gray-600">Rs 25</td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
                         <div className="flex justify-between items-center mb-4">
-                            <span className="text-lg font-bold">Total: ${selectedSpots.length * 10}</span>
+                            <span className="text-lg font-bold">Total: Rs {selectedSpots.length * 25}</span>
                         </div>
                         <div className="flex justify-center">
                         <button

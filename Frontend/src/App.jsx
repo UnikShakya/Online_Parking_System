@@ -22,7 +22,7 @@ function App() {
 
       <Routes>
       <Route path="/" element={<Selection />} />
-        <Route path="/admin" element={<MainLayout />} />
+        <Route path="/admin" element={<MainLayout setShowLogin={setShowLogin}/>} />
         <Route path="/parking-lot" element={<ParkingLot />} />
       </Routes>
     </StoreProvider>
