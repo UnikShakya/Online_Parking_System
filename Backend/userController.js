@@ -1,4 +1,4 @@
-const jwt = require("jsonwebtoken"); 
+const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const userModel = require("./userModel");
 const validator = require("validator");
@@ -59,7 +59,7 @@ const loginUser = async (req, res) => {
     }
 };
 
-// Register User
+//Registeruser
 const registerUser = async (req, res) => {
     const { username, email, password } = req.body;
     try {
@@ -85,14 +85,27 @@ const registerUser = async (req, res) => {
         const newUser = new userModel({ username, email, password: hashedPassword });
 
         // Save the user to MongoDB
-        await newUser.save();
+        const savedUser = await newUser.save(); // Save the user first
 
-        // Send success response without generating a token
+        // Prepare the activity log
+        const activity = {
+            action: `${username} signed up in ParkEase`,
+            timestamp: new Date()
+        };
+
+        // Add activity after user creation
+        savedUser.activities.push(activity);
+
+        // Save the updated user document with activities
+        await savedUser.save();
+
+        // Send success response
         res.json({ success: true, message: "Account created successfully" });
     } catch (error) {
         console.error('Error occurred during registration:', error);
         res.json({ success: false, message: "An error occurred. Please try again.", error: error.message });
     }
 };
+
 
 module.exports = { loginUser, registerUser };

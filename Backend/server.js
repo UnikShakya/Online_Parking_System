@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const database = require("./database"); // Import the database function
 const userRouter = require("./userRoute");  // Correct path to userRoutes file
+const userModel = require("./userModel");
 require('dotenv').config();
 
 // app config
@@ -44,5 +45,29 @@ app.get("/", (req, res) => {
 });
 app.use("/api/user", userRouter);  // This makes your routes accessible under /api/user
 
+// Endpoint to get user count
+app.get("/api/userCount", async (req, res) => {
+    console.log("Fetching user count...");
+    try {
+        const userCount = await userModel.countDocuments();
+        console.log("User count fetched:", userCount);
+        res.json({ userCount });
+    } catch (err) {
+        console.error("Error fetching user count:", err);
+        res.status(500).json({ message: "Error fetching user count" });
+    }
+});
+
+app.get("/api/userActivities", async(req, res) =>{
+        try{
+            const activities = await userModel.find({}).select('activities');
+            res.json({activities});
+        }
+        catch(err){
+            console.log("Error fetching activities", err)
+            res.status(500).json({message:"Error fetching activites"})
+        }
+})
+  
 
 app.listen(port, () => console.log(`Server started on http://localhost:${port}`));
