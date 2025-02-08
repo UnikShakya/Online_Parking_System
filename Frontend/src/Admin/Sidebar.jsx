@@ -1,12 +1,15 @@
+import { useState } from "react";
 import { FaSearch, FaChartBar, FaFolder, FaCar, FaFile, FaUsers, FaCogs, FaHome } from "react-icons/fa";
+import { FaDollarSign } from "react-icons/fa6";
 
-const Sidebar = ({setShowLogin}) => {
+const Sidebar = ({ setShowLogin }) => {
+  const [isParkingOpen, setIsParkingOpen] = useState(false); // State to control Parking dropdown visibility
 
   const logout = () => {
     localStorage.removeItem("token");  // Remove the token on logout
     localStorage.removeItem("username");  // Remove the username on logout
     setShowLogin(true);  // Show the login popup again
-};
+  };
 
   return (
     <div className="h-screen w-64 bg-bodyColor text-white flex flex-col">
@@ -30,10 +33,37 @@ const Sidebar = ({setShowLogin}) => {
             <FaFolder />
             <span>Middleware</span>
           </li>
-          <li className="flex items-center space-x-4 hover:bg-designColor p-2 rounded cursor-pointer">
+
+       {/* Parking Dropdown */}
+       <li 
+            className="flex items-center space-x-4 hover:bg-designColor p-2 rounded cursor-pointer"
+            onClick={() => setIsParkingOpen(!isParkingOpen)}  // Toggle dropdown visibility
+          >
             <FaCar />
-            <span>Parkings</span>
+            <span>Parking &gt;</span>
           </li>
+          <ul
+            className={`space-y-2 pl-6 transition-all duration-300 ease-in-out overflow-hidden ${
+              isParkingOpen ? 'h-auto' : 'h-0'
+            }`}
+            style={{
+              transitionProperty: "height",
+              transitionDuration: "300ms",
+              transitionTimingFunction: "ease-in-out",
+            }}
+          >
+            <li className="flex items-center space-x-4 hover:bg-designColor p-2 rounded cursor-pointer">
+              <FaCar />
+              <span>Parking Lot</span>
+            </li>
+            <li className="flex items-center space-x-4 hover:bg-designColor p-2 rounded cursor-pointer">
+              <FaDollarSign />
+              <span>Parking Cost</span>
+            </li>
+          </ul>
+
+
+
           <li className="flex items-center space-x-4 hover:bg-designColor p-2 rounded cursor-pointer">
             <FaFile />
             <span>Booking</span>
@@ -47,8 +77,8 @@ const Sidebar = ({setShowLogin}) => {
             <span>Services</span>
           </li>
           <li onClick={logout} className="flex items-center space-x-4 hover:bg-designColor p-2 rounded cursor-pointer">
-            <FaHome/>
-            <span >Logout</span>
+            <FaHome />
+            <span>Logout</span>
           </li>
         </ul>
       </nav>

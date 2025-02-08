@@ -1,14 +1,16 @@
 import React, { useContext, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import StoreContext from './Context/StoreContext';
-import { IoIosClose } from "react-icons/io";
+import { IoIosClose, IoIosEye, IoIosEyeOff } from "react-icons/io";
 import "./LoginPopup.css";
 
 const LoginPopup = ({ setShowLogin }) => {
-    const { token, setToken, url } = useContext(StoreContext);
+
+    const { setToken, url } = useContext(StoreContext);
     const [currState, setCurrState] = useState("Sign Up");
+    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const [data, setData] = useState({
         username: "",
         email: "",
@@ -17,84 +19,112 @@ const LoginPopup = ({ setShowLogin }) => {
 
     const navigate = useNavigate();
 
-    const onChangeHandler = (event) => {
-        const name = event.target.name;
-        const value = event.target.value;
-        setData(data => ({ ...data, [name]: value }));
+    const handleInputChange = (event) => {
+        setData({ ...data, [event.target.name]: event.target.value });
     };
 
-    const onLogin = async (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-
-        let new_url = url;
-        if (currState === "Login") {
-            new_url += "/api/user/login"; // Login API endpoint
-        } else if (currState === "Sign Up") {
-            new_url += "/api/user/register"; // Register API endpoint
-        }
+        const endpoint = currState === "Login" ? "/api/user/login" : "/api/user/register";
 
         try {
-            const response = await axios.post(new_url, data);
-
-            if (response.data && response.data.success) {
+            const response = await axios.post(`${url}${endpoint}`, data);
+            console.log(response);
+            if (response.data?.success) {
                 if (currState === "Login") {
                     const { token, username, redirect } = response.data;
-
-                    // Store token and username in localStorage
                     setToken(token);
                     localStorage.setItem("token", token);
                     localStorage.setItem("username", username);
 
-                    // Close the login popup
-                    setShowLogin(false);
+                    console.log("Closing login popup");
+                    setShowLogin(false); // This should close the popup
+
                     toast.success("Successfully logged in!");
 
-                    // Redirect based on the response (admin or normal user)
-                    if (redirect === '/admin') {
-                        navigate('/admin'); // Navigate to admin dashboard
-                    } else {
-                        navigate('/'); // Navigate to home for normal users
-                    }
-                } else if (currState === "Sign Up") {
-                    setCurrState("Login"); // Switch to login state after successful signup
+                    navigate(redirect === '/admin' ? '/admin' : '/');
+                } else {
                     toast.success("Account created successfully! Please log in.");
+                    setCurrState("Login");
                 }
             } else {
                 toast.error(response.data.message || "An unexpected error occurred.");
             }
         } catch (error) {
-            console.error("Error during API call:", error);
-            if (error.response) {
-                toast.error(error.response.data.message || "An error occurred. Please try again.");
-            } else if (error.request) {
-                toast.error("No response from the server. Please try again.");
-            } else {
-                toast.error("An error occurred. Please try again.");
-            }
+            toast.error(error.response?.data?.message || "An error occurred. Please try again.");
         }
     };
 
     return (
-        <div className='login-popup'>
-            <form onSubmit={onLogin} className="login-popup-container">
+        <div className="login-popup">
+            <form onSubmit={handleSubmit} className="login-popup-container">
                 <div className="login-popup-title">
                     <h2>{currState}</h2>
-                    <IoIosClose className='cursor-pointer' size={30} onClick={() => setShowLogin(false)} />
+                    <IoIosClose className="cursor-pointer" size={30} onClick={() => setShowLogin(false)} />
                 </div>
+
                 <div className="login-popup-inputs">
-                    {currState === "Sign Up" && <input name='username' onChange={onChangeHandler} value={data.username} type="text" placeholder='Your name' required />}
-                    <input name='email' onChange={onChangeHandler} value={data.email} type="email" placeholder='Your email' required />
-                    <input name='password' onChange={onChangeHandler} value={data.password} type="password" placeholder='Password' required />
+                    {currState === "Sign Up" && (
+                        <input
+                            name="username"
+                            type="text"
+                            placeholder="Your name"
+                            value={data.username}
+                            onChange={handleInputChange}
+                            required
+                        />
+                    )}
+                    <input
+                        name="email"
+                        type="email"
+                        placeholder="Your email"
+                        value={data.email}  // Use data.email here
+                        onChange={handleInputChange}  // Update email in data state
+                        required
+                    />
+                    <div className="relative">
+                        <input
+                            name="password"
+                            type={isPasswordVisible ? "text" : "password"}
+                            placeholder="Password"
+                            value={data.password}
+                            onChange={handleInputChange}
+                            required
+                            className="w-full border px-4 py-2 pr-10 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                        <span
+                            className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-600"
+                            onClick={() => setIsPasswordVisible(!isPasswordVisible)}
+                        >
+                            {isPasswordVisible ? <IoIosEyeOff size={25} /> : <IoIosEye size={25} />}
+                        </span>
+                    </div>
                 </div>
-                <button>{currState === "Login" ? "Login" : "Create account"}</button>
+
+                {currState === "Login" && (
+                    <div>
+                        <Link
+                            to="/forget-password"
+                            className="text-gray-800"
+                        >
+                            Forgot password?
+                        </Link>
+                    </div>
+                )}
+
+                <button type="submit">{currState === "Login" ? "Login" : "Create account"}</button>
+
                 <div className="login-popup-condition">
                     <input type="checkbox" required />
                     <p>By continuing, I agree to the terms of use & privacy policy.</p>
                 </div>
-                {currState === "Login"
-                    ? <p>Create a new account? <span onClick={() => setCurrState('Sign Up')}>Click here</span></p>
-                    : <p>Already have an account? <span onClick={() => setCurrState('Login')}>Login here</span></p>
-                }
+
+                <p>
+                    {currState === "Login" ? "Create a new account?" : "Already have an account?"}
+                    <span onClick={() => setCurrState(currState === "Login" ? "Sign Up" : "Login")}>
+                        {currState === "Login" ? " Click here" : " Login here"}
+                    </span>
+                </p>
             </form>
         </div>
     );

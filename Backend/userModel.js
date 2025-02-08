@@ -1,12 +1,12 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
     username: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: true,  minimize: false },
-    activities: [{ action: String, timestamp: Date }]
-})
+    password: { type: String, required: true },
+    activities: [{ action: String, timestamp: Date }]  // Add this field for storing activities
+});
 
-const userModel = mongoose.models.user || mongoose.model("user", userSchema);
+const userModel = mongoose.model('User', userSchema);
 
 module.exports = userModel;

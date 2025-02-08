@@ -1,9 +1,12 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 
 const ParkingLot = () => {
     const [selectedSpots, setSelectedSpots] = useState([]);
     const [errorMessage, setErrorMessage] = useState("");
     const [showModal, setshowModal] = useState(false);
+    const navigate = useNavigate()
 
     const handleSpotClick = (spotId) => {
         setErrorMessage(""); // Clear error message on spot selection
@@ -29,6 +32,7 @@ const ParkingLot = () => {
       console.log("Confirmed booking for spot:", selectedSpots);
       setshowModal(false);
       setSelectedSpots([]);
+      navigate("/booking-ticket", {state: {selectedSpots}})
     }
     
 
@@ -36,7 +40,7 @@ const ParkingLot = () => {
         return (
             <div key={rowId} className="flex justify-center mb-4">
                 {Array.from({ length: numSpots }).map((_, index) => {
-                    const spotId = `${rowId}-${index}`;
+                    const spotId = `${rowId}${index}`;
                     const isSelected = selectedSpots.includes(spotId);
                     return (
                         <div
@@ -52,7 +56,7 @@ const ParkingLot = () => {
     };
 
     return (
-        <div className="p-5 bg-gray-100 min-h-screen flex flex-col items-center">
+        <div className="p-5 min-h-screen flex flex-col items-center">
             <h1 className="text-2xl font-bold text-center mb-6">Parking Lots</h1>
             {/* Entry Label */}
             <div className="absolute left-0 top-1/2 transform -translate-y-1/2 rotate-90 text-lg font-semibold">
@@ -62,13 +66,13 @@ const ParkingLot = () => {
             <div className="flex w-full max-w-5xl">
                 <div className="flex-grow">
                     {/* Row 1 */}
-                    {renderParkingRow(20, "A1")}
+                    {renderParkingRow(20, "A")}
                     {/* Row 2 */}
-                    {renderParkingRow(12, "B1")}
+                    {renderParkingRow(12, "B")}
                     {/* Row 2 Extra */}
-                    {renderParkingRow(12, "C1")}
+                    {renderParkingRow(12, "C")}
                     {/* Row 3 */}
-                    {renderParkingRow(20, "D1")}
+                    {renderParkingRow(20, "D")}
                 </div>
                 {/* Side parking (right side) */}
                 <div className="flex flex-col ml-4 w-20">
@@ -114,45 +118,53 @@ const ParkingLot = () => {
                     <p className="mt-4 text-red-500 font-semibold">{errorMessage}</p>
                 )}
                 {/* Modal */}
-            {showModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                    <div className="bg-gray-800 text-white w-3/4 max-w-lg rounded-lg p-6">
-                        <h2 className="text-xl font-bold mb-4 text-center">Selected Parking Lot</h2>
-                        <table className="w-full mb-6">
-                            <thead>
-                                <tr>
-                                    <th className="text-left py-2 px-4 border-b border-gray-600">Parking Lot ID</th>
-                                    <th className="text-left py-2 px-4 border-b border-gray-600">Number of Spaces</th>
-                                    <th className="text-left py-2 px-4 border-b border-gray-600">Price</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {selectedSpots.map((spot, index) => (
-                                    <tr key={index}>
-                                        <td className="py-2 px-4 border-b border-gray-600">{spot}</td>
-                                        <td className="py-2 px-4 border-b border-gray-600">1</td>
-                                        <td className="py-2 px-4 border-b border-gray-600">Rs 25</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                        <div className="flex justify-between items-center mb-4">
-                            <span className="text-lg font-bold">Total: Rs {selectedSpots.length * 25}</span>
-                        </div>
-                        <div className="flex justify-center">
-                        <button
-                            className="bg-designColor  text-white rounded-full px-6 py-2 hover:bg-opacity-70"
-                            onClick={handleConfirm}
-                        >
-                            Confirm
-                        </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+                {showModal && (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+        <div className="bg-gray-800 text-white w-3/4 max-w-lg rounded-lg p-6 relative">
+            {/* Close Button */}
+            <button
+                className="absolute top-2 right-3 text-white text-xl font-bold"
+                onClick={() => setshowModal(false)}
+            >
+                ✖
+            </button>
+            
+            <h2 className="text-xl font-bold mb-4 text-center">Selected Parking Lot</h2>
+            <table className="w-full mb-6">
+                <thead>
+                    <tr>
+                        <th className="text-left py-2 px-4 border-b border-gray-600">Parking Lot ID</th>
+                        <th className="text-left py-2 px-4 border-b border-gray-600">Number of Spaces</th>
+                        <th className="text-left py-2 px-4 border-b border-gray-600">Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {selectedSpots.map((spot, index) => (
+                        <tr key={index}>
+                            <td className="py-2 px-4 border-b border-gray-600">{spot}</td>
+                            <td className="py-2 px-4 border-b border-gray-600">1</td>
+                            <td className="py-2 px-4 border-b border-gray-600">Rs 25</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+            <div className="flex justify-between items-center mb-4">
+                <span className="text-lg font-bold">Total: Rs {selectedSpots.length * 25}</span>
+            </div>
+            <div className="flex justify-center">
+                <button
+                    className="bg-designColor text-white rounded-full px-6 py-2 hover:bg-opacity-70"
+                    onClick={handleConfirm}
+                >
+       Book Now  
+                </button>
+            </div>
+        </div>
+    </div>
+)}
+
             </div>
         </div>
     );
 };
-
 export default ParkingLot;
