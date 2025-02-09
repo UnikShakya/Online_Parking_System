@@ -3,9 +3,9 @@ const cors = require("cors");
 const database = require("./database");
 const userRouter = require("./userRoute");
 const userModel = require("./userModel");
-const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
+// const jwt = require("jsonwebtoken");
+const authMiddleware = require("./authentication");
 
 require('dotenv').config();
 
@@ -59,6 +59,39 @@ app.get("/api/userCount", async (req, res) => {
         res.status(500).json({ message: "Error fetching user count" });
     }
 });
+
+app.get('/api/user/userActivities', async (req, res) => {
+    try {
+        // Fetch all users and their activities
+        const users = await userModel.find({});
+
+        if (users.length === 0) {
+            return res.status(404).json({ success: false, message: "No users found" });
+        }
+
+        // Map through all users and extract their activities
+        const activities = users.map(user => {
+            // Check if activities exist, if not, use an empty array
+            const userActivities = user.activities || [];
+
+            return {
+                username: user.username,
+                activity: `${user.username} signed up in ParkEase`,
+                timestamp: userActivities.map(activity => activity.timestamp)
+            };
+        });
+
+        // Send the activities as response
+        res.json({ activities });
+    } catch (error) {
+        console.error('Error occurred while fetching activities:', error);
+        res.status(500).json({ success: false, message: "Error fetching activities", error: error.message });
+    }
+});
+
+
+
+
 
 
 // app.post('/forget-password', (req, res) => {

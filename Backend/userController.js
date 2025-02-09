@@ -11,7 +11,7 @@ const createToken = (id) => {
 const ADMIN_EMAIL = 'admin@gmail.com'; // Predefined admin email
 const ADMIN_PASSWORD = 'admin123'; // Predefined admin password
 
-// Login User
+//login User
 const loginUser = async (req, res) => {
     const { email, password } = req.body;
 
@@ -43,16 +43,7 @@ const loginUser = async (req, res) => {
 
         const token = createToken(user._id);
 
-        // Add a login activity
-        const activity = {
-            action: `${user.username} logged in to ParkEase`,
-            timestamp: new Date(),
-        };
-
-        user.activities.push(activity); // Add activity to the user
-        await user.save(); // Save user with updated activities
-
-        // Respond with the token, username, and redirection URL
+        // No activity logging, just respond with the token and user details
         res.json({
             success: true,
             token,
@@ -60,13 +51,16 @@ const loginUser = async (req, res) => {
             redirect: '/',  // Redirect to '/' if normal user
         });
     } catch (error) {
-        console.error(error);
-        res.json({
+        console.error("Error during login:", error);  // Log the error for debugging
+        
+        res.status(500).json({
             success: false,
             message: "An error occurred. Please try again.",
+            error: error.message,  // Return the error message to help with debugging
         });
     }
 };
+
 
 // Register User
 const registerUser = async (req, res) => {
@@ -84,47 +78,47 @@ const registerUser = async (req, res) => {
             return res.json({ success: false, message: "Please enter a valid email" });
         }
         if (password.length < 8) {
-            return res.json({ success: false, message: "Please enter a strong password" });
+            return res.json({ success: false, message: "Please enter a strong password (minimum 8 characters)" });
         }
 
         // Hash password
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        // Create new user
-        const newUser = new userModel({ username, email, password: hashedPassword });
+        // Create new user object
+        const newUser = new userModel({
+            username,
+            email,
+            password: hashedPassword,
+            activities: [] // Initialize activities as an empty array
+        });
 
-        // Save the user to MongoDB
+        // Save the new user to MongoDB
         const savedUser = await newUser.save();
 
-        // Prepare the activity log
+        // Prepare the signup activity log
         const activity = {
             action: `${username} signed up in ParkEase`,
             timestamp: new Date()
         };
 
-        // Log activities before adding
-        console.log('Activities before pushing:', savedUser.activities);
-
-        // Add activity to the user document
+        // Add activity to the user's activities array
         savedUser.activities.push(activity);
-
-        // Log activities after pushing
-        console.log('Activities after pushing:', savedUser.activities);
 
         // Save the updated user document with activities
         const updatedUser = await savedUser.save();
 
-        // Log activities after save
+        // Log success and activities
         console.log('Updated activities after save:', updatedUser.activities);
 
-        // Send success response
-        res.json({ success: true, message: "Account created successfully", username });
+        // Send success response with username
+        res.json({ success: true, message: "Account created successfully", username: updatedUser.username });
     } catch (error) {
         console.error('Error occurred during registration:', error);
         res.json({ success: false, message: "An error occurred. Please try again.", error: error.message });
     }
 };
+
 
 const forgetPassword = async(req, res) =>{
     try {
@@ -169,16 +163,12 @@ const resetPassword = async (req, res) => {
         const { token } = req.params;
         const { password } = req.body;
 
-        console.log("Token received in backend:", token);
-        console.log("Password received in backend:", password);
-
         if (!password) {
             return res.status(400).send({ message: "Please provide a password" });
         }
 
         // Verify JWT Token
         const decode = jwt.verify(token, process.env.JWT_SECRET);
-        console.log("Decoded token:", decode);
 
         // Find user by email from decoded token
         const user = await userModel.findOne({ email: decode.email });
@@ -189,6 +179,8 @@ const resetPassword = async (req, res) => {
         // Hash the new password using bcrypt
         const newHashPassword = await bcrypt.hash(password, 10); // 10 is the salt rounds
         user.password = newHashPassword;
+
+        // Save only the password without modifying other fields
         await user.save();
 
         return res.status(200).send({ message: "Password reset successfully" });
@@ -197,6 +189,7 @@ const resetPassword = async (req, res) => {
         return res.status(500).send({ message: error.message || "Something went wrong" });
     }
 };
+
 
 
 

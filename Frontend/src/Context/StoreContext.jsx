@@ -6,7 +6,7 @@ export const StoreProvider = ({ children }) => {
     const [token, setToken] = useState(localStorage.getItem("token") || null);
     const [username, setUsername] = useState(localStorage.getItem("username") || null);
 
-    const url = "http://localhost:5000"; // Replace with your actual API URL
+    const url = "http://localhost:4000"; // Replace with your actual API URL
 
     return (
         <StoreContext.Provider value={{ token, setToken, username, setUsername, url }}>

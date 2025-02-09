@@ -1,10 +1,13 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose")
 
 const userSchema = new mongoose.Schema({
     username: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    activities: [{ action: String, timestamp: Date }]  // Add this field for storing activities
+    activities: [{
+        action: { type: String, required: true },
+        timestamp: { type: Date, default: Date.now },
+    }],
 });
 
 const userModel = mongoose.model('User', userSchema);

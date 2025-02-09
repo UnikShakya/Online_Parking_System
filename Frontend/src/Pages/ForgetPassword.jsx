@@ -65,12 +65,12 @@ function ForgetPassword({ setShowLogin }) {
                     />
                 </div>
 
-                {error && <div className="error-message">{error}</div>}
-                {success && <div className="success-message">{success}</div>}
 
                 <button type="submit" disabled={loading}>
                     {loading ? 'Sending...' : 'Send'}
                 </button>
+                {error && <div className="error-message">{error}</div>}
+                {success && <div className="success-message">{success}</div>}
             </form>
         </div>
     );

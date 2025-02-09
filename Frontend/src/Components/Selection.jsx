@@ -42,20 +42,20 @@ function Selection() {
       <div className="flex justify-evenly gap-4 items-center">
         <div className="flex gap-4 items-center">
           <label htmlFor="location" className="text-lg text-gray-600 font-semibold">
-            Select location:
+            Select Area:
           </label>
           <select
             id="location"
             name="location"
-            className="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="px-2 py-2 bg-gray-100 text-gray-700 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400"
             value={location}
             onChange={(e) => setLocation(e.target.value)}
           >
             <option value="">-- Select --</option>
-            <option value="Lagankhel">Lagankhel</option>
-            <option value="Sundhara">Sundhara</option>
-            <option value="Naxal">Naxal</option>
-            <option value="Satdobato">Satdobato</option>
+            <option value="Lagankhel">Parking area 1</option>
+            <option value="Sundhara">Parking area 2</option>
+            <option value="Naxal">Parking area 3</option>
+            <option value="Satdobato">Parking area 4</option>
           </select>
         </div>
 
