@@ -1,11 +1,16 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+// import BookingForm from "./BookingForm";
 
 const ParkingLot = () => {
+    const { state } = useLocation(); // Access the passed state data
+    const { totalCost } = state || {};
     const [selectedSpots, setSelectedSpots] = useState([]);
     const [bookedSpots, setBookedSpots] = useState([]); // Track booked spots
     const [errorMessage, setErrorMessage] = useState("");
-    const [showModal, setshowModal] = useState(false);
+    const [showModal, setShowModal] = useState(false);
+    // const [showBookingModal, setShowBookingModal] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState(""); // Track payment method
     const navigate = useNavigate();
 
@@ -21,15 +26,27 @@ const ParkingLot = () => {
         }
     };
 
-    const handleBookNow = () => {
+    const handleBookParking = () => {
         if (selectedSpots.length === 0) {
             setErrorMessage("Please select a parking lot.");
         } else {
             setErrorMessage(""); // Clear error if spots are selected
-            // Proceed with booking logic here
-            console.log(`Booked spots: ${selectedSpots.join(", ")}`);
-            setshowModal(true);
+            setShowModal(true);
         }
+    };
+
+    // const handleBookNow = () => {
+    //     if (paymentMethod.length === 0) {
+    //         setErrorMessage("Please select PaymentMethod");
+    //     } else {
+    //         setErrorMessage(""); // Clear error if spots are selected
+    //         setShowBookingModal(true); // Open the booking modal
+    //     }
+    // };
+
+    const calculatePrice = () => {
+        const pricePerSpot = totalCost;  // Use the passed totalCost (price per spot)
+        return selectedSpots.length * pricePerSpot; // Multiply by the number of selected spots
     };
 
     const handleConfirm = () => {
@@ -37,17 +54,14 @@ const ParkingLot = () => {
             setErrorMessage("Please select a payment method.");
             return;
         }
-    
+
+        const totalCost = calculatePrice(); // Get the total cost based on selected spots
         console.log("Confirmed booking for spot:", selectedSpots);
-        setErrorMessage(""); // Clear any previous error message
-    
-        alert("Booking has been confirmed");
-    
-        // Mark the selected spots as booked
+        setErrorMessage("");
         setBookedSpots([...bookedSpots, ...selectedSpots]);
-        setshowModal(false);
-        setSelectedSpots([]);
-        navigate("/booking-ticket", { state: { selectedSpots } });
+        setShowModal(false); // Close the booking confirmation modal
+        setSelectedSpots([]); // Clear the selected spots
+        // navigate("/booking-ticket", { state: { selectedSpots, totalPrice: totalCost } });
     };
 
     const renderParkingRow = (numSpots, rowId) => {
@@ -125,7 +139,7 @@ const ParkingLot = () => {
             <div className="flex flex-col items-center mt-8">
                 <button
                     className="bg-designColor text-white rounded-full px-6 py-2 text-base hover:bg-opacity-70"
-                    onClick={handleBookNow}
+                    onClick={handleBookParking}
                 >
                     Book Now
                 </button>
@@ -133,78 +147,62 @@ const ParkingLot = () => {
                     <p className="mt-3 text-red-500 font-semibold">{errorMessage}</p>
                 )}
 
-                {/* Modal */}
-                {showModal && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                        <div className="bg-gray-800 text-white w-3/4 max-w-lg rounded-lg p-6 relative">
-                            {/* Close Button */}
-                            <button
-                                className="absolute top-2 right-3 text-white text-xl font-bold"
-                                onClick={() => setshowModal(false)}
-                            >
-                                ✖
-                            </button>
-
-                            <h2 className="text-xl font-bold mb-4 text-center">Selected Parking Lot</h2>
-                            <table className="w-full mb-6">
-                                <thead>
-                                    <tr>
-                                        <th className="text-left py-2 px-4 border-b border-gray-600">Parking Lot ID</th>
-                                        <th className="text-left py-2 px-4 border-b border-gray-600">Number of Spaces</th>
-                                        <th className="text-left py-2 px-4 border-b border-gray-600">Price</th>
+                 {/* First Modal */}
+            {showModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                    <div className="bg-gray-800 text-white w-3/4 max-w-lg rounded-lg p-6 relative">
+                        <button
+                            className="absolute top-2 right-3 text-white text-xl font-bold"
+                            onClick={() => setShowModal(false)}
+                        >
+                            ✖
+                        </button>
+                        <h2 className="text-xl font-bold mb-4 text-center">Selected Parking Lot</h2>
+                        <table className="w-full mb-6">
+                            <thead>
+                                <tr>
+                                    <th className="text-left py-2 px-4 border-b border-gray-600">Parking Lot ID</th>
+                                    <th className="text-left py-2 px-4 border-b border-gray-600">Number of Spaces</th>
+                                    <th className="text-left py-2 px-4 border-b border-gray-600">Price</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {selectedSpots.map((spot, index) => (
+                                    <tr key={index}>
+                                        <td className="py-2 px-4 border-b border-gray-600">{spot}</td>
+                                        <td className="py-2 px-4 border-b border-gray-600">1</td>
+                                        <td className="py-2 px-4 border-b border-gray-600">Rs {totalCost}</td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    {selectedSpots.map((spot, index) => (
-                                        <tr key={index}>
-                                            <td className="py-2 px-4 border-b border-gray-600">{spot}</td>
-                                            <td className="py-2 px-4 border-b border-gray-600">1</td>
-                                            <td className="py-2 px-4 border-b border-gray-600">Rs 25</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                            <div className="flex justify-between items-center mb-4">
-                                <span className="text-lg font-bold">Total: Rs {selectedSpots.length * 25}</span>
-                                <div className="flex justify-center gap-8">
-                                    <div className="flex gap-2">
-                                        <input
-                                            type="radio"
-                                            name="PaymentMethod"
-                                            value="Cash"
-                                            checked={paymentMethod === "Cash"}
-                                            onChange={() => setPaymentMethod("Cash")}
-                                        />
-                                        <label>Cash</label>
-                                    </div>
-                                    <div className="flex gap-2">
-                                        <input
-                                            type="radio"
-                                            name="PaymentMethod"
-                                            value="Digital"
-                                            checked={paymentMethod === "Digital"}
-                                            onChange={() => setPaymentMethod("Digital")}
-                                        />
-                                        <label>Digital</label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="flex justify-center">
-                                <button
-                                    className="bg-designColor text-white rounded-full px-6 py-2 hover:bg-opacity-70"
-                                    onClick={handleConfirm}
-                                    disabled={!paymentMethod} // Disable button if no payment method is selected
-                                >
-                                    Book Now
-                                </button>
-                                <p className="text-red-500">{setErrorMessage}</p>
-                            </div>
+                                ))}
+                            </tbody>
+                        </table>
+                        <div className="mb-4">
+                            <span className="text-lg font-bold">Total: Rs {calculatePrice()}</span>
+                        </div>
+                        <div className="flex justify-center">
+                        <Link to="/bookingform" >
+                            <button
+                                className="bg-designColor text-white rounded-full px-6 py-2 cursor-pointer hover:bg-opacity-70"
+                                onClick={handleConfirm}
+                                // disabled={!paymentMethod}
+                            >
+                                Book Now 
+                            </button>
+                            </Link>
                         </div>
                     </div>
-                )}
+                </div>
+            )}
+
+            {/* Booking Form Modal
+            {showBookingModal && (
+                <BookingForm
+                    onSubmit={handleConfirm}
+                    onClose={() => setShowBookingModal(false)}
+                />
+            )} */}
             </div>
         </div>
     );
 };
-
 export default ParkingLot;

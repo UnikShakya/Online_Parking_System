@@ -11,12 +11,24 @@ import BookingTicket from './Pages/BookingTicket';
 import Middleware from './Middleware';
 import ForgetPassword from './Pages/ForgetPassword';
 import ResetPassword from './Pages/ResetPassword';  // Import ResetPassword
+import BookingForm from './Pages/BookingForm';
+// import LandingPage from './Pages/LandingPage';
 
 export const RecoveryContext = createContext();
 
 function App() {
     const [showLogin, setShowLogin] = useState(false);
     const location = useLocation();
+
+    const handleFormSubmit = (formData) => {
+        console.log(formData); // Log form data or perform any action you want
+        // Do something with formData, like making an API call or saving it in state
+    };
+     // Handle close (to close the modal or form)
+     const handleClose = () => {
+        console.log("Closing the form");
+        // Implement close functionality
+    };
 
     return (
         <StoreProvider>
@@ -31,7 +43,8 @@ function App() {
                 <Route path='/booking-ticket' element={<BookingTicket />} />
                 <Route path='/middleware' element={<Middleware />} />
                 <Route path='/forget-password' element={<ForgetPassword />} />
-                <Route path='/reset-password/:token' element={<ResetPassword />} /> {/* Define the reset password route */}
+                <Route path='/reset-password/:token' element={<ResetPassword />} /> 
+                <Route path='/bookingform' element={<BookingForm onSubmit={handleFormSubmit} onClose={handleClose} />} /> 
             </Routes>
         </StoreProvider>
     );

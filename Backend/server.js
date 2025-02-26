@@ -6,6 +6,8 @@ const userModel = require("./userModel");
 const bcrypt = require("bcrypt");
 // const jwt = require("jsonwebtoken");
 const authMiddleware = require("./authentication");
+const bookingRoute = require("./bookingRoute");
+const bookingModel = require("./bookingModel")
 
 require('dotenv').config();
 
@@ -16,6 +18,7 @@ app.use(express.json());
 
 app.use(cors({
     origin: 'http://localhost:5174', // your client URL
+    methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true, // Allow credentials (cookies, etc.)
 }));
 
@@ -152,6 +155,18 @@ app.post('/api/log-ticket', (req, res) => {
     const ticketData = req.body;
     console.log('Ticket Scanned:', ticketData);
     res.status(200).send({ message: 'Ticket logged successfully' });
+});
+
+app.use('/api/booking', bookingRoute);
+
+app.get("/api/bookingCount", async (req, res) => {
+    try {
+        const bookingCount = await bookingModel.countDocuments();
+        res.json({ bookingCount });
+    } catch (err) {
+        console.error("Error fetching booking count:", err); // Log the full error
+        res.status(500).json({ message: "Error fetching booking count" });
+    }
 });
 
 app.listen(port, () => {
