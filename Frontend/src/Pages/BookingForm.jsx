@@ -116,7 +116,7 @@ const BookingForm = ({ onSubmit, onClose }) => {
                             aria-label="Enter phone number"
                         />
                     </div>
-                    <div>
+                    {/* <div>
                         <label className="block mb-2 py-2">Vehicle Type</label>
                         <select
                             name="vehicleType"
@@ -128,7 +128,7 @@ const BookingForm = ({ onSubmit, onClose }) => {
                             <option value="2-wheeler">2 Wheeler</option>
                             <option value="4-wheeler">4 Wheeler</option>
                         </select>
-                    </div>
+                    </div> */}
                     <div>
                         <label className="block mb-2 py-2">Payment Method</label>
                         <div className="flex space-x-4">

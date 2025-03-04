@@ -8,10 +8,11 @@ import MainLayout from './Admin/MainLayout';
 import Selection from './Components/Selection';
 import ParkingLot from './Pages/ParkingLot';
 import BookingTicket from './Pages/BookingTicket';
-import Middleware from './Middleware';
 import ForgetPassword from './Pages/ForgetPassword';
 import ResetPassword from './Pages/ResetPassword';  // Import ResetPassword
 import BookingForm from './Pages/BookingForm';
+import Middleware from './Middleware/Middleware';
+
 // import LandingPage from './Pages/LandingPage';
 
 export const RecoveryContext = createContext();
@@ -41,8 +42,9 @@ function App() {
                 <Route path="/admin" element={<MainLayout setShowLogin={setShowLogin} />} />
                 <Route path="/parking-lot" element={<><Selection /><ParkingLot /></>} />
                 <Route path='/booking-ticket' element={<BookingTicket />} />
-                <Route path='/middleware' element={<Middleware />} />
+                {/* <Route path='/middleware' element={<Middleware />} /> */}
                 <Route path='/forget-password' element={<ForgetPassword />} />
+                <Route path='/middleware' element={<Middleware />} />
                 <Route path='/reset-password/:token' element={<ResetPassword />} /> 
                 <Route path='/bookingform' element={<BookingForm onSubmit={handleFormSubmit} onClose={handleClose} />} /> 
             </Routes>

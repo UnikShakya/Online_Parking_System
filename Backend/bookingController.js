@@ -9,14 +9,14 @@ const booking = async (req, res) => {
             return res.status(400).json({ message: "Payment method is required" });
         }
 
-        const { name, vehicleNumber, phoneNumber, vehicleType, paymentMethod } = req.body;
+        const { name, vehicleNumber, phoneNumber, paymentMethod } = req.body;
 
         // Create a new booking document
         const newBooking = new BookingModel({
             name,
             vehicleNumber,
             phoneNumber,
-            vehicleType,
+            // vehicleType,
             paymentMethod,
         });
 
