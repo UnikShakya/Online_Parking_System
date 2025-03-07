@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { FaSearch, FaChartBar, FaFolder, FaCar, FaFile, FaUsers, FaCogs, FaHome } from "react-icons/fa";
 import { FaDollarSign } from "react-icons/fa6";
+import { Link } from "react-router-dom";
 
 const Sidebar = ({ setShowLogin }) => {
   const [isParkingOpen, setIsParkingOpen] = useState(false); // State to control Parking dropdown visibility
@@ -12,23 +13,23 @@ const Sidebar = ({ setShowLogin }) => {
   };
 
   return (
-    <div className="h-screen w-64 bg-bodyColor text-white flex flex-col">
+    <aside className="h-screen w-64 bg-bodyColor text-white flex flex-col">
       {/* Logo Section */}
+      <Link to='/admin'>
       <div className="flex items-center justify-center py-6">
-        <h1 className="text-2xl font-bold">Admin Panel</h1>
+        <h1 className="text-2xl text-textColor font-bold cursor-pointer"><span className="text-designColor">P</span>ark<span className="text-designColor">E</span>ase</h1>
       </div>
+      </Link>
 
       {/* Navigation Links */}
       <nav className="flex-1 px-4">
         <ul className="space-y-4">
-          <li className="flex items-center space-x-4 hover:bg-designColor p-2 rounded cursor-pointer">
-            <FaSearch />
-            <span>Search</span>
-          </li>
+        <Link to='/admin'>
           <li className="flex items-center space-x-4 hover:bg-designColor p-2 rounded cursor-pointer">
             <FaChartBar />
-            <span>Activity</span>
+            <span>Dashboard</span>
           </li>
+          </Link>
           <li className="flex items-center space-x-4 hover:bg-designColor p-2 rounded cursor-pointer">
             <FaFolder />
             <span>Middleware</span>
@@ -61,13 +62,12 @@ const Sidebar = ({ setShowLogin }) => {
               <span>Parking Cost</span>
             </li>
           </ul>
-
-
-
+          <Link to='booking' >
           <li className="flex items-center space-x-4 hover:bg-designColor p-2 rounded cursor-pointer">
             <FaFile />
             <span>Booking</span>
           </li>
+          </Link>
           <li className="flex items-center space-x-4 hover:bg-designColor p-2 rounded cursor-pointer">
             <FaUsers />
             <span>Users</span>
@@ -82,7 +82,7 @@ const Sidebar = ({ setShowLogin }) => {
           </li>
         </ul>
       </nav>
-    </div>
+    </aside>
   );
 };
 

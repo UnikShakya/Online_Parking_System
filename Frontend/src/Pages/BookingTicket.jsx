@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 import QRCode from "react-qr-code";
 import { useLocation } from 'react-router-dom';
 import { useRef } from 'react';
@@ -6,25 +6,26 @@ import html2pdf from 'html2pdf.js';
 
 function BookingTicket() {
   const location = useLocation();
-  const selectedSpots = location.state?.selectedSpots || []; // Default to empty array if undefined
+  const { name, vehicleNumber } = location.state || {};
+  const selectedSpots = location.state?.selectedSpots || [];
 
   const ticketDetails = {
-    bookingId: `ID-${Math.floor(Math.random() * 100000)}`, // Example booking ID
-    spots: selectedSpots, // Use the selected spots passed from ParkingLot page
-    price: selectedSpots.length * 25, // Rs 25 per spot
-    date: new Date().toLocaleDateString(), // Current date
-    time: new Date().toLocaleTimeString(), // Current time
+    bookingId: `ID-${Math.floor(Math.random() * 100000)}`,
+    name: name || 'NA',
+    vehicleNumber: vehicleNumber || 'NA',
+    spots: selectedSpots,
+    price: selectedSpots.length * 25,
+    date: new Date().toLocaleDateString(),
+    time: new Date().toLocaleTimeString(),
   };
 
-  const qrData = JSON.stringify(ticketDetails); // QR code data (ticket details)
+  const qrData = JSON.stringify(ticketDetails);
+  const ticketRef = useRef();
 
-  const ticketRef = useRef(); // Reference to the ticket container for PDF generation
-
-  // Function to download the ticket as PDF
   const handleDownload = () => {
     const element = ticketRef.current;
     const options = {
-      filename: `Booking_Ticket_${ticketDetails.bookingId}.pdf`, // Custom filename
+      filename: `Booking_Ticket_${ticketDetails.bookingId}.pdf`,
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
       html2canvas: { scale: 4 },
       image: { type: 'jpeg', quality: 0.98 },
@@ -34,38 +35,44 @@ function BookingTicket() {
   };
 
   return (
-    <div className="p-5 max-h-screen flex flex-col justify-center items-center">
-      <h1 className="text-2xl font-bold text-center my-14">This is your booking Ticket</h1>
+    <div className="min-h-screen bg-gradient-to-r from-blue-50 to-purple-50 flex flex-col items-center justify-center p-5">
+      <h1 className="text-4xl font-bold text-gray-800 mb-8">Your Booking Ticket</h1>
       <div 
         ref={ticketRef} 
-        className="bg-bodyColor text-white w-3/4 max-w-lg rounded-lg p-6 mx-auto" // Added mx-auto for centering
-        style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }} // Ensure centering
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl p-8 transform transition-transform hover:scale-105"
       >
-        <div className="w-full">
-          <h2 className="text-xl text-center font-bold mb-4">Booking Details</h2>
-          <div className='flex justify-between items-center'>
-            <div className="mb-4">
-              <p><strong>Booking ID:</strong> {ticketDetails.bookingId}</p>
-              <p><strong>Spots:</strong> {ticketDetails.spots.join(", ")}</p>
-              <p><strong>Total Price:</strong> Rs {ticketDetails.price}</p>
+        <div className="flex flex-col md:flex-row justify-between items-center">
+          <div className="w-full md:w-1/2">
+            <h2 className="text-2xl font-bold text-gray-800 mb-6">Booking Details</h2>
+            <div className="space-y-4 text-gray-700">
+              <p><strong>Booking ID:</strong> <span className="text-blue-600">{ticketDetails.bookingId}</span></p>
+              <p><strong>Name:</strong> {ticketDetails.name}</p>
+              <p><strong>Vehicle Number:</strong> {ticketDetails.vehicleNumber}</p>
+              <p><strong>Spots:</strong> {ticketDetails.spots.join(', ')}</p>
+              <p><strong>Price:</strong> ₹{ticketDetails.price}</p>
               <p><strong>Date:</strong> {ticketDetails.date}</p>
               <p><strong>Time:</strong> {ticketDetails.time}</p>
             </div>
-            <div className="flex justify-center">
-              <QRCode value={qrData} size={200} /> {/* QR Code showing ticket details */}
+          </div>
+          <div className="w-full md:w-1/2 flex justify-center mt-6 md:mt-0">
+            <div className="bg-gradient-to-r from-blue-500 to-purple-500 p-4 rounded-lg shadow-lg">
+              <QRCode 
+                value={qrData} 
+                size={200} 
+                bgColor="transparent" 
+                fgColor="#ffffff" 
+                className="rounded-lg"
+              />
             </div>
           </div>
         </div>
       </div>
-      {/* Download Button */}
-      <div className="mt-4">
-        <button
-          onClick={handleDownload}
-          className="bg-designColor text-white rounded-full px-6 py-2 hover:bg-opacity-70"
-        >
-          Download Ticket
-        </button>
-      </div>
+      <button
+        onClick={handleDownload}
+        className="mt-8 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold rounded-full px-8 py-3 hover:from-blue-600 hover:to-purple-600 transition-all transform hover:scale-105"
+      >
+        Download Ticket
+      </button>
     </div>
   );
 }

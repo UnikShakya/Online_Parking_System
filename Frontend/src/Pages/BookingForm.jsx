@@ -32,8 +32,8 @@ const BookingForm = ({ onSubmit, onClose }) => {
             !formData.name.trim() ||
             !formData.vehicleNumber.trim() ||
             !formData.phoneNumber.trim() ||
-            !formData.paymentMethod ||
-            !formData.vehicleType
+            !formData.paymentMethod 
+            // !formData.vehicleType
         ) {
             setErrorMessage("Please fill in all required fields.");
             console.log("Error: Missing form data");
@@ -50,7 +50,11 @@ const BookingForm = ({ onSubmit, onClose }) => {
                 console.log("Booking saved:", response && response.data);
                 onSubmit(formData);
                 alert("Form has been submitted")
-                navigate("/booking-ticket");
+                navigate("/booking-ticket", {
+                    state:{name:formData.name,
+                        vehicleNumber:formData.vehicleNumber
+                    }
+                });
 
             }
         } catch (error) {

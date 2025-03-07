@@ -1,16 +1,19 @@
 import React, { useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+// import { useParking } from "../Context/ParkingContext";
 
 const ParkingLot = () => {
     const { state } = useLocation();
     const totalCost2Wheeler = state?.totalCost2Wheeler || 0; // Cost for 2-wheeler
     const totalCost4Wheeler = state?.totalCost4Wheeler || 0; // Cost for 4-wheeler
+
+    // const {selectedSpots, setSelectedSpots} = useParking()
+
     const [selectedSpots, setSelectedSpots] = useState([]);
     const [bookedSpots, setBookedSpots] = useState([]);
     const [errorMessage, setErrorMessage] = useState("");
     const [showModal, setShowModal] = useState(false);
-    const [paymentMethod, setPaymentMethod] = useState("");
-    const navigate = useNavigate();
+    
 
     const handleSpotClick = (spotId) => {
         setErrorMessage("");
@@ -49,15 +52,14 @@ const ParkingLot = () => {
     
 
     const handleConfirm = () => {
-        if (!paymentMethod) {
-            setErrorMessage("Please select a payment method.");
-            return;
-        }
+        console.log("handleConfirm function triggered");
+
 
         console.log("Confirmed booking for spot:", selectedSpots);
         setErrorMessage("");
-        setBookedSpots([...bookedSpots, ...selectedSpots]);
         setShowModal(false);
+
+        setBookedSpots([...bookedSpots, ...selectedSpots]);
         setSelectedSpots([]);
     };
 

@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import Sidebar from "./Sidebar"; // Assuming Sidebar is in the same directory
-import ManageUser from "./ManageUser";
-import ManageBookings from "./ManageBookings";
-import ManageParking from "./ManageParking";
+import ManageUser from "./Info Card/ManageUser";
+import ManageBookings from "./Info Card/ManageBookings";
+import ManageParking from "./Info Card/ManageParking";
 import Activity from "./Activity";
 
 const MainLayout = ({setShowLogin}) => {

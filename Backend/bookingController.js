@@ -31,4 +31,14 @@ const booking = async (req, res) => {
     }
 }
 
-module.exports = { booking };
+const getBookings = async(req, res)=>{
+    try {
+        const bookings = await BookingModel.find();
+        res.status(200).json(bookings)
+        } catch (error) {
+        console.log("Error fetching Bookings", error)
+        res.status(500).json({ message: 'Internal Server Error' });
+}
+}
+
+module.exports = { booking, getBookings };
