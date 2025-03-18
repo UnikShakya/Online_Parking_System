@@ -46,7 +46,7 @@ function Activity() {
     }
 
     return (
-        <div className="bg-white p-6 rounded-lg shadow-md col-span-1 md:col-span-2 lg:col-span-3 hover:shadow-lg transform transition duration-300">
+        <div className="bg-white max-w-2xl p-6 shadow-md col-span-1 md:col-span-2 lg:col-span-3 hover:shadow-lg transform transition duration-300">
         <h3 className="text-lg font-semibold text-gray-700 mb-4">Recent Activity</h3>
         <ul className="space-y-3 text-gray-600 max-h-[331px] overflow-auto">
             {recentActivities.length > 0 ? (

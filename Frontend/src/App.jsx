@@ -13,6 +13,10 @@ import ResetPassword from './Pages/ResetPassword';  // Import ResetPassword
 import BookingForm from './Pages/BookingForm';
 import Middleware from './Middleware/Table';
 import Booking from './Admin/Booking';
+import Home from './Pages/Home';
+import TravelForm from './Components/Calendar';
+import Stepper from './Components/Stepper';
+import Settings from './Admin/Settings';
 // import Booking from './Admin/Booking';
 // import { ParkingProvider } from './Context/ParkingContext';
 
@@ -43,16 +47,18 @@ function App() {
         <StoreProvider>
             {/* <ParkingProvider> */}
             <ToastContainer />
-            {!location.pathname.startsWith('/admin') && <Navbar setShowLogin={setShowLogin} />}
+            {!location.pathname.startsWith('/admin') && !location.pathname.startsWith('/middleware') && <Navbar setShowLogin={setShowLogin} />}
             {showLogin && <LoginPopup setShowLogin={setShowLogin} />}
 
             <Routes>
-                <Route path="/" element={<Selection />} />
-                <Route path="/parking-lot" element={<><Selection /><ParkingLot /></>} />
+                <Route path="/" element={<Home setShowLogin={setShowLogin} />} />
+                <Route path="/pagination" element={<Stepper/>} />
+                <Route path="/parking-lot" element={<ParkingLot />} />
                 <Route path='/booking-ticket' element={<BookingTicket />} />
                 {/* <Route path='/middleware' element={<Middleware />} /> */}
                 <Route path='/forget-password' element={<ForgetPassword />} />
                 <Route path='/middleware' element={<Middleware />} />
+                <Route path='/calendar' element={<TravelForm />} />
                 <Route path='/reset-password/:token' element={<ResetPassword />} />
                 <Route path='/bookingform' element={<BookingForm onSubmit={handleFormSubmit} onClose={handleClose} />} />
                 {/* <Route path='/booking' element={<Booking />} /> */}
@@ -60,6 +66,7 @@ function App() {
                 <Route path="/admin" element={<MainLayout setShowLogin={setShowLogin} />} >
                 {/* Nested routes for admin dashboard */}
                 <Route path="booking" element={<Booking />} />
+                <Route path="settings" element={<Settings />} />
                 </Route>
 
 

@@ -1,17 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 
 function Table() {
   const [bookings, setBookings] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredBookings, setFilteredBookings] = useState([]);
 
+  // Fetch bookings from API
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/api/booking/getBookings'); // Ensure this matches your backend route
-        setBookings(response.data);
-        setFilteredBookings(response.data); // Initially, show all bookings
+        const response = await axios.get('http://localhost:4000/api/booking/getBookings');
+        const bookingsWithStatus = response.data.map(booking => ({
+          ...booking,
+          paid: booking.paid ?? false
+        }));
+        setBookings(bookingsWithStatus);
+        setFilteredBookings(bookingsWithStatus);
       } catch (error) {
         console.error("Error fetching Bookings:", error);
       }
@@ -19,57 +25,117 @@ function Table() {
     fetchBookings();
   }, []);
 
-  // Automatically filter bookings based on search query
+  // Filter bookings based on search query
   useEffect(() => {
     const filtered = bookings.filter(
       (booking) =>
         booking.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         booking.vehicleNumber.toLowerCase().includes(searchQuery.toLowerCase())
     );
-    setFilteredBookings(filtered); // Update the filtered bookings list
-  }, [searchQuery, bookings]); // Re-run filtering when searchQuery or bookings change
+    setFilteredBookings(filtered);
+  }, [searchQuery, bookings]);
+
+  // Handle status change from dropdown
+  const handleStatusChange = async (bookingId, newStatus) => {
+    try {
+      const updatedBookings = bookings.map(booking => {
+        if (booking._id === bookingId) {
+          const updatedBooking = { ...booking, paid: newStatus === 'Paid' };
+          // Update backend if needed
+          // await axios.put(`http://localhost:4000/api/booking/${bookingId}`, { paid: updatedBooking.paid });
+          return updatedBooking;
+        }
+        return booking;
+      });
+      setBookings(updatedBookings);
+      setFilteredBookings(updatedBookings);
+    } catch (error) {
+      console.error("Error updating status:", error);
+    }
+  };
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold text-center mb-4">Parking Lot Bookings</h1>
-      {/* Search bar */}
-      <div className="mb-4 flex justify-end items-center">
+    <div className="min-h-screen bg-designColor p-6">
+      {/* Header Section */}
+      <div className="flex justify-between items-center mb-6">
+        <Link to="/middleware">
+          <h1 className="text-4xl font-bold cursor-pointer">
+            <span className="text-gradientStart">P</span>
+            <span className="text-textColor">ark</span>
+            <span className="text-gradientStart">E</span>
+            <span className="text-textColor">ase</span>
+          </h1>
+        </Link>
+        {/* <h1 className="text-2xl font-semibold text-textColor">Parking Lot Bookings Dashboard</h1> */}
+      </div>
+
+      {/* Search Bar */}
+      <div className="mb-6 md:flex-none w-full flex justify-end">
         <input
           type="text"
           placeholder="Search by Name or Vehicle Number"
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)} // Update the search query as user types
-          className="w-1/4 px-4 py-2 border rounded-3xl"
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-1/3 px-4 py-2 border rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
-       
       </div>
-      <div className="overflow-y-auto max-h-96">
-        <table className="min-w-full bg-white shadow-md rounded-lg border">
-          <thead className="bg-gray-800 sticky top-0 text-white">
-            <tr>
-              <th className="py-3 px-4 border">Name</th>
-              <th className="py-3 px-4 border">Phone Number</th>
-              <th className="py-3 px-4 border">Vehicle Number</th>
-              <th className="py-3 px-4 border">Payment Method</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredBookings.length > 0 ? (
-              filteredBookings.map((booking, index) => (
-                <tr key={index} className="text-center border-b hover:bg-gray-100">
-                  <td className="py-4 px-4 border">{booking.name}</td>
-                  <td className="py-4 px-4 border">{booking.phoneNumber}</td>
-                  <td className="py-4 px-4 border">{booking.vehicleNumber}</td>
-                  <td className="py-4 px-4 border">{booking.paymentMethod}</td>
-                </tr>
-              ))
-            ) : (
+
+      {/* Table */}
+      <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div className="overflow-y-auto max-h-[600px]">
+          <table className="min-w-full">
+            <thead className="bg-blue-600 text-white sticky top-0">
               <tr>
-                <td colSpan="4" className="py-4 px-4 text-center">No bookings found</td>
+                <th className="py-3 px-6 text-left">Name</th>
+                <th className="py-3 px-6 text-left">Phone Number</th>
+                <th className="py-3 px-6 text-left">Vehicle Number</th>
+                <th className="py-3 px-6 text-left">Payment Method</th>
+                <th className="py-3 px-6 text-left">Status</th>
               </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filteredBookings.length > 0 ? (
+                filteredBookings.map((booking, index) => (
+                  <tr key={index} className="border-b hover:bg-gray-50 transition-colors">
+                    <td className="py-4 px-6">{booking.name}</td>
+                    <td className="py-4 px-6">{booking.phoneNumber}</td>
+                    <td className="py-4 px-6">{booking.vehicleNumber}</td>
+                    <td className="py-4 px-6">{booking.paymentMethod}</td>
+                    <td className="py-4 px-6">
+                      <select
+                        value={booking.paid ? 'Paid' : 'Unpaid'}
+                        onChange={(e) => handleStatusChange(booking._id, e.target.value)}
+                        className={`w-28 px-3 py-1 rounded-lg border-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 ${
+                          booking.paid
+                            ? 'bg-green-50 border-green-400 text-green-700'
+                            : 'bg-red-50 border-red-400 text-red-700'
+                        }`}
+                      >
+                        <option value="Paid" className="bg-green-50 border-none text-green-700">Paid</option>
+                        <option value="Unpaid" className="bg-red-50 border-none text-red-700">Unpaid</option>
+                      </select>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="5" className="py-4 px-6 text-center text-gray-500">
+                    No bookings found
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Summary Footer */}
+      <div className="mt-6 flex justify-between text-textColor">
+        <p>Total Bookings: {filteredBookings.length}</p>
+        <p>
+          Cash Payments: {filteredBookings.filter(b => b.paymentMethod === 'Cash').length} 
+          (Unpaid: {filteredBookings.filter(b => b.paymentMethod === 'Cash' && !b.paid).length})
+        </p>
       </div>
     </div>
   );

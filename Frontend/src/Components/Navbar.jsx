@@ -1,60 +1,52 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { IoPersonCircle } from "react-icons/io5";
+import { IoPersonCircle } from 'react-icons/io5';
 
 function Navbar({ setShowLogin }) {
     const [username, setUsername] = useState(null);
 
     useEffect(() => {
-        // Retrieve the username from localStorage
         const storedUsername = localStorage.getItem("username");
         setUsername(storedUsername);
     }, []);
 
     const logout = () => {
-        localStorage.removeItem("token");  // Remove the token on logout
-        localStorage.removeItem("username");  // Remove the username on logout
-        setUsername(null);  // Clear the username state
-        setShowLogin(true);  // Show the login popup again
+        localStorage.removeItem("token");
+        localStorage.removeItem("username");
+        setUsername(null);
+        setShowLogin(true);  // Trigger login popup when logging out
     };
 
     return (
-        <div className="w-full bg-bodyColor">
+        <div className="absolute top-0 left-0 w-full bg-bodyColor text-white z-10">
             <div className="h-20 flex justify-between items-center px-4 max-w-screen-xl mx-auto">
-                {/* Logo */}
                 <div>
                     <Link to="/">
                         <h1 className="text-3xl font-bold cursor-pointer">
-                            <span className="text-designColor">P</span>
+                            <span className="text-[#ff4546]">P</span>
                             <span className="text-textColor">ark</span>
-                            <span className="text-designColor">E</span>
+                            <span className="text-[#ff4546]">E</span>
                             <span className="text-textColor">ase</span>
                         </h1>
                     </Link>
                 </div>
 
-                {/* Conditional Rendering for Login/Logout Button, Icon, and Username */}
                 {!localStorage.getItem("token") ? (
                     <button
-                        onClick={() => setShowLogin(true)}
-                        className="bg-designColor text-white rounded-full px-6 py-2 text-base hover:bg-opacity-70"
+                    onClick={() => setShowLogin(true)}  // This should call setShowLogin correctly
+                    className="bg-gradient-to-r from-gradientStart to-gradientEnd text-textColor font-semibold rounded-lg px-6 py-2 text-base hover:bg-opacity-70"
                     >
-                        Login/Signup
+                        Login
                     </button>
                 ) : (
                     <div className="flex items-center">
-                        {/* Display Username */}
                         <span className="text-textColor font-semibold mr-4">
-                            Welcome, {username || "User"}
+                            Welcome,  {username || ""}
                         </span>
-
-                        {/* User Icon */}
                         <IoPersonCircle className="cursor-pointer mr-4" size={30} />
-
-                        {/* Logout Button */}
                         <button
                             onClick={logout}
-                            className="bg-red-500 text-white rounded-full px-6 py-2 text-base hover:bg-opacity-70"
+                            className="bg-red-500 text-white rounded-lg px-6 py-2 text-base hover:bg-opacity-70"
                         >
                             Logout
                         </button>
@@ -64,5 +56,4 @@ function Navbar({ setShowLogin }) {
         </div>
     );
 }
-
-export default Navbar;
+export default Navbar

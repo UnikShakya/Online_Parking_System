@@ -26,7 +26,7 @@ const LoginPopup = ({ setShowLogin }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         const endpoint = currState === "Login" ? "/api/user/login" : "/api/user/register";
-
+    
         try {
             const response = await axios.post(`${url}${endpoint}`, data);
             console.log(response);
@@ -36,13 +36,20 @@ const LoginPopup = ({ setShowLogin }) => {
                     setToken(token);
                     localStorage.setItem("token", token);
                     localStorage.setItem("username", username);
-
+    
                     console.log("Closing login popup");
                     setShowLogin(false); // This should close the popup
-
+    
                     toast.success("Successfully logged in!");
-
-                    navigate(redirect === '/admin' ? '/admin' : '/');
+    
+                    // Handle redirection based on the `redirect` value
+                    if (redirect === '/admin') {
+                        navigate('/admin');
+                    } else if (redirect === '/middleware') {
+                        navigate('/middleware');
+                    } else {
+                        navigate('/');
+                    }
                 } else {
                     toast.success("Account created successfully! Please log in.");
                     setCurrState("Login");

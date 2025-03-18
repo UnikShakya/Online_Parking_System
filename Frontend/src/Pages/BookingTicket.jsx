@@ -3,6 +3,7 @@ import QRCode from "react-qr-code";
 import { useLocation } from 'react-router-dom';
 import { useRef } from 'react';
 import html2pdf from 'html2pdf.js';
+import ConnectedCircles from '../Components/Stepper';
 
 function BookingTicket() {
   const location = useLocation();
@@ -35,44 +36,46 @@ function BookingTicket() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-blue-50 to-purple-50 flex flex-col items-center justify-center p-5">
-      <h1 className="text-4xl font-bold text-gray-800 mb-8">Your Booking Ticket</h1>
-      <div 
-        ref={ticketRef} 
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl p-8 transform transition-transform hover:scale-105"
-      >
-        <div className="flex flex-col md:flex-row justify-between items-center">
-          <div className="w-full md:w-1/2">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">Booking Details</h2>
-            <div className="space-y-4 text-gray-700">
-              <p><strong>Booking ID:</strong> <span className="text-blue-600">{ticketDetails.bookingId}</span></p>
-              <p><strong>Name:</strong> {ticketDetails.name}</p>
-              <p><strong>Vehicle Number:</strong> {ticketDetails.vehicleNumber}</p>
-              <p><strong>Spots:</strong> {ticketDetails.spots.join(', ')}</p>
-              <p><strong>Price:</strong> ₹{ticketDetails.price}</p>
-              <p><strong>Date:</strong> {ticketDetails.date}</p>
-              <p><strong>Time:</strong> {ticketDetails.time}</p>
+    <div className="p-5 bg-designColor text-textColor max-h-max mt-[5rem] flex flex-col items-center">
+      <ConnectedCircles />
+
+      <div className="flex flex-col items-center justify-center p-5">
+        <h1 className="text-4xl font-bold text-gray-800 mb-8">Your Booking Ticket</h1>
+        <div 
+          ref={ticketRef} 
+          className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl p-8 transform transition-transform hover:scale-105"
+        >
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <div className="w-full m-2 md:w-1/2">
+              <h2 className="text-2xl font-bold text-gray-800 mb-6">Booking Details</h2>
+              <div className="space-y-4 text-gray-700">
+                <p><strong>Booking ID:</strong> <span className="text-blue-600">{ticketDetails.bookingId}</span></p>
+                <p><strong>Name:</strong> {ticketDetails.name}</p>
+                <p><strong>Vehicle Number:</strong> {ticketDetails.vehicleNumber}</p>
+                <p><strong>Date:</strong> {ticketDetails.date}</p>
+                <p><strong>Time:</strong> {ticketDetails.time}</p>
+              </div>
             </div>
-          </div>
-          <div className="w-full md:w-1/2 flex justify-center mt-6 md:mt-0">
-            <div className="bg-gradient-to-r from-blue-500 to-purple-500 p-4 rounded-lg shadow-lg">
-              <QRCode 
-                value={qrData} 
-                size={200} 
-                bgColor="transparent" 
-                fgColor="#ffffff" 
-                className="rounded-lg"
-              />
+            <div className="w-full md:w-1/2 flex justify-center mt-6 md:mt-0">
+              <div className="bg-white p-4 rounded-lg border-black shadow-lg">
+                <QRCode 
+                  value={qrData} 
+                  size={200} 
+                  bgColor="transparent" 
+                  fgColor="#000000" 
+                  className="rounded-lg"
+                />
+              </div>
             </div>
           </div>
         </div>
+        <button
+          onClick={handleDownload}
+          className="mt-8 bg-designColor text-white font-semibold rounded-full px-8 py-3 hover:from-blue-600 hover:to-purple-600 transition-all transform hover:scale-105"
+        >
+          Download Ticket
+        </button>
       </div>
-      <button
-        onClick={handleDownload}
-        className="mt-8 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold rounded-full px-8 py-3 hover:from-blue-600 hover:to-purple-600 transition-all transform hover:scale-105"
-      >
-        Download Ticket
-      </button>
     </div>
   );
 }

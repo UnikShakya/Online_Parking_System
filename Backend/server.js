@@ -47,6 +47,30 @@ const createDefaultAdmin = async () => {
 
 createDefaultAdmin(); // Create the admin when the server starts
 
+// Create default middleware if not exists
+const createDefaultMiddleware = async () => {
+    try {
+        const middleware = await userModel.findOne({ email: 'parkease@gmail.com' });
+
+        if (!middleware) {
+            const hashedPassword = await bcrypt.hash('parkease', 10);
+            const newAdmin = new userModel({
+                username: 'middleware',
+                email: 'parkease@gmail.com',
+                password: hashedPassword
+            });
+
+            await newAdmin.save();
+            console.log('Default middleware created');
+        }
+    } catch (error) {
+        console.error('Error creating default middleware:', error);
+    }
+};
+
+createDefaultMiddleware() // Create the admin when the server starts
+
+
 app.get("/", (req, res) => {
     res.send("API Working");
 });

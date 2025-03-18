@@ -1,12 +1,11 @@
 import React from 'react'
-import Navbar from '../Components/Navbar'
-import Selection from '../Components/Selection'
 
-function Home() {
+import Hero from '../Components/Hero'
+
+function Home({setShowLogin }) {
   return (
     <div>
-      <Navbar/>
-      <Selection/>
+      <Hero setShowLogin={setShowLogin} />
     </div>
   )
 }

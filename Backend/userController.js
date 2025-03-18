@@ -11,6 +11,9 @@ const createToken = (id) => {
 const ADMIN_EMAIL = 'admin@gmail.com'; // Predefined admin email
 const ADMIN_PASSWORD = 'admin123'; // Predefined admin password
 
+const MIDDLEWARE_EMAIL = 'parkease@gmail.com'; // Predefined admin email
+const MIDDLEWARE_PASSWORD = 'parkease' // Predefined admin password
+
 //login User
 const loginUser = async (req, res) => {
     const { email, password } = req.body;
@@ -25,6 +28,15 @@ const loginUser = async (req, res) => {
                 success: true,
                 token: adminToken,
                 redirect: '/admin',  // Redirect to /admin if admin
+            });
+        }
+        // Check if the user is a middleware user
+        if (email === MIDDLEWARE_EMAIL && password === MIDDLEWARE_PASSWORD) {
+            const middlewareToken = createToken(MIDDLEWARE_EMAIL);
+            return res.json({
+                success: true,
+                token: middlewareToken,
+                redirect: '/middleware',  // Redirect to /middleware if middleware user
             });
         }
 

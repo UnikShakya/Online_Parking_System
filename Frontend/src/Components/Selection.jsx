@@ -1,45 +1,57 @@
 import React, { useState } from "react";
-import { FaBell } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { TimePicker } from "@mui/x-date-pickers/TimePicker";
+import dayjs from "dayjs";
+import "dayjs/locale/en"; // Optional: For English locale formatting
 
-function Selection() {
-  const today = new Date().toISOString().split("T")[0]; // Current date in YYYY-MM-DD format
-  const [selectedDate, setSelectedDate] = useState("");
+function Selection({setShowLogin}) {
+  const today = dayjs(); // Current date as a Dayjs object
+  const [selectedDate, setSelectedDate] = useState(null); // Dayjs object or null
   const [location, setLocation] = useState("");
-  const [startTime, setStartTime] = useState("");
-  const [endTime, setEndTime] = useState("");
+  const [startTime, setStartTime] = useState(null); // Dayjs object or null
+  const [endTime, setEndTime] = useState(null); // Dayjs object or null
   const [error, setError] = useState("");
   const [timeError, setTimeError] = useState("");
   const [formSubmitted, setFormSubmitted] = useState(false);
-  const [showNotification, setShowNotification] = useState(false);
 
-  const navigate = useNavigate(); // Hook for navigation
+  const navigate = useNavigate();
 
   // Rates for 2-wheelers and 4-wheelers per hour
   const rates = {
     "2Wheeler": {
-      peakRate: 20, // Peak rate for 2-wheeler (10 AM - 5 PM)
-      offPeakRate: 25, // Off-peak rate for 2-wheeler (before 10 AM, after 5 PM)
+      peakRate: 20,
+      offPeakRate: 25,
     },
     "4Wheeler": {
-      peakRate: 40, // Peak rate for 4-wheeler (10 AM - 5 PM)
-      offPeakRate: 45, // Off-peak rate for 4-wheeler (before 10 AM, after 5 PM)
+      peakRate: 40,
+      offPeakRate: 45,
     },
   };
 
-  const handleDateChange = (e) => {
-    const selected = e.target.value;
-    setSelectedDate(selected);
-    if (new Date(selected) < new Date(today)) {
+  const handleDateChange = (newValue) => {
+    setSelectedDate(newValue);
+    if (newValue && newValue.isBefore(today, "day")) {
       setError("Cannot select a past date!");
     } else {
       setError("");
     }
   };
 
-  const handleTimeChange = (e) => {
-    setEndTime(e.target.value);
-    if (startTime && e.target.value <= startTime) {
+  const handleStartTimeChange = (newValue) => {
+    setStartTime(newValue); // newValue is a Dayjs object or null
+    if (newValue && endTime && newValue.isAfter(endTime)) {
+      setTimeError("Start time must be earlier than end time!");
+    } else {
+      setTimeError("");
+    }
+  };
+
+  const handleEndTimeChange = (newValue) => {
+    setEndTime(newValue); // newValue is a Dayjs object or null
+    if (startTime && newValue && newValue.isBefore(startTime)) {
       setTimeError("End time must be later than start time!");
     } else {
       setTimeError("");
@@ -47,24 +59,28 @@ function Selection() {
   };
 
   const handleBooking = () => {
+    // Check if the user is logged in
+    if (!localStorage.getItem("token")) {
+      // alert("Please log in to book a parking spot.");
+      setShowLogin(true); // Show the login popup
+      return;
+    }
+
     setFormSubmitted(true);
 
-    if (!isFormValid) {
+    if (!isFormValid()) {
       console.log("Please fill in all fields!");
       return;
     }
 
-    if (endTime <= startTime) {
+    if (endTime.isBefore(startTime)) {
       setTimeError("End time must be later than start time!");
       return;
     }
 
-    // Convert time strings (HH:MM) to minutes since midnight
-    const [startHours, startMinutes] = startTime.split(":").map(Number);
-    const [endHours, endMinutes] = endTime.split(":").map(Number);
-
-    const startTotalMinutes = startHours * 60 + startMinutes;
-    const endTotalMinutes = endHours * 60 + endMinutes;
+    // Convert Dayjs times to minutes since midnight
+    const startTotalMinutes = startTime.hour() * 60 + startTime.minute();
+    const endTotalMinutes = endTime.hour() * 60 + endTime.minute();
 
     // Get the correct rate based on vehicle type and time
     let totalCost2Wheeler = 0;
@@ -76,7 +92,6 @@ function Selection() {
 
       let vehicleRate = 0;
 
-      // Select rate based on vehicle type
       if (vehicleType === "2Wheeler") {
         const { peakRate, offPeakRate } = rates["2Wheeler"];
         vehicleRate = isPeak ? peakRate : offPeakRate;
@@ -89,23 +104,17 @@ function Selection() {
       let totalCost = 0;
 
       while (currentTime < endTotalMinutes) {
-        let currentHour = Math.floor(currentTime / 60); // Extract the current hour
+        let currentHour = Math.floor(currentTime / 60);
+        let rate = isPeak ? vehicleRate : vehicleRate;
 
-        // Determine if the current hour falls in peak or off-peak period
-        let rate = isPeak ? vehicleRate : vehicleRate; // Just using the correct rate here
-
-        // Find the next full hour or the end time (whichever is smaller)
         let nextHourStart = (currentHour + 1) * 60;
         let chargeableMinutes = Math.min(nextHourStart, endTotalMinutes) - currentTime;
 
-        // Calculate cost for the chargeable minutes
         totalCost += (vehicleRate / 60) * chargeableMinutes;
-
-        // Move to the next hour
         currentTime = nextHourStart;
       }
 
-      return totalCost.toFixed(2); // Round to 2 decimal places
+      return totalCost.toFixed(2);
     };
 
     totalCost2Wheeler = calculateCost("2Wheeler", startTotalMinutes, endTotalMinutes);
@@ -115,123 +124,160 @@ function Selection() {
     console.log(`Total cost for 4-wheeler: Rs.${totalCost4Wheeler}`);
 
     navigate("/parking-lot", {
-      state: { totalCost2Wheeler, totalCost4Wheeler, rates }
+      state: { totalCost2Wheeler,
+               totalCost4Wheeler,
+                rates,
+               startTime: startTime.format("HH:mm A"),
+               endTime: endTime.format("HH:mm A"),
+                },
     });
   };
 
-  const toggleNotification = () => {
-    setShowNotification(!showNotification);
-  };
-
-  const isFormValid = location && selectedDate && startTime && endTime && !timeError;
+  const isFormValid = () =>
+    location && selectedDate && startTime && endTime && !timeError;
 
   return (
-    <section className="my-4">
-      <div className="flex justify-evenly gap-4 items-center">
-        <div className="flex gap-4 items-center">
-          <label htmlFor="location" className="text-lg text-gray-600 font-semibold">
-            Select Area:
-          </label>
-          <select
-            id="location"
-            name="location"
-            className="px-2 py-2 bg-gray-100 text-gray-700 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-          >
-            <option value="">-- Select --</option>
-            <option value="Lagankhel">Parking area 1</option>
-            <option value="Sundhara">Parking area 2</option>
-            <option value="Naxal">Parking area 3</option>
-            <option value="Satdobato">Parking area 4</option>
-          </select>
-        </div>
+    <div className="max-w-5xl mx-auto my-20 flex flex-col items-center">
+      {/* Form Container */}
+      <div className="flex w-full items-center">
+        <div className="flex-1 border rounded-lg shadow-md bg-textColor">
+          <div className="flex justify-between items-center border-b pb-3">
+            <div className="flex-1 border-r-2">
+              <select
+                id="location"
+                name="location"
+                className="px-1 mt-3 text-gray-700 rounded-lg border-0 w-full focus:ring-0 focus:border-0 focus:hover:bg outline-none"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+              >
+                <option className= ""value="">Select Area</option>
+                <option className= ""value="Lagankhel">Parking area 1</option>
+                <option className= ""value="Sundhara">Parking area 2</option>
+                <option className= ""value="Naxal">Parking area 3</option>
+                <option className= ""value="Satdobato">Parking area 4</option>
+              </select>
+            </div>
 
-        <div className="flex gap-4 items-center">
-          <label htmlFor="date" className="text-lg text-gray-600 font-semibold">
-            Select Date:
-          </label>
-          <input
-            type="date"
-            id="date"
-            name="date"
-            min={today}
-            className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-designColor"
-            value={selectedDate}
-            onChange={handleDateChange}
-          />
-        </div>
+            <div className="flex-1 border-r-2 px-4">
+              <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en">
+                <DatePicker
+                  label="Select Date"
+                  value={selectedDate}
+                  onChange={handleDateChange}
+                  minDate={today}
+                  slotProps={{
+                    textField: {
+                      variant: "standard",
+                      fullWidth: true,
+                      sx: {
+                        "& .MuiOutlinedInput-root": {
+                          borderRadius: "0.375rem",
+                          "&:hover fieldset": { borderColor: "#3b82f6" },
+                          "&.Mui-focused fieldset": { borderColor: "#3b82f6" },
+                        },
+                        "& .MuiInputLabel-root": {
+                          color: "#6b7280",
+                        },
+                      },
+                    },
+                    openPickerButton: {
+                      sx: {
+                        color: "#6b7280",
+                      },
+                    },
+                  }}
+                  format="DD/MM/YYYY"
+                />
+              </LocalizationProvider>
+            </div>
 
-        <div className="flex gap-4 items-center">
-          <label htmlFor="start-time" className="text-lg text-gray-600 font-semibold">
-            Start time:
-          </label>
-          <input
-            type="time"
-            id="start-time"
-            name="start-time"
-            className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-            value={startTime}
-            onChange={(e) => setStartTime(e.target.value)}
-          />
-        </div>
+            <div className="flex-1 border-r-2 px-4">
+              <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en">
+                <TimePicker
+                  label="Start Time"
+                  value={startTime}
+                  onChange={handleStartTimeChange}
+                  minutesStep={1}
+                  slotProps={{
+                    textField: {
+                      variant: "standard",
+                      fullWidth: true,
+                      sx: {
+                        "& .MuiOutlinedInput-root": {
+                          borderRadius: "0.375rem",
+                          "&:hover fieldset": { borderColor: "#3b82f6" },
+                          "&.Mui-focused fieldset": { borderColor: "#3b82f6" },
+                        },
+                        "& .MuiInputLabel-root": {
+                          color: "#6b7280",
+                        },
+                      },
+                    },
+                    openPickerButton: {
+                      sx: {
+                        color: "#6b7280",
+                      },
+                    },
+                  }}
+                  format="HH:mm A"
+                />
+              </LocalizationProvider>
+            </div>
 
-        <div className="flex gap-4 items-center">
-          <label htmlFor="end-time" className="text-lg text-gray-600 font-semibold">
-            End time:
-          </label>
-          <div>
-            <input
-              type="time"
-              id="end-time"
-              name="end-time"
-              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-              value={endTime}
-              onChange={handleTimeChange}
-            />
-            {timeError && <p className="text-red-500 text-sm mt-1">{timeError}</p>}
+            <div className="flex-1 px-4">
+              <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en">
+                <TimePicker
+                  label="End Time"
+                  value={endTime}
+                  onChange={handleEndTimeChange}
+                  minutesStep={1}
+                  slotProps={{
+                    textField: {
+                      variant: "standard",
+                      fullWidth: true,
+                      sx: {
+                        "& .MuiOutlinedInput-root": {
+                          borderRadius: "0.375rem",
+                          "&:hover fieldset": { borderColor: "#3b82f6" },
+                          "&.Mui-focused fieldset": { borderColor: "#3b82f6" },
+                        },
+                        "& .MuiInputLabel-root": {
+                          color: "#6b7280",
+                        },
+                      },
+                    },
+                    openPickerButton: {
+                      sx: {
+                        color: "#6b7280",
+                      },
+                    },
+                  }}
+                  format="HH:mm A"
+                />
+              </LocalizationProvider>
+            </div>
           </div>
         </div>
 
-        <button
-          className="bg-designColor text-white rounded-full px-6 py-2 text-base hover:bg-opacity-70"
-          onClick={handleBooking}
-        >
-          Book Now
-        </button>
-
-        {/* Notification Bell */}
-        <div className="relative">
-          <FaBell size={30} className="cursor-pointer" onClick={toggleNotification} />
-          {showNotification && (
-            <div className="absolute right-0 top-8 w-96 bg-white shadow-lg border rounded-md z-10">
-              <div className="px-4 py-2 bg-gray-100 border flex justify-between">
-                <h3 className="text-lg font-semibold text-gray-800">Notifications</h3>
-                <h3 className="text-base text-gray-800 cursor-pointer">Mark all as read</h3>
-              </div>
-              <ul>
-                <li className="px-4 py-2 border-b text-gray-700 hover:bg-gray-100 cursor-pointer">
-                  Notification 1
-                </li>
-                <li className="px-4 py-2 border-b text-gray-700 hover:bg-gray-100 cursor-pointer">
-                  Notification 2
-                </li>
-                <li className="px-4 py-2 text-gray-700 hover:bg-gray-100 cursor-pointer">
-                  Notification 3
-                </li>
-              </ul>
-            </div>
-          )}
+       <div className="ml-4">
+          <button
+            className="bg-gradient-to-r from-[#FF5733] to-[#8B5CF6] text-white font-semibold rounded-lg px-8 py-5 text-base hover:opacity-90 transition-opacity"
+            onClick={handleBooking}
+          >
+            Book Now
+          </button>
         </div>
       </div>
 
-      {/* Error Message */}
-      {formSubmitted && !isFormValid && (
-        <div className="mt-2 text-center">
-          <p className="text-red-500">Please fill in all fields!</p>
-        </div>
-      )}
-    </section>
+      {/* Error Messages Outside the Form Container */}
+      <div className="mt-4 text-center w-full">
+        {error && <p className="text-red-500 text-sm">{error}</p>}
+        {timeError && <p className="text-red-500 text-sm">{timeError}</p>}
+        {formSubmitted && !isFormValid() && (
+          <p className="text-red-500 text-sm">Please fill in all fields!</p>
+        )}
+      </div>
+    </div>
   );
 }
 

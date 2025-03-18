@@ -19,9 +19,12 @@ module.exports = {
         sans: ['Poppins', 'sans-serif'],
       },
       colors: {
-        bodyColor: "#475569",
-        textColor: "#E3E3E3",
-        designColor: "#09A0B8",
+        bodyColor: "#000",
+        textColor: "#fff",
+        // designColor: "#D7FC69",
+        designColor:"#1f203e",
+        gradientStart: "#FF5733", // Orange-red for gradient start
+        gradientEnd: "#8B5CF6",   // Purple for gradient end
       },
     },
   },
