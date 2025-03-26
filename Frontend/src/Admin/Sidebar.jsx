@@ -16,33 +16,42 @@ const Sidebar = ({ setShowLogin }) => {
     <aside className="h-screen w-64 bg-designColor text-white flex flex-col">
       {/* Logo Section */}
       <Link to='/admin'>
-      <div className="flex items-center justify-center py-6">
-        <h1 className="text-2xl text-textColor font-bold cursor-pointer"><span className="text-gradientStart">P</span>ark<span className="text-gradientStart">E</span>ase</h1>
-      </div>
+        <div className="flex items-center justify-center py-6">
+          <h1 className="text-2xl text-textColor font-bold cursor-pointer">
+            <span className="text-gradientStart">P</span>ark<span className="text-gradientStart">E</span>ase
+          </h1>
+        </div>
       </Link>
 
       {/* Navigation Links */}
       <nav className="flex-1 px-4">
-        <ul className="space-y-4">
-        <Link to='/admin'>
-          <li className="flex items-center space-x-4 hover:bg-gradient-to-r from-gradientStart to-gradientEnd p-2 rounded cursor-pointer">
-            <FaChartBar />
-            <span>Dashboard</span>
-          </li>
+        <ul className="my-2 space-y-3"> {/* Add space-y-3 for gap between top-level items */}
+          {/* Dashboard */}
+          <Link to='/admin'>
+            <li className="flex items-center space-x-4 hover:bg-gradient-to-r from-gradientStart to-gradientEnd p-2 rounded cursor-pointer">
+              <FaChartBar />
+              <span>Dashboard</span>
+            </li>
           </Link>
-          <li className="flex items-center space-x-4 hover:bg-gradient-to-r from-gradientStart to-gradientEnd p-2 rounded cursor-pointer">
-            <FaFolder />
-            <span>Middleware</span>
-          </li>
 
-       {/* Parking Dropdown */}
-       <li 
+          {/* Middleman */}
+          <Link to='middleman'>
+            <li className="flex items-center space-x-4 hover:bg-gradient-to-r from-gradientStart to-gradientEnd p-2 rounded cursor-pointer">
+              <FaFolder />
+              <span>Middleman</span>
+            </li>
+          </Link>
+
+          {/* Parking Dropdown */}
+          <li
             className="flex items-center space-x-4 hover:bg-gradient-to-r from-gradientStart to-gradientEnd p-2 rounded cursor-pointer"
             onClick={() => setIsParkingOpen(!isParkingOpen)}  // Toggle dropdown visibility
           >
             <FaCar />
             <span>Parking &gt;</span>
           </li>
+
+          {/* Dropdown Items */}
           <ul
             className={`space-y-2 pl-6 transition-all duration-300 ease-in-out overflow-hidden ${
               isParkingOpen ? 'h-auto' : 'h-0'
@@ -53,30 +62,52 @@ const Sidebar = ({ setShowLogin }) => {
               transitionTimingFunction: "ease-in-out",
             }}
           >
-            <li className="flex items-center space-x-4 hover:bg-gradient-to-r from-gradientStart to-gradientEnd p-2 rounded cursor-pointer">
-              <FaCar />
-              <span>Parking Lot</span>
-            </li>
-            <li className="flex items-center space-x-4 hover:bg-gradient-to-r from-gradientStart to-gradientEnd p-2 rounded cursor-pointer">
-              <FaDollarSign />
-              <span>Parking Cost</span>
-            </li>
+            {/* Parking Lot */}
+            <Link to='parkinglot'>
+              <li className="flex items-center space-x-4 hover:bg-gradient-to-r from-gradientStart to-gradientEnd p-2 rounded cursor-pointer">
+                <FaCar />
+                <span>Parking Lot</span>
+              </li>
+            </Link>
+
+            {/* Parking Cost */}
+            <Link to='parkingcost'>
+              <li className="flex items-center space-x-4 hover:bg-gradient-to-r from-gradientStart to-gradientEnd p-2 rounded cursor-pointer">
+                <FaDollarSign />
+                <span>Parking Cost</span>
+              </li>
+            </Link>
           </ul>
-          <Link to='booking' >
-          <li className="flex items-center space-x-4 hover:bg-gradient-to-r from-gradientStart to-gradientEnd p-2 rounded cursor-pointer">
-            <FaFile />
-            <span>Booking</span>
-          </li>
+
+          {/* Booking */}
+          <Link to='booking'>
+            <li className="flex items-center space-x-4 hover:bg-gradient-to-r from-gradientStart to-gradientEnd p-2 rounded cursor-pointer">
+              <FaFile />
+              <span>Booking</span>
+            </li>
           </Link>
-          <li className="flex items-center space-x-4 hover:bg-gradient-to-r from-gradientStart to-gradientEnd p-2 rounded cursor-pointer">
-            <FaUsers />
-            <span>Users</span>
-          </li>
-          <li className="flex items-center space-x-4 hover:bg-gradient-to-r from-gradientStart to-gradientEnd p-2 rounded cursor-pointer">
-            <FaCogs />
-            <span>Settings</span>
-          </li>
-          <li onClick={logout} className="flex items-center space-x-4 hover:bg-gradient-to-r from-gradientStart to-gradientEnd p-2 rounded cursor-pointer">
+
+          {/* Users */}
+          <Link to='users'>
+            <li className="flex items-center space-x-4 hover:bg-gradient-to-r from-gradientStart to-gradientEnd p-2 rounded cursor-pointer">
+              <FaUsers />
+              <span>Users</span>
+            </li>
+          </Link>
+
+          {/* Settings */}
+          <Link to="settings">
+            <li className="flex items-center space-x-4 hover:bg-gradient-to-r from-gradientStart to-gradientEnd p-2 rounded cursor-pointer">
+              <FaCogs />
+              <span>Settings</span>
+            </li>
+          </Link>
+
+          {/* Logout */}
+          <li
+            onClick={logout}
+            className="flex items-center space-x-4 hover:bg-gradient-to-r from-gradientStart to-gradientEnd p-2 rounded cursor-pointer"
+          >
             <FaHome />
             <span>Logout</span>
           </li>

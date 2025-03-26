@@ -2,7 +2,9 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const userModel = require("./userModel");
 const validator = require("validator");
-const nodemailer = require("nodemailer");
+const nodemailer = require("nodemailer")
+const adminModel = require("../adminModel")
+const middlemanModel = require("../Middleman/middlemanModel")
 // Create token
 const createToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '1h' });
@@ -14,65 +16,86 @@ const ADMIN_PASSWORD = 'admin123'; // Predefined admin password
 const MIDDLEWARE_EMAIL = 'parkease@gmail.com'; // Predefined admin email
 const MIDDLEWARE_PASSWORD = 'parkease' // Predefined admin password
 
-//login User
+//login user
 const loginUser = async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        // First, check if the user is the admin based on predefined credentials
+        // Check if the credentials match the default admin
         if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-            // Directly create a token for admin without querying the database
-            const adminToken = createToken(ADMIN_EMAIL); // You can use any identifier here
-
+            // Create a token for the default admin
+            const token = createToken("default-admin-id"); // Use a unique ID for the default admin
             return res.json({
                 success: true,
-                token: adminToken,
-                redirect: '/admin',  // Redirect to /admin if admin
+                token,
+                username: "admin",
+                redirect: "/admin", // Redirect to admin dashboard
             });
         }
-        // Check if the user is a middleware user
+
+        // Check if the credentials match the default middleware
         if (email === MIDDLEWARE_EMAIL && password === MIDDLEWARE_PASSWORD) {
-            const middlewareToken = createToken(MIDDLEWARE_EMAIL);
+            // Create a token for the default middleware
+            const token = createToken("default-middleware-id"); // Use a unique ID for the default middleware
             return res.json({
                 success: true,
-                token: middlewareToken,
-                redirect: '/middleware',  // Redirect to /middleware if middleware user
+                token,
+                username: "middleware",
+                redirect: "/middleware", // Redirect to middleware dashboard
             });
         }
 
-        // Proceed to find the user from the database for normal users
-        const user = await userModel.findOne({ email });
+        // Check in userModel (regular users)
+        let user = await userModel.findOne({ email });
 
+        // If not found in userModel, check in adminModel
+        if (!user) {
+            user = await adminModel.findOne({ email });
+        }
+
+        // If not found in adminModel, check in middlemanModel
+        if (!user) {
+            user = await middlemanModel.findOne({ email });
+        }
+
+        // If user not found in any collection
         if (!user) {
             return res.status(404).json({ success: false, message: "User does not exist" });
         }
 
+        // Check if the password matches
         const isMatch = await bcrypt.compare(password, user.password);
-
         if (!isMatch) {
             return res.status(401).json({ success: false, message: "Invalid credentials" });
         }
 
+        // Create a token
         const token = createToken(user._id);
 
-        // No activity logging, just respond with the token and user details
+        // Determine the redirect path based on the user's role
+        let redirectPath = '/'; // Default redirect for regular users
+        if (user.role === 'admin') {
+            redirectPath = '/admin'; // Redirect admin users to /admin
+        } else if (user.role === 'middleware') {
+            redirectPath = '/middleware'; // Redirect middleware users to /middleware
+        }
+
+        // Return the response
         res.json({
             success: true,
             token,
-            username: user.username,  // Return the username
-            redirect: '/',  // Redirect to '/' if normal user
+            username: user.username,
+            redirect: redirectPath, // Use the correct redirect path based on role
         });
     } catch (error) {
-        console.error("Error during login:", error);  // Log the error for debugging
-        
+        console.error("Error during login:", error);
         res.status(500).json({
             success: false,
             message: "An error occurred. Please try again.",
-            error: error.message,  // Return the error message to help with debugging
+            error: error.message,
         });
     }
 };
-
 
 // Register User
 const registerUser = async (req, res) => {
@@ -90,7 +113,7 @@ const registerUser = async (req, res) => {
             return res.json({ success: false, message: "Please enter a valid email" });
         }
         if (password.length < 8) {
-            return res.json({ success: false, message: "Please enter a strong password (minimum 8 characters)" });
+            return res.json({ success: false, message: "Password must be at least 8 characters" });
         }
 
         // Hash password
@@ -102,29 +125,22 @@ const registerUser = async (req, res) => {
             username,
             email,
             password: hashedPassword,
-            activities: [] // Initialize activities as an empty array
+            role: "user", // Default role for new users
         });
 
         // Save the new user to MongoDB
         const savedUser = await newUser.save();
 
-        // Prepare the signup activity log
+        // Log the user's activity
         const activity = {
             action: `${username} signed up in ParkEase`,
-            timestamp: new Date()
+            timestamp: new Date(),
         };
-
-        // Add activity to the user's activities array
         savedUser.activities.push(activity);
-
-        // Save the updated user document with activities
-        const updatedUser = await savedUser.save();
-
-        // Log success and activities
-        console.log('Updated activities after save:', updatedUser.activities);
+        await savedUser.save();
 
         // Send success response with username
-        res.json({ success: true, message: "Account created successfully", username: updatedUser.username });
+        res.json({ success: true, message: "Account created successfully", username: savedUser.username });
     } catch (error) {
         console.error('Error occurred during registration:', error);
         res.json({ success: false, message: "An error occurred. Please try again.", error: error.message });
@@ -202,7 +218,30 @@ const resetPassword = async (req, res) => {
     }
 };
 
+// Middleware to verify admin
+// const verifyAdmin = async (req, res, next) => {
+//     const token = req.headers.authorization?.split(' ')[1];
+//     if (!token) {
+//         return res.status(401).json({ success: false, message: "No token provided" });
+//     }
+
+//     try {
+//         const decoded = jwt.verify(token, process.env.JWT_SECRET);
+//         const user = await userModel.findById(decoded.id);
+//         if (!user || (user.email !== ADMIN_EMAIL && user.role !== 'admin')) {
+//             return res.status(403).json({ success: false, message: "Unauthorized: Admin access required" });
+//         }
+//         req.user = user;
+//         next();
+//     } catch (error) {
+//         return res.status(401).json({ success: false, message: "Invalid token" });
+//     }
+// };
 
 
 
-module.exports = { loginUser, registerUser, forgetPassword, resetPassword };
+
+
+
+
+module.exports = { loginUser, registerUser, forgetPassword, resetPassword};

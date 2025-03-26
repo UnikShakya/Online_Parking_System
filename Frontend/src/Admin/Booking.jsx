@@ -1,10 +1,9 @@
 import React from 'react'
-import Sidebar from './Sidebar'
 
 function Booking() {
   return (
     <div>
-      <Sidebar/>
+      THis is booking 
     </div>
   )
 }

@@ -6,6 +6,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import dayjs from "dayjs";
 import "dayjs/locale/en"; // Optional: For English locale formatting
+import { toast } from "react-toastify";
 
 function Selection({setShowLogin}) {
   const today = dayjs(); // Current date as a Dayjs object
@@ -61,8 +62,14 @@ function Selection({setShowLogin}) {
   const handleBooking = () => {
     // Check if the user is logged in
     if (!localStorage.getItem("token")) {
-      // alert("Please log in to book a parking spot.");
+      toast.error("Please login to book parking",{
+        position: "top-right",
+        autoClose: 3000,
+        closeOnClick: true,
+
+      })
       setShowLogin(true); // Show the login popup
+      
       return;
     }
 

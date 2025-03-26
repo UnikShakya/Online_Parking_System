@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { IoPersonCircle } from 'react-icons/io5';
+import { toast } from 'react-toastify';
 
 function Navbar({ setShowLogin }) {
     const [username, setUsername] = useState(null);
@@ -14,7 +15,10 @@ function Navbar({ setShowLogin }) {
         localStorage.removeItem("token");
         localStorage.removeItem("username");
         setUsername(null);
-        setShowLogin(true);  // Trigger login popup when logging out
+        toast.success("You have been logged out", {
+            position: "top-right",
+            autoClose: 3000,
+        });
     };
 
     return (
@@ -33,20 +37,20 @@ function Navbar({ setShowLogin }) {
 
                 {!localStorage.getItem("token") ? (
                     <button
-                    onClick={() => setShowLogin(true)}  // This should call setShowLogin correctly
-                    className="bg-gradient-to-r from-gradientStart to-gradientEnd text-textColor font-semibold rounded-lg px-6 py-2 text-base hover:bg-opacity-70"
+                        onClick={() => setShowLogin(true)}
+                        className="bg-gradient-to-r from-gradientStart to-gradientEnd text-textColor font-semibold rounded-lg px-6 py-2 text-base hover:bg-opacity-70"
                     >
                         Login
                     </button>
                 ) : (
                     <div className="flex items-center">
                         <span className="text-textColor font-semibold mr-4">
-                            Welcome,  {username || ""}
+                            Welcome, {username || ""}
                         </span>
                         <IoPersonCircle className="cursor-pointer mr-4" size={30} />
                         <button
                             onClick={logout}
-                            className="bg-red-500 text-white rounded-lg px-6 py-2 text-base hover:bg-opacity-70"
+                            className="bg-gradient-to-r from-gradientStart to-gradientEnd text-white rounded-lg px-6 py-2 text-base hover:bg-opacity-70"
                         >
                             Logout
                         </button>
@@ -56,4 +60,5 @@ function Navbar({ setShowLogin }) {
         </div>
     );
 }
-export default Navbar
+
+export default Navbar;

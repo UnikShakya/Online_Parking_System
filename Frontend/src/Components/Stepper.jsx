@@ -17,7 +17,7 @@ function ConnectedCircles() {
     <div className="flex justify-between items-center relative w-full max-w-6xl mx-auto p-4">
       {steps.map(({ path, label, step }, index) => (
         <div key={index} className="flex flex-col items-center cursor-pointer relative">
-          <Link to={path}>
+          {/* <Link to={path}> */}
             <div
               className={`rounded-full cursor-not-allowed flex items-center justify-center text-white font-bold transition-all duration-300 ${
                 step <= activeStep ? 'bg-gradient-to-r from-gradientStart to-gradientEnd' : 'bg-gray-300'
@@ -25,7 +25,7 @@ function ConnectedCircles() {
             >
               {step === 1 ? '✓' : step}
             </div>
-          </Link>
+          {/* </Link> */}
           <div className="mt-2 text-sm text-textColor">{label}</div>
           
           {/* Connecting Line */}
