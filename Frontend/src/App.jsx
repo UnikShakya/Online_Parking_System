@@ -5,8 +5,6 @@ import LoginPopup from './LoginPopup';
 import { ToastContainer } from 'react-toastify';
 import { StoreProvider } from './Context/StoreContext';
 import MainLayout from './Admin/MainLayout';
-import Selection from './Components/Selection';
-import ParkingLot from './Pages/ParkingLot';
 import BookingTicket from './Pages/BookingTicket';
 import ForgetPassword from './Pages/ForgetPassword';
 import ResetPassword from './Pages/ResetPassword';
@@ -22,6 +20,8 @@ import Middleman from './Admin/Middleman';
 import Users from './Admin/Users';
 import ParkingCost from './Admin/ParkingCost';
 import ParkingLots from './Admin/ParkingLots';
+import ParkingLotWrapper from './Pages/ParkingLotWrapper';
+
 
 export const RecoveryContext = createContext();
 
@@ -52,7 +52,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home setShowLogin={setShowLogin} />} />
         <Route path="/pagination" element={<Stepper />} />
-        <Route path="/parking-lot" element={<ParkingLot />} />
+        <Route path="/parking-lot" element={<ParkingLotWrapper />} /> {/* Updated route */}
         <Route path="/booking-ticket" element={<BookingTicket />} />
         <Route path="/forget-password" element={<ForgetPassword />} />
         <Route path="/middleware" element={<Middleware />} />

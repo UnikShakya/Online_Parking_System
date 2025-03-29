@@ -5,7 +5,7 @@ const bookingSchema = new mongoose.Schema({
     vehicleNumber: { type: String, required: true },
     phoneNumber: { type: String, required: true },
     // vehicleType: { type: String, required: true, enum: ['2-wheeler', '4-wheeler']},  // Only allow these two values
-    paymentMethod: { type: String, required: true, enum: ['cash', 'digital'] },
+    paymentMethod: { type: String, required: true, enum: ['cash', 'khalti'] },
 });
 
 const BookingModel = mongoose.model('Booking', bookingSchema);

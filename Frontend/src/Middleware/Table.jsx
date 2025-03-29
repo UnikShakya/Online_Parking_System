@@ -14,7 +14,8 @@ function Table() {
         const response = await axios.get('http://localhost:4000/api/booking/getBookings');
         const bookingsWithStatus = response.data.map(booking => ({
           ...booking,
-          paid: booking.paid ?? false
+          // Set paid to true for digital payments (e.g., "khalti"), otherwise use existing paid status or false
+          paid: booking.paymentMethod.toLowerCase() === 'digital' ? true : (booking.paid ?? false),
         }));
         setBookings(bookingsWithStatus);
         setFilteredBookings(bookingsWithStatus);
@@ -40,8 +41,12 @@ function Table() {
     try {
       const updatedBookings = bookings.map(booking => {
         if (booking._id === bookingId) {
-          const updatedBooking = { ...booking, paid: newStatus === 'Paid' };
-          // Update backend if needed
+          const isDigitalPayment = booking.paymentMethod.toLowerCase() === 'digital';
+          const updatedBooking = { 
+            ...booking, 
+            paid: isDigitalPayment ? true : newStatus === 'Paid' // Prevent changing digital payments to unpaid
+          };
+          // Uncomment and update backend if needed
           // await axios.put(`http://localhost:4000/api/booking/${bookingId}`, { paid: updatedBooking.paid });
           return updatedBooking;
         }
@@ -66,7 +71,6 @@ function Table() {
             <span className="text-textColor">ase</span>
           </h1>
         </Link>
-        {/* <h1 className="text-2xl font-semibold text-textColor">Parking Lot Bookings Dashboard</h1> */}
       </div>
 
       {/* Search Bar */}
@@ -84,7 +88,7 @@ function Table() {
       <div className="bg-white rounded-xl shadow-lg overflow-hidden">
         <div className="overflow-y-auto max-h-[600px]">
           <table className="min-w-full">
-            <thead className="bg-blue-600 text-white sticky top-0">
+            <thead className="bg-blue-600 text-white sticky top-0 z-10">
               <tr>
                 <th className="py-3 px-6 text-left">Name</th>
                 <th className="py-3 px-6 text-left">Phone Number</th>
@@ -105,11 +109,13 @@ function Table() {
                       <select
                         value={booking.paid ? 'Paid' : 'Unpaid'}
                         onChange={(e) => handleStatusChange(booking._id, e.target.value)}
-                        className={`w-28 px-3 py-1 rounded-lg border-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 ${
+                        className={`w-28 px-3 py-1 rounded-lg border-2 shadow-sm focus:outline-none focus:ring-5 focus:ring-green-700 transition-all duration-200 ${
                           booking.paid
                             ? 'bg-green-50 border-green-400 text-green-700'
                             : 'bg-red-50 border-red-400 text-red-700'
                         }`}
+                        // Disable dropdown for digital payments since they are always paid
+                        disabled={booking.paymentMethod.toLowerCase() === 'digital'}
                       >
                         <option value="Paid" className="bg-green-50 border-none text-green-700">Paid</option>
                         <option value="Unpaid" className="bg-red-50 border-none text-red-700">Unpaid</option>
@@ -133,8 +139,8 @@ function Table() {
       <div className="mt-6 flex justify-between text-textColor">
         <p>Total Bookings: {filteredBookings.length}</p>
         <p>
-          Cash Payments: {filteredBookings.filter(b => b.paymentMethod === 'Cash').length} 
-          (Unpaid: {filteredBookings.filter(b => b.paymentMethod === 'Cash' && !b.paid).length})
+          Cash Payments: {filteredBookings.filter(b => b.paymentMethod.toLowerCase() === 'cash').length} 
+          (Unpaid: {filteredBookings.filter(b => b.paymentMethod.toLowerCase() === 'cash' && !b.paid).length})
         </p>
       </div>
     </div>

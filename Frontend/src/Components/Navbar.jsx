@@ -38,7 +38,7 @@ function Navbar({ setShowLogin }) {
                 {!localStorage.getItem("token") ? (
                     <button
                         onClick={() => setShowLogin(true)}
-                        className="bg-gradient-to-r from-gradientStart to-gradientEnd text-textColor font-semibold rounded-lg px-6 py-2 text-base hover:bg-opacity-70"
+                        className="bg-gradient-to-r from-gradientStart to-gradientEnd hover:opacity-70 text-textColor font-semibold rounded-lg px-6 py-2 text-base hover:bg-opacity-70"
                     >
                         Login
                     </button>
@@ -50,7 +50,7 @@ function Navbar({ setShowLogin }) {
                         <IoPersonCircle className="cursor-pointer mr-4" size={30} />
                         <button
                             onClick={logout}
-                            className="bg-gradient-to-r from-gradientStart to-gradientEnd text-white rounded-lg px-6 py-2 text-base hover:bg-opacity-70"
+                            className="bg-gradient-to-r from-gradientStart to-gradientEnd hover:opacity-70 text-white rounded-lg px-6 py-2 text-base hover:bg-opacity-70"
                         >
                             Logout
                         </button>

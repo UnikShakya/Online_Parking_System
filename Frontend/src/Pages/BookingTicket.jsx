@@ -40,7 +40,7 @@ function BookingTicket() {
       <ConnectedCircles />
 
       <div className="flex flex-col items-center justify-center p-5">
-        <h1 className="text-4xl font-bold text-gray-800 mb-8">Your Booking Ticket</h1>
+        <h1 className="text-4xl font-bold text-textColor mb-8">Your Booking Ticket</h1>
         <div 
           ref={ticketRef} 
           className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl p-8 transform transition-transform hover:scale-105"
@@ -71,7 +71,7 @@ function BookingTicket() {
         </div>
         <button
           onClick={handleDownload}
-          className="mt-8 bg-designColor text-white font-semibold rounded-full px-8 py-3 hover:from-blue-600 hover:to-purple-600 transition-all transform hover:scale-105"
+          className="mt-8 bg-gradient-to-r from-gradientStart to-gradientEnd  text-white font-semibold rounded-full px-8 py-3 transition-all transform hover:scale-105"
         >
           Download Ticket
         </button>
