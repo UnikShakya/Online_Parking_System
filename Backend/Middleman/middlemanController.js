@@ -59,4 +59,14 @@ const signupMiddleman = async (req, res) => {
     }
 };
 
-module.exports = { signupMiddleman };
+const getMiddlemen = async (req, res) => {
+    try {
+        const middlemen = await middlemanModel.find({}, "username email _id");
+        res.json({ success: true, middlemen });
+    } catch (error) {
+        console.error("Error fetching middlemen:", error);
+        res.status(500).json({ success: false, message: "Error fetching middlemen" });
+    }
+};
+
+module.exports = { signupMiddleman, getMiddlemen };

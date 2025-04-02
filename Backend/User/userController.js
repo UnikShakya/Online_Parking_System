@@ -238,10 +238,106 @@ const resetPassword = async (req, res) => {
 //     }
 // };
 
+const getUsers = async (req, res) => {
+    try {
+        const users = await userModel.find({}, "username email _id"); // Exclude _id if not needed
+        res.json({ success: true, users });
+    } catch (error) {
+        console.error("Error fetching users:", error);
+        res.status(500).json({ success: false, message: "Error fetching users" });
+    }
+};
 
+// UPDATE a user (new)
+const updateUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { username, email } = req.body;
 
+        // Validation
+        if (!username || !email) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Username and email are required" 
+            });
+        }
 
+        const updatedUser = await userModel.findByIdAndUpdate(
+            id,
+            { username, email },
+            { new: true, runValidators: true } // Return updated doc and run schema validators
+        );
 
+        if (!updatedUser) {
+            return res.status(404).json({ 
+                success: false, 
+                message: "User not found" 
+            });
+        }
 
+        res.json({ 
+            success: true, 
+            message: "User updated successfully",
+            user: updatedUser 
+        });
+    } catch (error) {
+        console.error("Error updating user:", error);
+        
+        // Handle specific errors
+        if (error.name === 'CastError') {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Invalid user ID format" 
+            });
+        }
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({ 
+                success: false, 
+                message: error.message 
+            });
+        }
+        
+        res.status(500).json({ 
+            success: false, 
+            message: "Error updating user" 
+        });
+    }
+};
 
-module.exports = { loginUser, registerUser, forgetPassword, resetPassword};
+// DELETE a user (new)
+const deleteUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const deletedUser = await userModel.findByIdAndDelete(id);
+
+        if (!deletedUser) {
+            return res.status(404).json({ 
+                success: false, 
+                message: "User not found" 
+            });
+        }
+
+        res.json({ 
+            success: true, 
+            message: "User deleted successfully",
+            user: deletedUser 
+        });
+    } catch (error) {
+        console.error("Error deleting user:", error);
+        
+        if (error.name === 'CastError') {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Invalid user ID format" 
+            });
+        }
+        
+        res.status(500).json({ 
+            success: false, 
+            message: "Error deleting user" 
+        });
+    }
+};
+module.exports = { loginUser, registerUser, forgetPassword, resetPassword, getUsers, updateUser, deleteUser };
+

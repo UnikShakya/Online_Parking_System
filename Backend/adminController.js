@@ -71,4 +71,14 @@ const signupAdmin = async (req, res) => {
     }
 };
 
-module.exports = { signupAdmin };
+const getAdmins = async (req, res) => {
+    try {
+        const admins = await adminModel.find({}, "username email _id");
+        res.json({ success: true, admins });
+    } catch (error) {
+        console.error("Error fetching admins:", error);
+        res.status(500).json({ success: false, message: "Error fetching admins" });
+    }
+};
+
+module.exports = { signupAdmin, getAdmins };
