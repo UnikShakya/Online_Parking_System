@@ -1,12 +1,14 @@
+// Selection.js
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { TimePicker } from "@mui/x-date-pickers/TimePicker";
+import { DatePicker, TimePicker } from "@mui/x-date-pickers";
+import { Tooltip } from "@mui/material";
 import dayjs from "dayjs";
 import "dayjs/locale/en";
 import { toast } from "react-toastify";
+import { useParkingCost } from "../Context/ParkingCostContext";
 
 function Selection({ setShowLogin }) {
   const today = dayjs();
@@ -19,10 +21,38 @@ function Selection({ setShowLogin }) {
   const [formSubmitted, setFormSubmitted] = useState(false);
 
   const navigate = useNavigate();
+  const { twoWheelerCost, fourWheelerCost } = useParkingCost();
 
   const rates = {
-    "2Wheeler": { peakRate: 20, offPeakRate: 25 },
-    "4Wheeler": { peakRate: 40, offPeakRate: 45 },
+    "2Wheeler": { 
+      peakRate: twoWheelerCost * 0.8, // 20% higher during peak
+      offPeakRate: twoWheelerCost 
+    },
+    "4Wheeler": { 
+      peakRate: fourWheelerCost * 0.8, // 20% higher during peak
+      offPeakRate: fourWheelerCost 
+    },
+  };
+
+  const calculateCost = (vehicleType) => {
+    if (!startTime || !endTime) return { totalCost: '--', isPeak: false };
+    
+    const startTotalMinutes = startTime.hour() * 60 + startTime.minute();
+    const endTotalMinutes = endTime.hour() * 60 + endTime.minute();
+    
+    if (endTotalMinutes <= startTotalMinutes) {
+      return { totalCost: '--', isPeak: false };
+    }
+    
+    const durationHours = (endTotalMinutes - startTotalMinutes) / 60;
+    const startHour = startTime.hour();
+    const isPeak = startHour >= 10 && startHour < 17;
+    const rate = isPeak ? rates[vehicleType].peakRate : rates[vehicleType].offPeakRate;
+    
+    return {
+      totalCost: (rate * durationHours).toFixed(2),
+      isPeak
+    };
   };
 
   const handleDateChange = (newValue) => {
@@ -66,65 +96,53 @@ function Selection({ setShowLogin }) {
     setFormSubmitted(true);
 
     if (!isFormValid()) {
-      console.log("Please fill in all fields!");
       return;
     }
 
-    if (endTime.isBefore(startTime)) {
-      setTimeError("End time must be later than start time!");
-      return;
-    }
+    const twoWheelerData = calculateCost("2Wheeler");
+    const fourWheelerData = calculateCost("4Wheeler");
 
-    const startTotalMinutes = startTime.hour() * 60 + startTime.minute();
-    const endTotalMinutes = endTime.hour() * 60 + endTime.minute();
-
-    const calculateCost = (vehicleType, startTotalMinutes, endTotalMinutes) => {
-      const currentHour = new Date().getHours();
-      const isPeak = currentHour >= 10 && currentHour < 17;
-      const { peakRate, offPeakRate } = rates[vehicleType];
-      const vehicleRate = isPeak ? peakRate : offPeakRate;
-
-      let currentTime = startTotalMinutes;
-      let totalCost = 0;
-
-      while (currentTime < endTotalMinutes) {
-        let currentHour = Math.floor(currentTime / 60);
-        let nextHourStart = (currentHour + 1) * 60;
-        let chargeableMinutes = Math.min(nextHourStart, endTotalMinutes) - currentTime;
-        totalCost += (vehicleRate / 60) * chargeableMinutes;
-        currentTime = nextHourStart;
-      }
-
-      return totalCost.toFixed(2);
-    };
-
-    const totalCost2Wheeler = calculateCost("2Wheeler", startTotalMinutes, endTotalMinutes);
-    const totalCost4Wheeler = calculateCost("4Wheeler", startTotalMinutes, endTotalMinutes);
-
-    // Map location to parking lot ID
     const parkingLotMap = {
       "ParkingLot1": "1",
       "ParkingLot2": "2",
       "ParkingLot3": "3",
     };
-    const parkingLotId = parkingLotMap[location] || "1"; // Default to 1 if no match
-
-    console.log(`Total cost for 2-wheeler: Rs.${totalCost2Wheeler}`);
-    console.log(`Total cost for 4-wheeler: Rs.${totalCost4Wheeler}`);
+    const parkingLotId = parkingLotMap[location] || "1";
 
     navigate("/parking-lot", {
       state: {
-        totalCost2Wheeler,
-        totalCost4Wheeler,
+        totalCost2Wheeler: twoWheelerData.totalCost,
+        totalCost4Wheeler: fourWheelerData.totalCost,
         rates,
+        discountRate: 0.2, // Pass the discount rate here
         startTime: startTime.format("HH:mm A"),
         endTime: endTime.format("HH:mm A"),
-        parkingLotId, // Pass the parking lot ID
+        parkingLotId,
+        isPeak: twoWheelerData.isPeak,
+        date: selectedDate.format("DD/MM/YYYY"),
+        location
       },
     });
   };
 
-  const isFormValid = () => location && selectedDate && startTime && endTime && !timeError;
+  const isFormValid = () => {
+    if (!location) {
+      setError("Please select a parking lot");
+      return false;
+    }
+    if (!selectedDate) {
+      setError("Please select a date");
+      return false;
+    }
+    if (!startTime || !endTime) {
+      setTimeError("Please select both start and end times");
+      return false;
+    }
+    if (timeError) {
+      return false;
+    }
+    return true;
+  };
 
   return (
     <div className="max-w-5xl mx-auto my-20 flex flex-col items-center">
@@ -179,7 +197,7 @@ function Selection({ setShowLogin }) {
                   label="Start Time"
                   value={startTime}
                   onChange={handleStartTimeChange}
-                  minutesStep={1}
+                  minutesStep={15}
                   slotProps={{
                     textField: {
                       variant: "standard",
@@ -206,7 +224,7 @@ function Selection({ setShowLogin }) {
                   label="End Time"
                   value={endTime}
                   onChange={handleEndTimeChange}
-                  minutesStep={1}
+                  minutesStep={15}
                   slotProps={{
                     textField: {
                       variant: "standard",
@@ -229,7 +247,7 @@ function Selection({ setShowLogin }) {
           </div>
         </div>
 
-        <div className="ml-4">
+        <div className="ml-4 flex flex-col items-center">
           <button
             className="bg-gradient-to-r from-[#FF5733] to-[#8B5CF6] text-white font-semibold rounded-lg px-8 py-5 text-base hover:opacity-90 transition-opacity"
             onClick={handleBooking}
@@ -239,11 +257,42 @@ function Selection({ setShowLogin }) {
         </div>
       </div>
 
+      {startTime && endTime && (
+        <div className="mt-2 text-center">
+          <Tooltip 
+            title={
+              <div className="p-2">
+                <div>Base Rates:</div>
+                <div>2-Wheeler: Rs.{twoWheelerCost}/hr</div>
+                <div>4-Wheeler: Rs.{fourWheelerCost}/hr</div>
+                <div className="mt-1">
+                  {calculateCost("2Wheeler").isPeak 
+                    ? "Peak hour rates apply (20% discount)" 
+                    : "Normal rates apply"}
+                </div>
+              </div>
+            }
+            arrow
+          >
+            <div className="text-sm text-gray-400 cursor-help">
+              Estimated: 
+              <span className="font-medium mx-1">
+                2W - Rs. {calculateCost("2Wheeler").totalCost}
+              </span> 
+              | 
+              <span className="font-medium mx-1">
+                4W - Rs. {calculateCost("4Wheeler").totalCost}
+              </span>
+            </div>
+          </Tooltip>
+        </div>
+      )}
+
       <div className="mt-4 text-center w-full">
         {error && <p className="text-red-500 text-sm">{error}</p>}
         {timeError && <p className="text-red-500 text-sm">{timeError}</p>}
         {formSubmitted && !isFormValid() && (
-          <p className="text-red-500 text-sm">Please fill in all fields!</p>
+          <p className="text-red-500 text-sm">Please fill in all fields correctly!</p>
         )}
       </div>
     </div>

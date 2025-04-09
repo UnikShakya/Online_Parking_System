@@ -11,13 +11,17 @@ const bookingRoute = require("./bookingRoute");
 const bookingModel = require("./bookingModel");
 const database = require("./database"); // Import the database function
 const adminRouter = require("./adminRoute"); // Import adminRouter
+// const axios = require('axios'); // Add near your other routes in server.js
 
+
+// Connect to MongoDB
+database(); // Call the database function to connect to MongoDB
 dotenv.config(); // Load environment variables
 
 const app = express();
 const port = process.env.PORT || 4000;
 
-// Middleware
+// middleman
 app.use(express.json());
 app.use(
     cors({
@@ -27,8 +31,6 @@ app.use(
     })
 );
 
-// Connect to MongoDB
-database(); // Call the database function to connect to MongoDB
 
 // Create default admin if not exists
 const createDefaultAdmin = async () => {
@@ -52,31 +54,31 @@ const createDefaultAdmin = async () => {
     }
 };
 
-// Create default middleware if not exists
-const createDefaultMiddleware = async () => {
+// Create default middleman if not exists
+const createDefaultmiddleman = async () => {
     try {
-        const middleware = await middlemanModel.findOne({ email: "parkease@gmail.com" });
+        const middleman = await middlemanModel.findOne({ email: "parkease@gmail.com" });
 
-        if (!middleware) {
+        if (!middleman) {
             const hashedPassword = await bcrypt.hash("parkease", 10);
-            const newMiddleware = new middlemanModel({
-                username: "middleware",
+            const newmiddleman = new middlemanModel({
+                username: "middleman",
                 email: "parkease@gmail.com",
                 password: hashedPassword,
-                role: "middleware", // Set role to "middleware"
+                role: "middleman", // Set role to "middleman"
             });
 
-            await newMiddleware.save();
-            console.log("Default middleware created in middleman collection");
+            await newmiddleman.save();
+            console.log("Default middleman created in middleman collection");
         }
     } catch (error) {
-        console.error("Error creating default middleware:", error);
+        console.error("Error creating default middleman:", error);
     }
 };
 
-// Create default admin and middleware on server start
+// Create default admin and middleman on server start
 createDefaultAdmin();
-createDefaultMiddleware();
+createDefaultmiddleman();
 
 // Routes
 app.get("/", (req, res) => {
@@ -142,6 +144,36 @@ app.get("/api/bookingCount", async (req, res) => {
     }
 });
 
+
+
+// Khalti Payment Verification
+app.post('/api/verify-khalti', async (req, res) => {
+  const { token, amount, bookingId } = req.body;
+
+  try {
+    // Verify with Khalti API
+    const response = await axios.post(
+      'https://khalti.com/api/v2/payment/verify/',
+      { token, amount },
+      { headers: { Authorization: `Key ${process.env.KHALTI_SECRET_KEY}` } }
+    );
+
+    // Update booking status
+    await bookingModel.findByIdAndUpdate(bookingId, {
+      status: 'paid',
+      paymentMethod: 'khalti',
+      paymentId: response.data.idx
+    });
+
+    res.json({ success: true, data: response.data });
+  } catch (error) {
+    console.error('Khalti verification failed:', error);
+    res.status(400).json({ 
+      success: false, 
+      error: error.response?.data || 'Payment verification failed' 
+    });
+  }
+});
 // Start the server
 app.listen(port, () => {
     console.log(`Server started on http://localhost:${port}`);

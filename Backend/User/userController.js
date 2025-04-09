@@ -13,8 +13,8 @@ const createToken = (id) => {
 const ADMIN_EMAIL = 'admin@gmail.com'; // Predefined admin email
 const ADMIN_PASSWORD = 'admin123'; // Predefined admin password
 
-const MIDDLEWARE_EMAIL = 'parkease@gmail.com'; // Predefined admin email
-const MIDDLEWARE_PASSWORD = 'parkease' // Predefined admin password
+const MIDDLEMAN_EMAIL = 'parkease@gmail.com'; // Predefined admin email
+const MIDDLEMAN_PASSWORD = 'parkease' // Predefined admin password
 
 //login user
 const loginUser = async (req, res) => {
@@ -23,25 +23,23 @@ const loginUser = async (req, res) => {
     try {
         // Check if the credentials match the default admin
         if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-            // Create a token for the default admin
-            const token = createToken("default-admin-id"); // Use a unique ID for the default admin
+            const token = createToken("default-admin-id");
             return res.json({
                 success: true,
                 token,
                 username: "admin",
-                redirect: "/admin", // Redirect to admin dashboard
+                redirect: `/admin/${token}`, // Redirect to admin dashboard
             });
         }
 
-        // Check if the credentials match the default middleware
-        if (email === MIDDLEWARE_EMAIL && password === MIDDLEWARE_PASSWORD) {
-            // Create a token for the default middleware
-            const token = createToken("default-middleware-id"); // Use a unique ID for the default middleware
+        // Check if the credentials match the default middleman
+        if (email === MIDDLEMAN_EMAIL && password === MIDDLEMAN_PASSWORD) {
+            const token = createToken("default-middleman-id");
             return res.json({
                 success: true,
                 token,
-                username: "middleware",
-                redirect: "/middleware", // Redirect to middleware dashboard
+                username: "middleman",
+                redirect: `/middleman/${token}`, // Redirect to middleman dashboard with token
             });
         }
 
@@ -55,7 +53,7 @@ const loginUser = async (req, res) => {
 
         // If not found in adminModel, check in middlemanModel
         if (!user) {
-            user = await middlemanModel.findOne({ email });
+            user = await middlemanModel.findOne({ email });  // Ensure we check the correct collection
         }
 
         // If user not found in any collection
@@ -75,9 +73,9 @@ const loginUser = async (req, res) => {
         // Determine the redirect path based on the user's role
         let redirectPath = '/'; // Default redirect for regular users
         if (user.role === 'admin') {
-            redirectPath = '/admin'; // Redirect admin users to /admin
-        } else if (user.role === 'middleware') {
-            redirectPath = '/middleware'; // Redirect middleware users to /middleware
+            redirectPath = `/admin/${token}`; // Redirect admin users to /admin/:id
+        } else if (user.role === 'middleman') {
+            redirectPath = `/admin/${token}`; // Redirect middleman users to /middleman/:id
         }
 
         // Return the response
@@ -96,6 +94,8 @@ const loginUser = async (req, res) => {
         });
     }
 };
+
+
 
 // Register User
 const registerUser = async (req, res) => {
@@ -218,7 +218,7 @@ const resetPassword = async (req, res) => {
     }
 };
 
-// Middleware to verify admin
+// middleman to verify admin
 // const verifyAdmin = async (req, res, next) => {
 //     const token = req.headers.authorization?.split(' ')[1];
 //     if (!token) {

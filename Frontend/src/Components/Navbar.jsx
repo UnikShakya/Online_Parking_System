@@ -43,17 +43,17 @@ function Navbar({ setShowLogin }) {
                         Login
                     </button>
                 ) : (
-                    <div className="flex items-center">
-                        <span className="text-textColor font-semibold mr-4">
+                    <div className="flex items-center gap-4">
+                        <span className="text-textColor font-semibold mr-2">
                             Welcome, {username || ""}
                         </span>
-                        <IoPersonCircle className="cursor-pointer mr-4" size={30} />
                         <button
                             onClick={logout}
                             className="bg-gradient-to-r from-gradientStart to-gradientEnd hover:opacity-70 text-white rounded-lg px-6 py-2 text-base hover:bg-opacity-70"
                         >
                             Logout
                         </button>
+                        <IoPersonCircle className="cursor-pointer mr-4" size={30} />
                     </div>
                 )}
             </div>

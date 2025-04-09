@@ -129,13 +129,14 @@ const LoginPopup = ({ setShowLogin }) => {
                 <button type="submit" className="w-full py-2 px-4  text-white font-semibold rounded-md shadow  focus:outline-none focus:ring-2 ">
                     {currState === "Login" ? "Login" : "Create account"}
                 </button>
-
-                <div className="login-popup-condition">
-                    <input type="checkbox" required id="terms" />
-                    <label htmlFor="terms" className="ml-2">
-                        By continuing, I agree to the terms of use & privacy policy.
-                    </label>
-                </div>
+                {currState === "Sign Up" && (
+                    <div className="login-popup-condition">
+                        <input type="checkbox" required id="terms" />
+                        <label htmlFor="terms" className="ml-2">
+                            By continuing, I agree to the terms of use & privacy policy.
+                        </label>
+                    </div>
+                )}
 
                 <p className="text-center">
                     {currState === "Login" ? "Create a new account?" : "Already have an account?"}

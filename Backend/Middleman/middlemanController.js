@@ -36,7 +36,6 @@ const signupMiddleman = async (req, res) => {
             username,
             email,
             password: hashedPassword,
-            role: "middleware", // Set role to "middleware"
         });
 
         // Save the new middleman to MongoDB
@@ -51,7 +50,6 @@ const signupMiddleman = async (req, res) => {
             message: "Middleman created successfully",
             token,
             username: savedMiddleman.username,
-            redirect: "/middleware", // Redirect to middleware dashboard
         });
     } catch (error) {
         console.error("Error creating middleman:", error);

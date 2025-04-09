@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const adminModel = require("./adminModel"); // Use adminModel
 const validator = require("validator");
+const authMiddleware = require("./authentication");
 
 // Create token
 const createToken = (id) => {
@@ -81,4 +82,33 @@ const getAdmins = async (req, res) => {
     }
 };
 
-module.exports = { signupAdmin, getAdmins };
+const getAdminById = async (req, res) => {
+    const { id } = req.params; // Extract the id from the route params
+
+    // Check if the ID in the URL matches the ID in the token
+    if (req.user._id !== id) {
+        return res.status(403).json({ success: false, message: 'Not Authorized to access this admin' });
+    }
+
+    try {
+        const admin = await adminModel.findById(id); // Fetch the admin by ID from the database
+
+        if (!admin) {
+            return res.status(404).json({ success: false, message: 'Admin not found' });
+        }
+
+        res.json({
+            success: true,
+            admin,
+        });
+    } catch (error) {
+        console.error('Error fetching admin:', error);
+        res.status(500).json({ success: false, message: 'An error occurred' });
+    }
+};
+
+
+
+
+
+module.exports = { signupAdmin, getAdmins, getAdminById };
