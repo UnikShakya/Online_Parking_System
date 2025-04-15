@@ -11,7 +11,8 @@ const bookingRoute = require("./bookingRoute");
 const bookingModel = require("./bookingModel");
 const database = require("./database"); // Import the database function
 const adminRouter = require("./adminRoute"); // Import adminRouter
-// const axios = require('axios'); // Add near your other routes in server.js
+const paymentRouter = require("./Payment/paymentRoute");
+const axios = require('axios'); // Add near your other routes in server.js
 
 
 // Connect to MongoDB
@@ -89,7 +90,26 @@ app.use("/api/user", userRouter); // User routes
 app.use("/api/booking", bookingRoute); // Booking routes
 app.use("/api/admin", adminRouter); // Admin routes
 app.use("/api/middleman", middlemanRouter); // Middleman routes
+app.use('/api/payments', paymentRouter); //payment routes
 
+// const API_URL = 'https://pay.periwin.com/api/payment/process/initiate/';
+// const API_KEY = process.env.PERIPAY_API_KEY; // store this in .env
+
+// app.post('/initiate-payment', async (req, res) => {
+//     try {
+//       const response = await axios.post(API_URL, req.body, {
+//         headers: {
+//           Authorization: `Bearer ${API_KEY}`,
+//           'Content-Type': 'application/json',
+//         },
+//       });
+  
+//       res.json(response.data); // return PeriPay response to frontend
+//     } catch (err) {
+//       console.error('Error initiating payment:', err.response?.data || err.message);
+//       res.status(500).json({ error: 'Failed to initiate payment' });
+//     }
+//   });
 
 // Endpoint to get user count
 app.get("/api/userCount", async (req, res) => {
@@ -177,4 +197,8 @@ app.post('/api/verify-khalti', async (req, res) => {
 // Start the server
 app.listen(port, () => {
     console.log(`Server started on http://localhost:${port}`);
+    console.log('PeriPay Config:', {
+        baseUrl: process.env.PERIPAY_BASE_URL,
+        apiKey: process.env.PERIPAY_API_KEY ? '***loaded***' : 'MISSING'
+      });
 });

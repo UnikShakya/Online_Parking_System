@@ -99,15 +99,15 @@ const ParkingLot2 = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6 flex flex-col items-center">
+    <div className="min-h-screen bg-designColor mt-[5rem] p-6 flex flex-col items-center">
       <ConnectedCircles activeStep={activeStep} />
 
-      <h1 className="text-4xl font-extrabold text-gray-800 mb-8 mt-4 tracking-tight">
+      <h1 className="text-4xl font-extrabold text-white mb-8 mt-4 tracking-tight">
         Select Your Parking Spot
       </h1>
 
       {/* Parking Layout */}
-      <div className="w-full max-w-6xl bg-white rounded-xl shadow-lg p-6">
+      <div className="w-full relative max-w-8xl bg-white rounded-xl shadow-lg p-6">
         <div className="flex flex-col md:flex-row gap-8">
           {/* 2-Wheeler Section */}
           <div className="flex-1">
@@ -119,7 +119,7 @@ const ParkingLot2 = () => {
 
           {/* 4-Wheeler Section */}
           <div className="w-full md:w-1/4">
-            <h2 className="text-2xl font-bold text-green-700 mb-4 text-center">4-Wheeler Parking</h2>
+            <h2 className="text-2xl font-bold text-green-700 text-center">4-Wheeler Parking</h2>
             {parkingConfig["4Wheeler"].rows.map((row) =>
               renderParkingRow(row, parkingConfig["4Wheeler"].spotsPerRow, "4Wheeler")
             )}
@@ -127,13 +127,13 @@ const ParkingLot2 = () => {
         </div>
 
         {/* Entry Sign */}
-        <div className="absolute left-4 top-1/2 transform -translate-y-1/2 rotate-90 bg-yellow-400 text-gray-800 font-semibold px-3 py-1 rounded-full shadow">
+        <div className="absolute left-0 top-1/2 transform -translate-y-1/2 rotate-90 text-lg font-semibold">
           Entry
         </div>
       </div>
 
       {/* Legend */}
-      <div className="flex flex-wrap justify-center mt-6 gap-6 bg-white p-4 rounded-lg shadow-md w-full max-w-6xl">
+      <div className="flex flex-wrap justify-center mt-6 gap-6 bg-white p-4 rounded-lg shadow-md w-full max-w-8xl">
         <div className="flex items-center">
           <div className="w-5 h-5 bg-blue-100 border-2 border-blue-200 rounded mr-2"></div>
           <span className="text-gray-700 font-medium">2-Wheeler Available</span>

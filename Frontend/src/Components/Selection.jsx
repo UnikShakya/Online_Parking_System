@@ -1,5 +1,4 @@
-// Selection.js
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -18,40 +17,43 @@ function Selection({ setShowLogin }) {
   const [endTime, setEndTime] = useState(null);
   const [error, setError] = useState("");
   const [timeError, setTimeError] = useState("");
-  const [formSubmitted, setFormSubmitted] = useState(false);
 
   const navigate = useNavigate();
-  const { twoWheelerCost, fourWheelerCost } = useParkingCost();
+  const { twoWheelerNum, fourWheelerNum } = useParkingCost();
 
-  const rates = {
-    "2Wheeler": { 
-      peakRate: twoWheelerCost * 0.8, // 20% higher during peak
-      offPeakRate: twoWheelerCost 
-    },
-    "4Wheeler": { 
-      peakRate: fourWheelerCost * 0.8, // 20% higher during peak
-      offPeakRate: fourWheelerCost 
-    },
-  };
+  // Update usage in calculations
+  const rates = useMemo(
+    () => ({
+      "2Wheeler": {
+        peakRate: twoWheelerNum * 0.8,   // Changed from twoWheelerCost
+        offPeakRate: twoWheelerNum,
+      },
+      "4Wheeler": {
+        peakRate: fourWheelerNum * 0.8,   // Changed from fourWheelerCost
+        offPeakRate: fourWheelerNum,
+      },
+    }),
+    [twoWheelerNum, fourWheelerNum]      // Update dependencies
+  );
 
   const calculateCost = (vehicleType) => {
     if (!startTime || !endTime) return { totalCost: '--', isPeak: false };
-    
+
     const startTotalMinutes = startTime.hour() * 60 + startTime.minute();
     const endTotalMinutes = endTime.hour() * 60 + endTime.minute();
-    
+
     if (endTotalMinutes <= startTotalMinutes) {
       return { totalCost: '--', isPeak: false };
     }
-    
+
     const durationHours = (endTotalMinutes - startTotalMinutes) / 60;
     const startHour = startTime.hour();
     const isPeak = startHour >= 10 && startHour < 17;
     const rate = isPeak ? rates[vehicleType].peakRate : rates[vehicleType].offPeakRate;
-    
+
     return {
       totalCost: (rate * durationHours).toFixed(2),
-      isPeak
+      isPeak,
     };
   };
 
@@ -65,6 +67,12 @@ function Selection({ setShowLogin }) {
   };
 
   const handleStartTimeChange = (newValue) => {
+    if (selectedDate && selectedDate.isSame(today, "day") && newValue && newValue.isBefore(today)) {
+      setTimeError("Cannot select past time for today!");
+      setStartTime(null);
+      return;
+    }
+
     setStartTime(newValue);
     if (newValue && endTime && newValue.isAfter(endTime)) {
       setTimeError("Start time must be earlier than end time!");
@@ -74,6 +82,12 @@ function Selection({ setShowLogin }) {
   };
 
   const handleEndTimeChange = (newValue) => {
+    if (selectedDate && selectedDate.isSame(today, "day") && newValue && newValue.isBefore(today)) {
+      setTimeError("Cannot select past time for today!");
+      setEndTime(null);
+      return;
+    }
+
     setEndTime(newValue);
     if (startTime && newValue && newValue.isBefore(startTime)) {
       setTimeError("End time must be later than start time!");
@@ -93,9 +107,19 @@ function Selection({ setShowLogin }) {
       return;
     }
 
-    setFormSubmitted(true);
-
-    if (!isFormValid()) {
+    if (!location) {
+      setError("Please select a parking lot");
+      return;
+    }
+    if (!selectedDate) {
+      setError("Please select a date");
+      return;
+    }
+    if (!startTime || !endTime) {
+      setTimeError("Please select both start and end times");
+      return;
+    }
+    if (timeError) {
       return;
     }
 
@@ -103,9 +127,9 @@ function Selection({ setShowLogin }) {
     const fourWheelerData = calculateCost("4Wheeler");
 
     const parkingLotMap = {
-      "ParkingLot1": "1",
-      "ParkingLot2": "2",
-      "ParkingLot3": "3",
+      ParkingLot1: "1",
+      ParkingLot2: "2",
+      ParkingLot3: "3",
     };
     const parkingLotId = parkingLotMap[location] || "1";
 
@@ -114,34 +138,15 @@ function Selection({ setShowLogin }) {
         totalCost2Wheeler: twoWheelerData.totalCost,
         totalCost4Wheeler: fourWheelerData.totalCost,
         rates,
-        discountRate: 0.2, // Pass the discount rate here
+        discountRate: 0.2,
         startTime: startTime.format("HH:mm A"),
         endTime: endTime.format("HH:mm A"),
         parkingLotId,
         isPeak: twoWheelerData.isPeak,
         date: selectedDate.format("DD/MM/YYYY"),
-        location
+        location,
       },
     });
-  };
-
-  const isFormValid = () => {
-    if (!location) {
-      setError("Please select a parking lot");
-      return false;
-    }
-    if (!selectedDate) {
-      setError("Please select a date");
-      return false;
-    }
-    if (!startTime || !endTime) {
-      setTimeError("Please select both start and end times");
-      return false;
-    }
-    if (timeError) {
-      return false;
-    }
-    return true;
   };
 
   return (
@@ -197,7 +202,6 @@ function Selection({ setShowLogin }) {
                   label="Start Time"
                   value={startTime}
                   onChange={handleStartTimeChange}
-                  minutesStep={15}
                   slotProps={{
                     textField: {
                       variant: "standard",
@@ -224,7 +228,6 @@ function Selection({ setShowLogin }) {
                   label="End Time"
                   value={endTime}
                   onChange={handleEndTimeChange}
-                  minutesStep={15}
                   slotProps={{
                     textField: {
                       variant: "standard",
@@ -249,8 +252,11 @@ function Selection({ setShowLogin }) {
 
         <div className="ml-4 flex flex-col items-center">
           <button
-            className="bg-gradient-to-r from-[#FF5733] to-[#8B5CF6] text-white font-semibold rounded-lg px-8 py-5 text-base hover:opacity-90 transition-opacity"
+            className={`bg-gradient-to-r from-[#FF5733] to-[#8B5CF6] text-white font-semibold rounded-lg px-8 py-5 text-base ${
+              timeError ? "opacity-50 cursor-not-allowed" : "hover:opacity-90"
+            }`}
             onClick={handleBooking}
+            disabled={!!timeError}
           >
             Book Now
           </button>
@@ -259,15 +265,15 @@ function Selection({ setShowLogin }) {
 
       {startTime && endTime && (
         <div className="mt-2 text-center">
-          <Tooltip 
+          <Tooltip
             title={
               <div className="p-2">
                 <div>Base Rates:</div>
-                <div>2-Wheeler: Rs.{twoWheelerCost}/hr</div>
-                <div>4-Wheeler: Rs.{fourWheelerCost}/hr</div>
+                <div>2-Wheeler: Rs.{twoWheelerNum.toFixed(2)}/hr</div>
+                <div>4-Wheeler: Rs.{fourWheelerNum.toFixed(2)}/hr</div>
                 <div className="mt-1">
-                  {calculateCost("2Wheeler").isPeak 
-                    ? "Peak hour rates apply (20% discount)" 
+                  {calculateCost("2Wheeler").isPeak
+                    ? "Peak hour rates apply (20% discount)"
                     : "Normal rates apply"}
                 </div>
               </div>
@@ -275,11 +281,11 @@ function Selection({ setShowLogin }) {
             arrow
           >
             <div className="text-sm text-gray-400 cursor-help">
-              Estimated: 
+              Estimated:
               <span className="font-medium mx-1">
                 2W - Rs. {calculateCost("2Wheeler").totalCost}
-              </span> 
-              | 
+              </span>
+              |
               <span className="font-medium mx-1">
                 4W - Rs. {calculateCost("4Wheeler").totalCost}
               </span>
@@ -291,9 +297,6 @@ function Selection({ setShowLogin }) {
       <div className="mt-4 text-center w-full">
         {error && <p className="text-red-500 text-sm">{error}</p>}
         {timeError && <p className="text-red-500 text-sm">{timeError}</p>}
-        {formSubmitted && !isFormValid() && (
-          <p className="text-red-500 text-sm">Please fill in all fields correctly!</p>
-        )}
       </div>
     </div>
   );

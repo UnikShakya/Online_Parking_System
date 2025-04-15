@@ -4,67 +4,84 @@ import { toast } from "react-toastify";
 import { useParkingCost } from '../Context/ParkingCostContext';
 
 function ParkingCost() {
-  const { twoWheelerCost, fourWheelerCost, setTwoWheelerCost, setFourWheelerCost } = useParkingCost();
+  const { twoWheelerNum,fourWheelerNum,setTwoWheelerNum,setFourWheelerNum  } = useParkingCost();
+
+  // Local state for input fields
+  const [localTwoWheelerCost, setLocalTwoWheelerCost] = useState(twoWheelerNum);
+  const [localFourWheelerCost, setLocalFourWheelerCost] = useState(fourWheelerNum);
   const [error, setError] = useState("");
 
-  const handleChange = (e, setCost) => {
+  // Input change handler with validation
+  const handleChange = (e, setLocalCost) => {
     const value = e.target.value;
-    // Allow empty string or valid numbers
     if (value === "" || /^[0-9]*\.?[0-9]*$/.test(value)) {
-      setCost(value);
+      setLocalCost(value);
       setError("");
     }
   };
 
+  // Form submission handler
   const handleUpdate = () => {
-    // Check if values are valid numbers
-    if (twoWheelerCost === "" || fourWheelerCost === "") {
+    if (localTwoWheelerCost === "" || localFourWheelerCost === "") {
       setError("Please enter valid numbers for both vehicle types");
       return;
     }
-    
-    if (isNaN(Number(twoWheelerCost)) || isNaN(Number(fourWheelerCost))) {
-      setError("Please enter valid numbers");
+
+    const twoWheelerNum = Number(localTwoWheelerCost);
+    const fourWheelerNum = Number(localFourWheelerCost);
+
+    if (isNaN(twoWheelerNum) || isNaN(fourWheelerNum) || twoWheelerNum < 0 || fourWheelerNum < 0) {
+      setError("Please enter valid positive numbers");
       return;
     }
 
-    // Convert to numbers and update
-    setTwoWheelerCost(Number(twoWheelerCost));
-    setFourWheelerCost(Number(fourWheelerCost));
+    // Update global context
+    setTwoWheelerNum(twoWheelerNum);
+    setFourWheelerNum(fourWheelerNum);
     setError("");
-    toast.success("Parking Cost has been updated");
-    console.log(`Updated Parking Cost: 2W - Rs.${twoWheelerCost}, 4W - Rs.${fourWheelerCost}`)
+
+    toast.success("Parking Cost has been updated!");
+    console.log(`Updated Parking Cost: 2W - Rs.${twoWheelerNum}, 4W - Rs.${fourWheelerNum}`);
   };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <h2 className="text-2xl font-bold text-center mb-6">Update Parking Cost</h2>
-      <div className="max-w-md p-6 bg-gradient-to-r from-indigo-500 to-purple-600 shadow-lg rounded-xl text-white">
-        <div className="mb-6 flex items-center bg-white p-3 rounded-lg shadow-md text-gray-800">
-          <FaMotorcycle className="text-2xl mr-2 text-indigo-500" />
+      <h2 className="text-3xl font-semibold text-center mb-8 text-gray-800">Update Parking Cost</h2>
+
+      <div className="max-w-md w-full p-6 bg-gradient-to-r from-indigo-500 to-purple-600 shadow-xl rounded-2xl text-white">
+        
+        {/* 2-Wheeler Input */}
+        <div className="mb-6 flex items-center bg-white p-3 rounded-xl shadow-md text-gray-800">
+          <FaMotorcycle className="text-2xl mr-3 text-indigo-500" />
           <input
             type="text"
-            value={twoWheelerCost}
-            onChange={(e) => handleChange(e, setTwoWheelerCost)}
-            className="w-full p-2 border-none outline-none bg-transparent text-lg"
-            placeholder="Enter amount"
+            value={localTwoWheelerCost}
+            onChange={(e) => handleChange(e, setLocalTwoWheelerCost)}
+            className="w-full bg-transparent border-none outline-none text-lg"
+            placeholder="2-Wheeler Cost"
           />
         </div>
-        <div className="mb-6 flex items-center bg-white p-3 rounded-lg shadow-md text-gray-800">
-          <FaCar className="text-2xl mr-2 text-purple-500" />
+
+        {/* 4-Wheeler Input */}
+        <div className="mb-6 flex items-center bg-white p-3 rounded-xl shadow-md text-gray-800">
+          <FaCar className="text-2xl mr-3 text-purple-500" />
           <input
             type="text"
-            value={fourWheelerCost}
-            onChange={(e) => handleChange(e, setFourWheelerCost)}
-            className="w-full p-2 border-none outline-none bg-transparent text-lg"
-            placeholder="Enter amount"
+            value={localFourWheelerCost}
+            onChange={(e) => handleChange(e, setLocalFourWheelerCost)}
+            className="w-full bg-transparent border-none outline-none text-lg"
+            placeholder="4-Wheeler Cost"
           />
         </div>
+
+        {/* Error Message */}
         {error && (
-          <div className="mb-4 text-red-300 text-center text-sm">
+          <div className="mb-4 text-red-300 text-center text-sm font-medium">
             {error}
           </div>
         )}
+
+        {/* Submit Button */}
         <button
           onClick={handleUpdate}
           className="w-full bg-white text-indigo-600 font-bold py-2 rounded-lg hover:bg-gray-200 transition-all"

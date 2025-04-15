@@ -9,7 +9,10 @@
     const startTime = state?.startTime || "";
     const endTime = state?.endTime || "";
     const isPeak = state?.isPeak || false;
-
+    const rates = state?.rates || {
+      "2Wheeler": { offPeakRate: 20 }, // Default values if not passed
+      "4Wheeler": { offPeakRate: 40 }
+    };
     const [selectedSpots, setSelectedSpots] = useState([]);
     const [bookedSpots, setBookedSpots] = useState([]);
     const [errorMessage, setErrorMessage] = useState("");
@@ -177,7 +180,7 @@
           )}
           {showModal && (
             <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50">
-              <div className="bg-gray-900 text-white w-11/12 max-w-2xl rounded-xl p-8 relative shadow-2xl transform transition-all duration-300">
+              <div className="bg-gray-900 text-white w-11/12 max-w-4xl rounded-xl p-8 relative shadow-2xl transform transition-all duration-300">
                 <button
                   className="absolute top-4 right-4 text-white text-2xl font-bold hover:text-red-400 transition-colors duration-200"
                   onClick={() => setShowModal(false)}
@@ -190,8 +193,12 @@
                 </h2>
 
                 <div className="mb-6 text-center">
-                  <p className="text-lg text-gray-300">2-Wheeler: Rs 25 per hour</p>
-                  <p className="text-lg text-gray-300">4-Wheeler: Rs 45 per hour</p>
+                  <p className="text-lg text-gray-300">
+                  {`2-Wheeler: Rs ${rates["2Wheeler"].offPeakRate} per hour`}
+                  </p>
+                  <p className="text-lg text-gray-300">
+                  {`4-Wheeler: Rs ${rates["4Wheeler"].offPeakRate} per hour`}
+                  </p>
                 </div>
                 {isPeak && (
     <p className="text-sm text-yellow-600">

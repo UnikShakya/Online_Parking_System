@@ -23,6 +23,7 @@ import ParkingLots from './Admin/ParkingLots';
 import ParkingLotWrapper from './Pages/ParkingLotWrapper';
 import { ParkingCostProvider } from './Context/ParkingCostContext';
 
+
 export const RecoveryContext = createContext();
 
 function App() {
@@ -41,6 +42,7 @@ function App() {
     console.log("Closing the form");
   };
 
+
   return (
     <StoreProvider>
       <ParkingCostProvider>
@@ -56,7 +58,7 @@ function App() {
           <Route path="/parking-lot" element={<ParkingLotWrapper />} />
           <Route path="/booking-ticket" element={<BookingTicket />} />
           <Route path="/forget-password" element={<ForgetPassword />} />
-          <Route path="/middleman/:id" element={<Middleware />} />
+          <Route path="/middleman/:id" element={<Middleware/>} />
           <Route path="/calendar" element={<TravelForm />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/bookingform" element={<BookingForm onSubmit={handleFormSubmit} onClose={handleClose} />} />

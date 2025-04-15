@@ -1,30 +1,23 @@
-// ParkingCostContext.js
-import React, { createContext, useState, useContext } from "react";
+import React, { createContext, useContext, useState } from 'react';
 
 const ParkingCostContext = createContext();
 
 export const ParkingCostProvider = ({ children }) => {
-  const [twoWheelerCost, setTwoWheelerCost] = useState(25);
-  const [fourWheelerCost, setFourWheelerCost] = useState(45);
+  const [twoWheelerNum, setTwoWheelerNum] = useState(20); // Default: Rs.20
+  const [fourWheelerNum, setFourWheelerNum] = useState(40); // Default: Rs.40
 
   return (
     <ParkingCostContext.Provider
-      value={{
-        twoWheelerCost,
-        fourWheelerCost,
-        setTwoWheelerCost,
-        setFourWheelerCost
-      }}
+    value={{
+      twoWheelerNum,      // Pass these names
+      fourWheelerNum,
+      setTwoWheelerNum,   // Setters (if needed)
+      setFourWheelerNum,
+    }}
     >
       {children}
     </ParkingCostContext.Provider>
   );
 };
 
-export const useParkingCost = () => {
-  const context = useContext(ParkingCostContext);
-  if (!context) {
-    throw new Error('useParkingCost must be used within a ParkingCostProvider');
-  }
-  return context;
-};
+export const useParkingCost = () => useContext(ParkingCostContext);

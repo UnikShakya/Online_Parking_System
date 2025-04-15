@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 
-function Table() {
+function Table({id}) {
   const [bookings, setBookings] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredBookings, setFilteredBookings] = useState([]);
@@ -59,11 +59,14 @@ function Table() {
     }
   };
 
+  // Helper function to create paths with the token and dynamic id
+  const middlemanPath = (path) => `/middleman/${id}${path ? `/${path}` : ''}`;
+
   return (
     <div className="min-h-screen bg-designColor p-6">
       {/* Header Section */}
       <div className="flex justify-between items-center mb-6">
-        <Link to="/middleware">
+        <Link to={middlemanPath("")}>
           <h1 className="text-4xl font-bold cursor-pointer">
             <span className="text-gradientStart">P</span>
             <span className="text-textColor">ark</span>
