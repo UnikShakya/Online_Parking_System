@@ -66,7 +66,7 @@ function ForgetPassword({ setShowLogin }) {
                 </div>
 
 
-                <button type="submit" disabled={loading}>
+                <button type="submit" disabled={loading} className='bg-gradient-to-r from-gradientStart to-gradientEnd'>
                     {loading ? 'Sending...' : 'Send'}
                 </button>
                 {error && <div className="error-message">{error}</div>}

@@ -1,83 +1,118 @@
 const axios = require('axios');
-require('dotenv').config();
-
-// Your PeriPay API key
-const PERIPAY_API_KEY = process.env.PERIPAY_API_KEY; // Add your key here
-const PERIPAY_BASE_URL = process.env.PERIPAY_BASE_URL || 'https://pay.periwin.com';
-const BACKEND_URL = process.env.BACKEND_URL;
-
-const initiatePayment = async (req, res) => {
-  try {
-    const { amount, productName, customerDetails } = req.body;
-
-    const purchaseOrderId = `ORDER-${Date.now()}`;
-    const amountInPaisa = Math.round(amount * 100);
-
-   // Request Payload
-const payload = {
-  return_url: "https://yourwebsite.com/return",
-  amount: 12000,  // Amount in paisa (1 paisa = 1/100th of a rupee)
-  purchase_order_id: "ORDER-TEST123",  // Unique string for the order
-  product_name: "IPHONE 16 PRO",
-  customer_name: "John Doe",
-  customer_email: "john.doe@example.com",
-  customer_phone: "9800000000"
-};
-
-
-    console.log('Sending payment data:', payload);
-    console.log('PERIPAY_API_KEY:', PERIPAY_API_KEY);
-
-    // URL for payment initiation
-const url = `${PERIPAY_BASE_URL}/api/payment/process/initiate/`;
-
-  // Sending the POST request to initiate the payment
-axios.post(url, payload, {
-  headers: {
-    'Authorization': `Bearer ${PERIPAY_API_KEY}`,
-    'Content-Type': 'application/json'
-  }
-})
-
-    res.json({
-      success: true,
-      paymentUrl: response.data.payment_url,
-      paymentId: response.data.payment_id
-    });
-
-  } catch (error) {
-    console.error('Payment initiation error:', error.response?.data || error.message);
-    res.status(500).json({
-      success: false,
-      message: 'Payment initiation failed',
-      error: error.response?.data || error.message
-    });
-  }
-};
+const Payment = require('./PaymentModel');
 
 const verifyPayment = async (req, res) => {
+  const { token, amount } = req.body;
+
+
   try {
-    const {
-      amount,
-      purchase_order_id,
-      payment_id,
-      product_name,
-      customer_name,
-      customer_email,
-      customer_phone,
-      payment_gateway,
-      refunded,
-      payment_status
-    } = req.query;
+    const amountInPaisa = amount * 100;
 
-    console.log('Payment verification data:', req.query);
+    const response = await axios.post(
+      'https://a.khalti.com/api/v2/payment/verify/',
+      { token, 
+        amount: amountInPaisa
+       },
+      {
+        headers: {
+          Authorization: `Key ${process.env.KHALTI_SECRET_KEY}`,
+        },
+      }
+    );
+ // Check if payment was successful
+ if (response.data.state.name !== 'Completed') {
+  return res.status(400).json({ 
+    success: false, 
+    error: "Payment not completed" 
+  });
+}
 
-    res.redirect(`${BACKEND_URL}/payment/success?payment_id=${payment_id}`);
+res.status(200).json({ 
+  success: true, 
+  data: response.data 
+});
+
+} catch (error) {
+console.error('Khalti verification error:', error.response?.data || error.message);
+
+// More detailed error response
+const errorData = error.response?.data || {};
+res.status(error.response?.status || 400).json({
+  success: false,
+  error: errorData.detail || errorData.error || 'Payment verification failed',
+  khaltiError: errorData
+});
+}
+};
+
+const payment = async (req, res) => {
+  const {
+    name,
+    vehicleNumber,
+    phoneNumber,
+    paymentMethod,
+    vehicleType,
+    // startTime,
+    // endTime,
+    // selectedSpots,
+    // totalCost,
+    // paymentVerified,
+    // paymentToken,
+  } = req.body;
+
+  // Input validation
+  if (!paymentMethod || !name || !vehicleNumber || !phoneNumber) {
+    return res.status(400).json({ 
+      error: "Required fields are missing" 
+    });
+  }
+
+  // Additional validation for Khalti payments
+  if (paymentMethod === 'khalti' && (!paymentVerified || !paymentToken)) {
+    return res.status(400).json({ 
+      error: "For Khalti payments, verification data is required" 
+    });
+  }
+
+  try {
+    const newBooking = new Payment({
+      name,
+      vehicleNumber,
+      phoneNumber,
+      paymentMethod,
+      // vehicleType,
+      // startTime,
+      // endTime,
+      // selectedSpots,
+      // totalCost,
+      paymentVerified: paymentMethod === 'khalti' ? paymentVerified : undefined,
+      paymentToken: paymentMethod === 'khalti' ? paymentToken : undefined,
+      status: paymentMethod === 'cash' ? 'pending' : 'paid',
+      createdAt: new Date()
+    });
+
+    const savedBooking = await newBooking.save();
+    
+    res.status(201).json({
+      success: true,
+      booking: savedBooking,
+      message: "Booking created successfully"
+    });
 
   } catch (error) {
-    console.error('Payment verification error:', error);
-    res.redirect(`${BACKEND_URL}/payment/failed`);
+    console.error('Error saving booking:', error);
+    
+    // Handle duplicate bookings or other DB errors
+    if (error.code === 11000) {
+      return res.status(400).json({ 
+        error: "Duplicate booking detected" 
+      });
+    }
+    
+    res.status(500).json({ 
+      error: error.message || 'Failed to save booking' 
+    });
   }
 };
 
-module.exports = { initiatePayment, verifyPayment };
+module.exports = { verifyPayment, payment };

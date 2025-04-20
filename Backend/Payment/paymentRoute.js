@@ -1,12 +1,8 @@
 const express = require('express');
 const paymentRouter = express.Router();
-const { initiatePayment, verifyPayment } = require('./paymentController');
+const { verifyPayment, payment } = require('./paymentController');
 
-// Initiate payment
-paymentRouter.post('/process/initiate', initiatePayment);
-
-// Payment Verification Route
-paymentRouter.get('/process/verify', verifyPayment);
-
+paymentRouter.post('/verify-khalti-payment', verifyPayment);
+paymentRouter.post('/booking', payment);
 
 module.exports = paymentRouter;

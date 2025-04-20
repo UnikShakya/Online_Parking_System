@@ -2,12 +2,13 @@ import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import ConnectedCircles from "../Components/Stepper";
 
-const ParkingLot2 = () => {
+const ParkingLot2 = ({ discountRate }) => {
   const { state } = useLocation();
   const totalCost2Wheeler = state?.totalCost2Wheeler || 0;
   const totalCost4Wheeler = state?.totalCost4Wheeler || 0;
   const startTime = state?.startTime || "";
   const endTime = state?.endTime || "";
+  const isPeak = state?.isPeak || "false"
 
   const [selectedSpots, setSelectedSpots] = useState([]);
   const [bookedSpots, setBookedSpots] = useState([]);
@@ -56,10 +57,12 @@ const ParkingLot2 = () => {
   };
 
   const handleConfirm = () => {
+    console.log("Confirmed booking for spot:",selectedSpots);
     setBookedSpots([...bookedSpots, ...selectedSpots]);
+    setErrorMessage("");
+    setShowModal(false);
     setSelectedSpots([]);
     setActiveStep(2);
-    setShowModal(false);
 
     navigate("/bookingform", {
       state: {
@@ -83,10 +86,10 @@ const ParkingLot2 = () => {
             <div
               key={spotId}
               className={`w-12 h-12 m-2 rounded-lg border-2 flex items-center justify-center text-sm font-semibold shadow-md
-                ${isSelected ? "bg-yellow-300 border-yellow-400 text-gray-800" : 
-                  isBooked ? "bg-red-500 border-red-600 text-white" : 
-                  type === "2Wheeler" ? "bg-blue-100 border-blue-200 text-blue-800 hover:bg-blue-200" : 
-                  "bg-green-100 border-green-200 text-green-800 hover:bg-green-200"}
+                ${isSelected ? "bg-yellow-300 border-yellow-400 text-gray-800" :
+                  isBooked ? "bg-red-500 border-red-600 text-white" :
+                    type === "2Wheeler" ? "bg-blue-100 border-blue-200 text-blue-800 hover:bg-blue-200" :
+                      "bg-green-100 border-green-200 text-green-800 hover:bg-green-200"}
                 cursor-pointer transition-all duration-300 transform hover:scale-105`}
               onClick={() => handleSpotClick(spotId)}
             >
@@ -192,6 +195,11 @@ const ParkingLot2 = () => {
                 <p className="text-gray-600"><span className="font-medium">4-Wheeler:</span> Rs {totalCost4Wheeler}</p>
               </div>
             </div>
+            {isPeak && (
+              <p className="text-sm text-yellow-600">
+                A discount of {discountRate * 100}% has been applied due to peak hours.
+              </p>
+            )}
 
             <div className="overflow-x-auto mb-6">
               <table className="w-full border-collapse">

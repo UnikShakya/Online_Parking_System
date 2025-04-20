@@ -32,7 +32,7 @@ function Settings() {
       }
 
       console.log('Making fetch request to signup-admin endpoint');
-      const response = await fetch('http://localhost:4000/api/admin/signup-admin', {
+      const response = await fetch('http://localhost:3000/api/admin/signup-admin', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

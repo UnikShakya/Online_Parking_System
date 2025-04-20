@@ -8,7 +8,7 @@ import "./LoginPopup.css";
 
 const LoginPopup = ({ setShowLogin }) => {
     const { setToken, url } = useContext(StoreContext);
-    const [currState, setCurrState] = useState("Login"); // Default to "Login"
+    const [currState, setCurrState] = useState("Login");
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const [data, setData] = useState({
         username: "",
@@ -19,18 +19,46 @@ const LoginPopup = ({ setShowLogin }) => {
     const navigate = useNavigate();
 
     const handleInputChange = (event) => {
-        setData({ ...data, [event.target.name]: event.target.value });
+        setData({ ...data, [event.target.name]: event.target.value.trimStart() });
+    };
+
+    const togglePasswordVisibility = () => {
+        setIsPasswordVisible(!isPasswordVisible);
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        const trimmedUsername = data.username.trim();
+        const trimmedEmail = data.email.trim();
+        const trimmedPassword = data.password.trim();
+
+        // Validation
+        if (currState === "Sign Up") {
+            if (!trimmedUsername) {
+                toast.error("Username cannot be empty or just spaces.");
+                return;
+            }
+            if (!isNaN(trimmedUsername)) {
+                toast.error("Username cannot contain only numbers.");
+                return;
+            }
+        }
+
+        if (!trimmedEmail || !/\S+@\S+\.\S+/.test(trimmedEmail)) {
+            toast.error("Please enter a valid email address.");
+            return;
+        }
+
+        if (!trimmedPassword || trimmedPassword.length < 6) {
+            toast.error("Password must be at least 6 characters long.");
+            return;
+        }
+
         const endpoint = currState === "Login" ? "/api/user/login" : "/api/user/register";
 
         try {
             const response = await axios.post(`${url}${endpoint}`, data);
-            console.log("Full response.data:", response.data);
-            console.log("Redirect value:", response.data.redirect);
-
             if (response.data?.success) {
                 if (currState === "Login") {
                     const { token, username, redirect } = response.data;
@@ -38,17 +66,13 @@ const LoginPopup = ({ setShowLogin }) => {
                     localStorage.setItem("token", token);
                     localStorage.setItem("username", username);
 
-                    console.log("Closing login popup");
-                    setShowLogin(false);
-
                     toast.success("Successfully logged in!");
-
-                    // Navigate based on the redirect value
-                    navigate(redirect || '/'); // Default to '/' if no redirect is provided
+                    setShowLogin(false);
+                    navigate(redirect || '/');
                 } else {
                     toast.success("Account created successfully! Please log in.");
-                    setCurrState("Login"); // Switch to login after successful sign-up
-                    setData({ username: "", email: "", password: "" }); // Clear form data
+                    setCurrState("Login");
+                    setData({ username: "", email: "", password: "" });
                 }
             } else {
                 toast.error(response.data.message || "An unexpected error occurred.");
@@ -57,10 +81,6 @@ const LoginPopup = ({ setShowLogin }) => {
             console.error("Login/Signup error:", error);
             toast.error(error.response?.data?.message || "An error occurred. Please try again.");
         }
-    };
-
-    const togglePasswordVisibility = () => {
-        setIsPasswordVisible(!isPasswordVisible);
     };
 
     return (
@@ -126,9 +146,6 @@ const LoginPopup = ({ setShowLogin }) => {
                     </div>
                 )}
 
-                <button type="submit" className="w-full py-2 px-4  text-white font-semibold rounded-md shadow  focus:outline-none focus:ring-2 ">
-                    {currState === "Login" ? "Login" : "Create account"}
-                </button>
                 {currState === "Sign Up" && (
                     <div className="login-popup-condition">
                         <input type="checkbox" required id="terms" />
@@ -138,7 +155,14 @@ const LoginPopup = ({ setShowLogin }) => {
                     </div>
                 )}
 
-                <p className="text-center">
+                <button
+                    type="submit"
+                    className="w-full py-2 px-4 bg-gradient-to-r from-gradientStart to-gradientEnd text-white font-semibold rounded-md shadow focus:outline-none focus:ring-2"
+                >
+                    {currState === "Login" ? "Login" : "Create account"}
+                </button>
+
+                <p className="text-center mt-2">
                     {currState === "Login" ? "Create a new account?" : "Already have an account?"}
                     <span
                         onClick={() => setCurrState(currState === "Login" ? "Sign Up" : "Login")}

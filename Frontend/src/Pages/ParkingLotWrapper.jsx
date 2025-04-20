@@ -13,9 +13,9 @@ const ParkingLotWrapper = () => {
       case "1":
         return <ParkingLot discountRate={0.2} />;
       case "2":
-        return <ParkingLot2 />;
+        return <ParkingLot2 discountRate={0.2}/>;
       case "3":
-        return <ParkingLot3 />;
+        return <ParkingLot3 discountRate={0.2}/>;
       default:
         return <ParkingLot />;
     }

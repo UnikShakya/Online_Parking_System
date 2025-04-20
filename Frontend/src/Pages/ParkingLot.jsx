@@ -1,5 +1,5 @@
   import React, { useState } from "react";
-  import { Link, useLocation, useNavigate } from "react-router-dom";
+  import {  useLocation, useNavigate } from "react-router-dom";
   import ConnectedCircles from "../Components/Stepper";
 
   const ParkingLot = ({discountRate}) => {
@@ -234,14 +234,14 @@
                 </div>
 
                 <div className="flex justify-center">
-                  <Link to="/bookingform">
+                  {/* <Link to="/bookingform"> */}
                     <button
                       className="bg-gradient-to-r from-gradientStart to-gradientEnd text-white rounded-full px-8 py-3 text-lg font-semibold cursor-pointer hover:opacity-80 transition-all duration-300 transform hover:scale-105 shadow-lg"
                       onClick={handleConfirm}
                     >
                       Confirm Booking
                     </button>
-                  </Link>
+                  {/* </Link> */}
                 </div>
               </div>
             </div>

@@ -22,7 +22,7 @@ import ParkingCost from './Admin/ParkingCost';
 import ParkingLots from './Admin/ParkingLots';
 import ParkingLotWrapper from './Pages/ParkingLotWrapper';
 import { ParkingCostProvider } from './Context/ParkingCostContext';
-
+import Profile from './Pages/Profile';
 
 export const RecoveryContext = createContext();
 
@@ -38,9 +38,9 @@ function App() {
     console.log(formData);
   };
 
-  const handleClose = () => {
-    console.log("Closing the form");
-  };
+  // const handleClose = () => {
+  //   console.log("Closing the form");
+  // };
 
 
   return (
@@ -59,9 +59,10 @@ function App() {
           <Route path="/booking-ticket" element={<BookingTicket />} />
           <Route path="/forget-password" element={<ForgetPassword />} />
           <Route path="/middleman/:id" element={<Middleware/>} />
+          <Route path="/profile" element={<Profile/>} />
           <Route path="/calendar" element={<TravelForm />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
-          <Route path="/bookingform" element={<BookingForm onSubmit={handleFormSubmit} onClose={handleClose} />} />
+          <Route path="/bookingform" element={<BookingForm onSubmit={handleFormSubmit}/>} />
 
   {/* Admin Route for /admin/:id with nested routes */}
   <Route path="/admin/:id" element={<MainLayout setShowLogin={setShowLogin} />}>

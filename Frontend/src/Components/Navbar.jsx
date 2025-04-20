@@ -53,7 +53,9 @@ function Navbar({ setShowLogin }) {
                         >
                             Logout
                         </button>
+                        <Link to="/profile">
                         <IoPersonCircle className="cursor-pointer mr-4" size={30} />
+                        </Link>
                     </div>
                 )}
             </div>

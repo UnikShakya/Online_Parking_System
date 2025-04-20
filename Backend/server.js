@@ -20,7 +20,7 @@ database(); // Call the database function to connect to MongoDB
 dotenv.config(); // Load environment variables
 
 const app = express();
-const port = process.env.PORT || 4000;
+const port = process.env.PORT || 3000;
 
 // middleman
 app.use(express.json());
@@ -167,38 +167,39 @@ app.get("/api/bookingCount", async (req, res) => {
 
 
 // Khalti Payment Verification
-app.post('/api/verify-khalti', async (req, res) => {
-  const { token, amount, bookingId } = req.body;
+// app.post('/api/verify-khalti', async (req, res) => {
+//   const { token, amount, bookingId } = req.body;
 
-  try {
-    // Verify with Khalti API
-    const response = await axios.post(
-      'https://khalti.com/api/v2/payment/verify/',
-      { token, amount },
-      { headers: { Authorization: `Key ${process.env.KHALTI_SECRET_KEY}` } }
-    );
+//   try {
+//     // Verify with Khalti API
+//     const response = await axios.post(
+//       'https://khalti.com/api/v2/payment/verify/',
+//       { token, amount },
+//       { headers: { Authorization: `Key ${process.env.KHALTI_SECRET_KEY}` } }
+//     );
 
-    // Update booking status
-    await bookingModel.findByIdAndUpdate(bookingId, {
-      status: 'paid',
-      paymentMethod: 'khalti',
-      paymentId: response.data.idx
-    });
+//     // Update booking status
+//     await bookingModel.findByIdAndUpdate(bookingId, {
+//       status: 'paid',
+//       paymentMethod: 'khalti',
+//       paymentId: response.data.idx
+//     });
 
-    res.json({ success: true, data: response.data });
-  } catch (error) {
-    console.error('Khalti verification failed:', error);
-    res.status(400).json({ 
-      success: false, 
-      error: error.response?.data || 'Payment verification failed' 
-    });
-  }
-});
+//     res.json({ success: true, data: response.data });
+//   } catch (error) {
+//     console.error('Khalti verification failed:', error);
+//     res.status(400).json({ 
+//       success: false, 
+//       error: error.response?.data || 'Payment verification failed' 
+//     });
+//   }
+// });
+
 // Start the server
 app.listen(port, () => {
     console.log(`Server started on http://localhost:${port}`);
-    console.log('PeriPay Config:', {
-        baseUrl: process.env.PERIPAY_BASE_URL,
-        apiKey: process.env.PERIPAY_API_KEY ? '***loaded***' : 'MISSING'
-      });
+    // console.log('PeriPay Config:', {
+    //     baseUrl: process.env.PERIPAY_BASE_URL,
+    //     apiKey: process.env.PERIPAY_API_KEY ? '***loaded***' : 'MISSING'
+    //   });
 });

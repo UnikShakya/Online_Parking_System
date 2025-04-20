@@ -29,7 +29,7 @@ function ResetPassword({ setShowLogin }) {
        
     
         try {
-            console.log("Sending request to:", `http://localhost:4000/api/user/reset-password/${token}`);
+            console.log("Sending request to:", `http://localhost:3000/api/user/reset-password/${token}`);
     
             const response = await axios.post(
                 `http://localhost:4000/api/user/reset-password/${token}`,
