@@ -162,10 +162,10 @@ function Selection({ setShowLogin }) {
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
               >
-                <option value="">Select Parking Lot</option>
-                <option value="ParkingLot1">Parking Lot 1</option>
-                <option value="ParkingLot2">Parking Lot 2</option>
-                <option value="ParkingLot3">Parking Lot 3</option>
+                <option value="">Select Location</option>
+                <option value="ParkingLot1">Location 1</option>
+                <option value="ParkingLot2">Location 2</option>
+                <option value="ParkingLot3">Location 3</option>
               </select>
             </div>
 

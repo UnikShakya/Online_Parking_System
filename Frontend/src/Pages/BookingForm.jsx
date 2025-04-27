@@ -60,49 +60,29 @@ const BookingForm = ({ onSubmit }) => {
     }));
   };
 
+    // Validate form data
+    const validateFormData = () => {
+    const { name, vehicleNumber, phoneNumber, paymentMethod } = formData;
+
+    if (!name.trim() || !vehicleNumber.trim() || !phoneNumber.trim() || !paymentMethod) return "Please fill in all required fields.";
+    if (/^\s*$/.test(name)) return "Name cannot contain only spaces.";
+    if (/^\d+$/.test(name)) return "Name cannot contain only numbers.";
+    if (/^\s*$/.test(vehicleNumber)) return "Vehicle number cannot contain only spaces.";
+    if (!/^[z0-9]+$/.test(vehicleNumber)) return "Vehicle number should only contain numbers.";
+    if (!/^\d{10}$/.test(phoneNumber)) return "Phone number should be exactly 10 digits.";
+    if (paymentMethod === "khalti" && !khaltiLoaded) return "Payment system is loading. Please try again in a moment.";
+    return ""
+  };
+
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage("");
-
-    // Validate form data
-    const { name, vehicleNumber, phoneNumber, paymentMethod } = formData;
-
-    if (!name.trim() || !vehicleNumber.trim() || !phoneNumber.trim() || !paymentMethod) {
-      setErrorMessage("Please fill in all required fields.");
+    
+    const validationError = validateFormData();
+    if (validationError) {
+      setErrorMessage(validationError);
       return;
     }
-
-    if (/^\s*$/.test(name)) {
-      setErrorMessage("Name cannot contain only spaces.");
-      return;
-    }
-
-    if (/^\d+$/.test(name)) {
-      setErrorMessage("Name cannot contain only numbers.");
-      return;
-    }
-
-    if (/^\s*$/.test(vehicleNumber)) {
-      setErrorMessage("Vehicle number cannot contain only spaces.");
-      return;
-    }
-
-    if (!/^[z0-9]+$/.test(vehicleNumber)) {
-      setErrorMessage("Vehicle number should only contain numbers.");
-      return;
-    }
-
-    if (!/^\d{10}$/.test(phoneNumber)) {
-      setErrorMessage("Phone number should be exactly 10 digits.");
-      return;
-    }
-
-    // For Khalti payments, ensure script is loaded
-    if (paymentMethod === "khalti" && !khaltiLoaded) {
-      setErrorMessage("Payment system is loading. Please try again in a moment.");
-      return;
-    }
-
     setShowConfirmDialog(true);
   };
 
