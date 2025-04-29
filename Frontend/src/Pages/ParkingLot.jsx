@@ -10,6 +10,7 @@ const ParkingLot = ({ discountRate }) => {
   const totalCost4Wheeler = state?.totalCost4Wheeler || 0;
   const startTime = state?.startTime || "";
   const endTime = state?.endTime || "";
+  const selectedDate = state?.selectedDate || "";
   const isPeak = state?.isPeak || false;
   const rates = state?.rates || {
     "2Wheeler": { offPeakRate: 20 },
@@ -38,7 +39,7 @@ const ParkingLot = ({ discountRate }) => {
         
         // Fetch booked spots separately
         const bookedResponse = await axios.get("http://localhost:3000/api/parking/booked");
-        const bookedSpotNumbers = bookedResponse.data.map(spot => spot.lotNumber);
+        const bookedSpotNumbers = bookedResponse.data.map(spot => spot.selectedSpots);
         setBookedSpots(bookedSpotNumbers);
         
       } catch (err) {
@@ -48,17 +49,15 @@ const ParkingLot = ({ discountRate }) => {
     };
   
     fetchData();
-  }, [currentLocation]); // Add currentLocation as dependency
+  }, [currentLocation]);
 
   const handleSpotClick = (spot) => {
-    console.log('Clicked on lot:', spot.lotNumber, 'Location:', spot.location);
-
-    if (bookedSpots.includes(spot.lotNumber)) return;
+    if (bookedSpots.includes(spot.selectedSpots)) return;
 
     setSelectedSpots(prev =>
-      prev.includes(spot.lotNumber)
-        ? prev.filter(spotId => spotId !== spot.lotNumber)
-        : [...prev, spot.lotNumber]
+      prev.includes(spot.selectedSpots)
+        ? prev.filter(spotId => spotId !== spot.selectedSpots)
+        : [...prev, spot.selectedSpots]
     );
   };
 
@@ -86,166 +85,248 @@ const ParkingLot = ({ discountRate }) => {
     }
   
     setErrorMessage("");
-
-        navigate("/bookingform", {
-          state: {
-            selectedSpots,
-            startTime,
-            endTime,
-            totalCost2Wheeler,
-            totalCost4Wheeler,
-            location: currentLocation
-          },
-        });
+    navigate("/bookingform", {
+      state: {
+        selectedSpots,
+        startTime,
+        endTime,
+        totalCost2Wheeler,
+        totalCost4Wheeler,
+        selectedDate,
+        location: currentLocation
+      },
+    });
   };
 
-  const renderParkingRows = (type) => {
-    return parkingLots
-      .filter((spot) => {
-        // Filter spots based on the vehicle type (2Wheeler or 4Wheeler)
-        if (type === "2Wheeler") {
-          return !spot.lotNumber.startsWith("R"); // 2Wheeler: Exclude R-prefixed spots
-        } else if (type === "4Wheeler") {
-          return spot.lotNumber.startsWith("R"); // 4Wheeler: Only include R-prefixed spots
-        }
-        return true;
-      })
-      .map((spot, index) => (
-        <ParkingSpot
-          key={`${spot.lotNumber}-${index}`}  // Unique key by appending index
-          spot={spot}
-          selectedSpots={selectedSpots}
-          bookedSpots={bookedSpots}
-          onClick={handleSpotClick}
-        />
-      ));
+  const render2WheelerParking = () => {
+    const twoWheelerSpots = parkingLots.filter(spot => !spot.selectedSpots.startsWith("R"));
+    const rows = [];
+    
+    // Create rows with 10 spots each
+    for (let i = 0; i < twoWheelerSpots.length; i += 10) {
+      const rowSpots = twoWheelerSpots.slice(i, i + 10);
+      rows.push(
+        <div key={`row-${i}`} className="flex justify-center gap-4 mb-2">
+          <div className="flex space-x-1">
+            {rowSpots.map((spot) => (
+              <ParkingSpot
+                key={spot.selectedSpots}
+                spot={spot}
+                selectedSpots={selectedSpots}
+                bookedSpots={bookedSpots}
+                onClick={handleSpotClick}
+                is4Wheeler={false}
+              />
+            ))}
+          </div>
+        </div>
+      );
+    }
+    return rows;
+  };
+
+  const render4WheelerParking = () => {
+    const fourWheelerSpots = parkingLots.filter(spot => spot.selectedSpots.startsWith("R"));
+    
+    return (
+      <div className="flex justify-center">
+        <div className="grid grid-cols-6 gap-4">
+          {fourWheelerSpots.map((spot) => (
+            <ParkingSpot
+              key={spot.selectedSpots}
+              spot={spot}
+              selectedSpots={selectedSpots}
+              bookedSpots={bookedSpots}
+              onClick={handleSpotClick}
+              is4Wheeler={true}
+            />
+          ))}
+        </div>
+      </div>
+    );
   };
 
   return (
-    <div className="relative p-5 bg-designColor text-textColor max-h-max mt-[5rem] flex flex-col items-center">
+    <div className="relative p-5 mt-20 bg-designColor min-h-screen flex flex-col items-center">
       <ConnectedCircles activeStep={activeStep} />
 
-      <h1 className="text-2xl font-bold text-center m-6">Parking Lots - {currentLocation}</h1>
+      <h1 className="text-3xl font-bold text-center text-textColor my-8 text-gray-800">
+        Parking Lots - {currentLocation}
+      </h1>
 
-      <div className="w-full max-w-4xl mx-auto">
+      {/* Main Parking Area */}
+      <div className="w-full max-w-6xl bg-white rounded-xl shadow-lg p-6 mb-8">
+        {/* Entry Road */}
+        <div className="bg-gray-500 h-12 mb-6 flex items-center justify-center">
+          <span className="text-white font-bold text-lg">ENTRY</span>
+        </div>
+
+        {/* 2-Wheeler Parking Section */}
         <div className="mb-8">
-          <h3 className="text-lg font-bold mb-4 text-center">2-Wheeler Parking</h3>
-          <div className="grid grid-cols-5 gap-2 mt-4">
-            {renderParkingRows("2Wheeler")}
+          <h3 className="text-xl font-bold mb-4 text-center text-gray-700 bg-blue-100 py-2 rounded">
+            2-Wheeler Parking
+          </h3>
+          <div className="parking-rows">
+            {render2WheelerParking()}
           </div>
         </div>
 
-        <div>
-          <h3 className="text-lg font-bold mb-4 text-center">4-Wheeler Parking</h3>
-          <div className="grid grid-cols-6 gap-2">
-            {renderParkingRows("4Wheeler")}
+        {/* Divider */}
+        <div className="border-t-4 border-dashed border-gray-300 my-6"></div>
+
+        {/* 4-Wheeler Parking Section */}
+        <div className="mt-8">
+          <h3 className="text-xl font-bold mb-4 text-center text-gray-700 bg-green-100 py-2 rounded">
+            4-Wheeler Parking
+          </h3>
+          <div className="parking-rows">
+            {render4WheelerParking()}
           </div>
         </div>
-      </div>
 
-      <div className="flex justify-center mt-6 space-x-6">
-        <div className="flex items-center">
-          <div className="w-5 h-5 bg-blue-300 border mr-2"></div>
-          <span>Available</span>
-        </div>
-        <div className="flex items-center">
-          <div className="w-5 h-5 bg-yellow-400 border mr-2"></div>
-          <span>Selected</span>
-        </div>
-        <div className="flex items-center">
-          <div className="w-5 h-5 bg-red-500 border mr-2"></div>
-          <span>Booked</span>
+        {/* Exit Road */}
+        <div className="bg-gray-500 h-12 mt-6 flex items-center justify-center">
+          <span className="text-white font-bold text-lg">EXIT</span>
         </div>
       </div>
 
-      <div className="flex flex-col items-center mt-8">
+      {/* Legend */}
+      <div className="flex justify-center mt-4 space-x-8 mb-8 bg-white p-4 rounded-lg shadow">
+        <div className="flex items-center">
+          <div className="w-6 h-6 bg-blue-400 rounded mr-2"></div>
+          <span className="text-gray-700">Available</span>
+        </div>
+        <div className="flex items-center">
+          <div className="w-6 h-6 bg-yellow-400 rounded mr-2"></div>
+          <span className="text-gray-700">Selected</span>
+        </div>
+        <div className="flex items-center">
+          <div className="w-6 h-6 bg-red-500 rounded mr-2"></div>
+          <span className="text-gray-700">Booked</span>
+        </div>
+      </div>
+
+      {/* Book Now Button */}
+      <div className="flex flex-col items-center mt-4 mb-12">
         <button
-          className="bg-gradient-to-r from-gradientStart to-gradientEnd text-white rounded-full px-6 py-2 text-base hover:opacity-80 transition-all duration-300 transform hover:scale-105 shadow-lg"
+          className="bg-gradient-to-r from-gradientStart to-gradientEnd hover:opacity-70 text-white font-bold py-3 px-8 rounded-full text-lg transition duration-300 transform hover:scale-105 shadow-lg"
           onClick={handleBookParking}
         >
           Book Now
         </button>
-        {errorMessage && <p className="mt-3 text-red-500 font-semibold">{errorMessage}</p>}
+        {errorMessage && (
+          <p className="mt-3 text-red-500 font-semibold">{errorMessage}</p>
+        )}
+      </div>
 
-        {showModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50">
-            <div className="bg-gray-900 text-white w-11/12 max-w-4xl rounded-xl p-8 relative shadow-2xl">
-              <button
-                className="absolute top-4 right-4 text-white text-2xl font-bold hover:text-red-400"
-                onClick={() => setShowModal(false)}
-              >
-                ✖
-              </button>
+      {/* Booking Confirmation Modal */}
+      {showModal && (
+            <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50">
+              <div className="bg-gray-900 text-white w-11/12 max-w-4xl rounded-xl p-8 relative shadow-2xl transform transition-all duration-300">
+                <button
+                  className="absolute top-4 right-4 text-white text-2xl font-bold hover:text-red-400 transition-colors duration-200"
+                  onClick={() => setShowModal(false)}
+                >
+                  ✖
+                </button>
 
-              <h2 className="text-3xl font-extrabold mb-6 text-center">
-                Confirm Booking - {currentLocation}
-              </h2>
+                <h2 className="text-3xl font-extrabold mb-6 text-center bg-clip-text text-transparent bg-textColor">
+                  Selected Parking Lot
+                </h2>
 
-              <div className="overflow-x-auto">
-                <table className="w-full mb-8 border-separate border-spacing-0">
-                  <thead>
-                    <tr className="bg-gray-800 rounded-t-lg">
-                      <th className="text-left py-3 px-6 font-semibold text-blue-400">Spot</th>
-                      <th className="text-left py-3 px-6 font-semibold text-blue-300">From</th>
-                      <th className="text-left py-3 px-6 font-semibold text-blue-300">To</th>
-                      <th className="text-left py-3 px-6 font-semibold text-blue-300">Price</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {selectedSpots.map((spot, index) => (
-                      <tr key={index} className="border-b-2 border-gray-600">
-                        <td className="py-4 px-6 text-xl">{spot}</td>
-                        <td className="py-4 px-6">{startTime}</td>
-                        <td className="py-4 px-6">{endTime}</td>
-                        <td className="py-4 px-6">
-                          {calculatePrice(spot)}
-                        </td>
+                <div className="mb-6 text-center">
+                  <p className="text-lg text-gray-300">
+                  {`2-Wheeler: Rs ${rates["2Wheeler"].offPeakRate} per hour`}
+                  </p>
+                  <p className="text-lg text-gray-300">
+                  {`4-Wheeler: Rs ${rates["4Wheeler"].offPeakRate} per hour`}
+                  </p>
+                </div>
+                {isPeak && (
+    <p className="text-sm text-yellow-600">
+      A discount of {discountRate * 100}% has been applied due to peak hours.
+    </p>
+  )}
+
+                <div className="overflow-x-auto">
+                  <table className="w-full mb-8 border-separate border-spacing-0">
+                    <thead>
+                      <tr className="bg-gray-800 rounded-t-lg">
+                        <th className="text-left py-3 px-6 font-semibold text-blue-400 rounded-tl-lg">Parking Lot ID</th>
+                        <th className="text-left py-3 px-6 font-semibold text-blue-300">From</th>
+                        <th className="text-left py-3 px-6 font-semibold text-blue-300">To</th>
+                        <th className="text-left py-3 px-6 font-semibold text-blue-300 rounded-tr-lg">Price</th>
                       </tr>
-                    ))}
-                    <tr className="bg-gray-800">
-                      <td className="py-4 px-6 font-semibold text-xl text-right" colSpan="3">
-                        <span>Total:</span>
-                      </td>
-                      <td className="py-4 px-6 font-bold text-xl">
-                        {calculateTotalPrice()}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {selectedSpots.map((spot, index) => (
+                        <tr key={index} className="hover:bg-gray-700 transition-colors duration-150">
+                          <td className="py-4 px-6 border-b border-gray-700">{spot}</td>
+                          <td className="py-4 px-6 border-b border-gray-700">{startTime}</td>
+                          <td className="py-4 px-6 border-b border-gray-700">{endTime}</td>
+                          <td className="py-4 px-6 border-b border-gray-700">Rs {calculatePrice(spot)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="mb-6 text-right">
+                  <span className="text-2xl font-bold text-textColor">Total: Rs {calculateTotalPrice()}</span>
+                </div>
 
                 <div className="flex justify-center">
-                  <button
-                    className="bg-gradient-to-r from-gradientStart to-gradientEnd text-white rounded-full px-6 py-2 text-base hover:opacity-80 transition-all duration-300 transform hover:scale-105 shadow-lg"
-                    onClick={handleConfirm}
-                  >
-                    Confirm Booking
-                  </button>
+                  {/* <Link to="/bookingform"> */}
+                    <button
+                      className="bg-gradient-to-r from-gradientStart to-gradientEnd text-white rounded-full px-8 py-3 text-lg font-semibold cursor-pointer hover:opacity-80 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                      onClick={handleConfirm}
+                    >
+                      Confirm Booking
+                    </button>
+                  {/* </Link> */}
                 </div>
               </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+
     </div>
   );
 };
 
-const ParkingSpot = ({ spot, selectedSpots, bookedSpots, onClick }) => {
-  const isSelected = selectedSpots.includes(spot.lotNumber);
-  const isBooked = spot.isBooked || bookedSpots.includes(spot.lotNumber);
+const ParkingSpot = ({ spot, selectedSpots, bookedSpots, onClick, is4Wheeler = false }) => {
+  const isSelected = selectedSpots.includes(spot.selectedSpots);
+  const isBooked = spot.isBooked || bookedSpots.includes(spot.selectedSpots);
 
   return (
     <div
       onClick={() => !isBooked && onClick(spot)}
-      className={`w-12 h-12 flex justify-center items-center rounded-md ${
-        isBooked 
-          ? "bg-red-500 cursor-not-allowed" 
-          : isSelected 
-            ? "bg-yellow-400 cursor-pointer" 
-            : "bg-blue-300 cursor-pointer"
-      }`}
+      className={`flex flex-col justify-center items-center rounded-md ${
+        isBooked
+          ? "bg-red-500 cursor-not-allowed"
+          : isSelected
+          ? "bg-yellow-400 cursor-pointer"
+          : "bg-blue-400 cursor-pointer"
+      } ${
+        is4Wheeler
+          ? "w-20 h-32 m-1" // Larger spots for 4-wheelers
+          : "w-12 h-8 m-1"   // Smaller spots for 2-wheelers
+      } relative transition-all duration-200 hover:opacity-90`}
     >
-      <span className="text-xs">{spot.lotNumber}</span>
+      <span className={`font-bold ${
+        is4Wheeler ? "text-sm" : "text-xs"
+      } ${
+        isBooked ? "text-white" : "text-gray-800"
+      }`}>
+        {spot.selectedSpots}
+      </span>
+      {isBooked && (
+        <div className=" flex items-center justify-center">
+          <div className="w-full h-0.5 bg-white"></div>
+        </div>
+      )}
+      {is4Wheeler && (
+        <div className="absolute bottom-1 w-4/5 h-1 bg-gray-600 rounded-full"></div>
+      )}
     </div>
   );
 };

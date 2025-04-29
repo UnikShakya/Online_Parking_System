@@ -143,7 +143,7 @@ function Selection({ setShowLogin }) {
         endTime: endTime.format("HH:mm A"),
         parkingLotId,
         isPeak: twoWheelerData.isPeak,
-        date: selectedDate.format("DD/MM/YYYY"),
+        selectedDate: dayjs(selectedDate).format("YYYY-MM-DD"), // ✅ format here
         location,
       },
     });

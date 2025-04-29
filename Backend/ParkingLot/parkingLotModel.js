@@ -6,7 +6,7 @@ const parkingLotSchema = new mongoose.Schema({
   date: String, // "YYYY-MM-DD"
   startTime: String,
   endTime: String,
-  lotNumber: { type: String, required: true },
+  selectedSpots: { type: String, required: true },
   isBooked: { type: Boolean, default: false },
 });
 

@@ -1,22 +1,29 @@
-import React from 'react';
+import React, { useState } from 'react';
 import QRCode from "react-qr-code";
 import { useLocation } from 'react-router-dom';
 import { useRef } from 'react';
 import html2pdf from 'html2pdf.js';
 import ConnectedCircles from '../Components/Stepper';
-
 function BookingTicket() {
-  const location = useLocation();
-  const { name, vehicleNumber } = location.state || {};
-  const selectedSpots = location.state?.selectedSpots || [];
+
+    const { state } = useLocation();  
+  const  name = state?.name || "";
+  const  vehicleNumber = state?.vehicleNumber || "";
+  const  selectedSpots = state?.selectedSpots || [];
+  const  startTime = state?.startTime || "";
+  const  endTime = state?.endTime || "";
+  const  totalAmount = state?.totalAmount || "";
+  const  selectedDate = state?.selectedDate || "";
 
   const ticketDetails = {
     bookingId: `ID-${Math.floor(Math.random() * 100000)}`,
     name: name || 'NA',
     vehicleNumber: vehicleNumber || 'NA',
-    spots: selectedSpots,
-    price: selectedSpots.length * 25,
-    date: new Date().toLocaleDateString(),
+    selectedDate: selectedDate || 'NA',
+    selectedSpots: Array.isArray(selectedSpots) ? selectedSpots.join(', ') : selectedSpots,
+    startTime: startTime || 'NA',
+    endTime: endTime || 'NA',
+    totalAmount: totalAmount || 'NA',
     time: new Date().toLocaleTimeString(),
   };
 
@@ -42,18 +49,22 @@ function BookingTicket() {
       <div className="flex flex-col items-center justify-center p-5">
         <h1 className="text-4xl font-bold text-textColor mb-8">Your Booking Ticket</h1>
         <div 
-          ref={ticketRef} 
-          className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl p-8 transform transition-transform hover:scale-105"
-        >
-          <div className="flex flex-col md:flex-row justify-between items-center">
+  ref={ticketRef} 
+  className="bg-white rounded-2xl shadow-2xl w-[600px] p-8 transform transition-transform hover:scale-105"
+>
+          <div className="flex flex-col md:flex-row justify-between items-center max-w">
             <div className="w-full m-2 md:w-1/2">
               <h2 className="text-2xl font-bold text-gray-800 mb-6">Booking Details</h2>
               <div className="space-y-4 text-gray-700">
                 <p><strong>Booking ID:</strong> <span className="text-blue-600">{ticketDetails.bookingId}</span></p>
                 <p><strong>Name:</strong> {ticketDetails.name}</p>
                 <p><strong>Vehicle Number:</strong> {ticketDetails.vehicleNumber}</p>
-                <p><strong>Date:</strong> {ticketDetails.date}</p>
-                <p><strong>Time:</strong> {ticketDetails.time}</p>
+                <p><strong>Lot Number:</strong> {ticketDetails.selectedSpots}</p>
+                <p><strong>Start Time:</strong> {ticketDetails.startTime}</p>
+                <p><strong>End Time:</strong> {ticketDetails.endTime}</p>
+                {/* <p><strong>Total Amount:</strong> Rs {ticketDetails.totalAmount}</p> */}
+                <p><strong>Date:</strong> {ticketDetails.selectedDate}</p>
+                {/* <p><strong>Time:</strong> {ticketDetails.time}</p> */}
               </div>
             </div>
             <div className="w-full md:w-1/2 flex justify-center mt-6 md:mt-0">

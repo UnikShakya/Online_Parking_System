@@ -13,12 +13,12 @@ exports.getAllLots = async (req, res) => {
 
 // Book a specific parking lot
 exports.bookLot = async (req, res) => {
-  const { location, date, startTime, endTime, lotNumber } = req.body;
+  const { location, date, startTime, endTime, selectedSpots } = req.body;
 
   console.log("Booking request:", req.body); // Add this line
 
   try {
-    const lot = await ParkingLot.findOne({ location, lotNumber });
+    const lot = await ParkingLot.findOne({ location, selectedSpots });
     console.log("Found lot:", lot); // Add this line
 
     if (!lot) return res.status(404).json({ message: "Lot not found" });

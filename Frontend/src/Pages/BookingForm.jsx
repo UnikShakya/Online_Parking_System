@@ -25,7 +25,8 @@ const BookingForm = ({ onSubmit }) => {
   const startTime = state?.startTime || "11:00";
   const endTime = state?.endTime || "12:00";
   const selectedSpots = state?.selectedSpots || ["A1"];
-
+  const currentLocation = state?.currentLocation || "Location 1"; // Fallback to "Location 1"
+  const selectedDate = state?.selectedDate || ""; // Fallback to "Location 1"
   const navigate = useNavigate();
 
   // Check if Khalti script is loaded
@@ -181,26 +182,49 @@ const handleConfirmYes = async () => {
   
 
   const saveBooking = async (bookingData) => {
+    const apiUrl = 'http://localhost:3000/api/parking/book';
+    const payload = {
+      ...bookingData,
+      location: currentLocation,
+      startTime,
+      endTime,
+      selectedSpots: Array.isArray(selectedSpots) ? selectedSpots[0] : selectedSpots,
+      totalCost: calculateTotalPrice(),
+      vehicleType: bookingData.vehicleType || (selectedSpots[0]?.charAt(0) === 'R' ? '4-wheeler' : '2-wheeler'),
+      paymentVerified: bookingData.paymentMethod === 'cash',
+    };
+    console.log("Sending request to:", apiUrl);
+    console.log("Data being sent:", payload);
     try {
-      const response = await axios.post("http://localhost:3000/api/booking", {
-        ...bookingData,
-        startTime,
-        endTime,
-        selectedSpots,
-        totalCost: calculateTotalPrice(),
-        vehicleType: bookingData.vehicleType || (selectedSpots[0].charAt(0) === 'A' ? '2-wheeler' : '4-wheeler')
-      });
+      const response = await axios.post(apiUrl, payload);
+      console.log("Server response:", response.data);
       return response.data;
     } catch (error) {
-      console.error("Booking save error:", error);
-      throw new Error(error.response?.data?.error || "Failed to save booking");
+      console.error("Error details:", {
+        message: error.message,
+        status: error.response?.status,
+        responseData: error.response?.data,
+      });
+      throw new Error(error.response?.data?.message || "Failed to save booking");
     }
   };
 
   const handleCashPayment = async () => {
-    await saveBooking(formData);
-    toast.success("Booking created successfully!");
-    navigateToSuccessPage();
+    try {
+      // FIRST save the booking
+      await saveBooking({
+        ...formData,
+        paymentVerified: true,
+      });
+      
+      // THEN show success and navigate
+      toast.success("Booking created successfully!");
+      navigateToSuccessPage();
+    } catch (error) {
+      console.error("Cash payment processing error:", error);
+      toast.error(error.message || "Failed to process cash payment");
+      setErrorMessage(error.message);
+    }
   };
 
   const navigateToSuccessPage = () => {
@@ -208,7 +232,8 @@ const handleConfirmYes = async () => {
       state: {
         name: formData.name,
         vehicleNumber: formData.vehicleNumber,
-        spots: selectedSpots,
+        selectedSpots,
+        selectedDate,
         startTime,
         endTime,
         totalAmount: calculateTotalPrice(),
