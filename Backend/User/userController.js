@@ -7,7 +7,7 @@ const adminModel = require("../adminModel")
 const middlemanModel = require("../Middleman/middlemanModel")
 // Create token
 const createToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '3d' });
 };
 
 const ADMIN_EMAIL = 'admin@gmail.com'; // Predefined admin email
@@ -148,42 +148,42 @@ const registerUser = async (req, res) => {
 };
 
 
-const forgetPassword = async(req, res) =>{
-    try {
-        const {email} = req.body;
-        if(!email){
-            return res.status(400).send({ message: "Please enter your email" });
-        }
-
-        const checkUser = await userModel.findOne({email})
-        if(!checkUser){
-            return res.status(400).send({message: "User not found. Please Register"})
-        }
-
-        const token = jwt.sign({email}, process.env.JWT_SECRET)
-
-        const transporter  = nodemailer.createTransport({
-            service:"gmail",
-            secure:true,
-            auth:{
-                user:process.env.MY_EMAIL,
-                pass:process.env.MY_PASSWORD,
+    const forgetPassword = async(req, res) =>{
+        try {
+            const {email} = req.body;
+            if(!email){
+                return res.status(400).send({ message: "Please enter your email" });
             }
 
-        })
+            const checkUser = await userModel.findOne({email})
+            if(!checkUser){
+                return res.status(400).send({message: "User not found. Please Register"})
+            }
 
-        const reciever = {
-            from: "shakyaunik123@gmail.com",
-            to: email,
-            subject: "Password Reset request",
-            text: `Click on this link to reset password: ${process.env.CLIENT_URL}/reset-password/${token}`
+            const token = jwt.sign({email}, process.env.JWT_SECRET)
+
+            const transporter  = nodemailer.createTransport({
+                service:"gmail",
+                secure:true,
+                auth:{
+                    user:process.env.MY_EMAIL,
+                    pass:process.env.MY_PASSWORD,
+                }
+
+            })
+
+            const reciever = {
+                from: "shakyaunik123@gmail.com",
+                to: email,
+                subject: "Password Reset request",
+                text: `Click on this link to reset password: ${process.env.CLIENT_URL}/reset-password/${token}`
+            }
+            await transporter.sendMail(reciever);
+            return res.status(200).send({message:"Password reset link successfully in your gmail"})
+        } catch (error) {
+            return res.status(500).send({message: "Something went wrong"})
         }
-        await transporter.sendMail(reciever);
-        return res.status(200).send({message:"Password reset link successfully in your gmail"})
-    } catch (error) {
-        return res.status(500).send({message: "Something went wrong"})
     }
-}
 
 
 const resetPassword = async (req, res) => {

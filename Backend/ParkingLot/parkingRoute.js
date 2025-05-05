@@ -1,9 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const parkingController = require("./parkingController");
+const authMiddleware = require("../authentication");
 
 router.get("/", parkingController.getAllLots);
-router.post("/book", parkingController.bookLot);
+router.post("/book", authMiddleware, parkingController.bookLot);
 router.get("/booked", parkingController.bookedLot);
 
 

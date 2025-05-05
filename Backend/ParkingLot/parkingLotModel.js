@@ -8,6 +8,11 @@ const parkingLotSchema = new mongoose.Schema({
   endTime: String,
   selectedSpots: { type: String, required: true },
   isBooked: { type: Boolean, default: false },
+  userId: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'User', // Reference to the User model
+    required: false, // Optional initially, can be populated after booking
+  },
 });
 
 

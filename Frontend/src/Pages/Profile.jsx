@@ -4,27 +4,25 @@ import { FaParking, FaCalendarAlt, FaClock, FaSearchLocation } from 'react-icons
 function Profile() {
   const [bookings, setBookings] = useState([]);
   const username = localStorage.getItem('username');
+  const token = localStorage.getItem('token'); // JWT token stored at login
 
-   // Dummy bookings
-   const dummyBookings = [
-    {
-      Location: "Location 1",
-      parkingSpot: "R60",
-      date: "2025-04-29",
-      startTime: "10:00 AM",
-      endTime: "11:00 PM",
-    }
-
-  ];
   useEffect(() => {
-    const storedBookings = JSON.parse(localStorage.getItem('bookings'));
+    const fetchBookings = async () => {
+      try {
+        const response = await axios.get('http://localhost:3000/api/payment/book', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
 
-    if (!storedBookings || storedBookings.length === 0) {
-      localStorage.setItem('bookings', JSON.stringify(dummyBookings));
-      setBookings(dummyBookings);
-    } else {
-      setBookings(storedBookings);
-    }
+        setBookings(response.data.bookings);
+      } catch (error) {
+        console.error("Error fetching bookings:", error);
+        setBookings([]); // fallback to empty if error
+      }
+    };
+
+    fetchBookings();
   }, []);
   return (
     <div className="bg-designColor text-white min-h-screen">

@@ -1,5 +1,7 @@
 const axios = require('axios');
 const Payment = require('./PaymentModel');
+const parkingLotModel = require('../ParkingLot/parkingLotModel');
+
 
 const verifyPayment = async (req, res) => {
   const { token, amount } = req.body;
@@ -76,6 +78,7 @@ const payment = async (req, res) => {
 
   try {
     const newBooking = new Payment({
+      // userId: req.user.id, 
       name,
       vehicleNumber,
       phoneNumber,
@@ -115,4 +118,21 @@ const payment = async (req, res) => {
   }
 };
 
-module.exports = { verifyPayment, payment };
+// get user booking
+const getUserBookings = async (req, res) => {
+  try {
+    const userBookings = await parkingLotModel.find({ userId: req.user.id });
+
+    if (userBookings.length === 0) {
+      return res.status(404).json({ message: "No bookings found" });
+    }
+
+    res.json(userBookings);
+  } catch (err) {
+    console.error("Error fetching user bookings:", err);
+    res.status(500).json({ message: "Failed to fetch bookings" });
+  }
+};
+
+// Update exports
+module.exports = { verifyPayment, payment, getUserBookings };

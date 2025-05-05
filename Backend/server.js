@@ -14,6 +14,8 @@ const adminRouter = require("./adminRoute"); // Import adminRouter
 const paymentRouter = require("./Payment/paymentRoute");
 const axios = require('axios'); // Add near your other routes in server.js
 const parkingRouter = require("./ParkingLot/parkingRoute");
+const profileRoute = require('./Profile/profileRoute'); // adjust path
+
 
 
 // Connect to MongoDB
@@ -93,6 +95,10 @@ app.use("/api/admin", adminRouter); // Admin routes
 app.use("/api/middleman", middlemanRouter); // Middleman routes
 app.use('/api/payments', paymentRouter); //payment routes
 app.use('/api/parking', parkingRouter)
+app.use('/api/profile', profileRoute)
+
+// Load Cron Job to send reminder emails
+// require("./reminderCron")
 
 // const API_URL = 'https://pay.periwin.com/api/payment/process/initiate/';
 // const API_KEY = process.env.PERIPAY_API_KEY; // store this in .env

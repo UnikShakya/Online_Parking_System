@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const paymentSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, // Link to logged-in user
   name: { type: String, required: true },
   vehicleNumber: { type: String, required: true },
   phoneNumber: { type: String, required: true },
@@ -15,4 +16,6 @@ const paymentSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model('Payment', paymentSchema);
+const paymentModel = mongoose.model("Payment", paymentSchema);
+
+module.exports = paymentModel;
