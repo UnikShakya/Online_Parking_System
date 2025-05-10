@@ -5,7 +5,7 @@ import Selection from "./Selection"; // Import the Selection component
 
 function Hero({ setShowLogin }) {
   return (
-    <div className="relative w-full h-screen bg-designColor">
+    <section id="home" className="relative w-full h-screen bg-designColor">
       {/* Background Image */}
       <img
         src={bg}
@@ -28,7 +28,7 @@ function Hero({ setShowLogin }) {
         {/* Selection Component */}
         <Selection setShowLogin={setShowLogin} />
       </div>
-    </div>
+    </section>
   );
 }
 

@@ -22,7 +22,7 @@ function Navbar({ setShowLogin }) {
     };
 
     return (
-        <div className="absolute top-0 left-0 w-full bg-bodyColor text-white z-10">
+        <div className="sticky top-0 left-0 w-full bg-bodyColor text-white z-10">
             <div className="h-20 flex justify-between items-center px-4 max-w-screen-xl mx-auto">
                 <div>
                     <Link to="/">
@@ -33,6 +33,14 @@ function Navbar({ setShowLogin }) {
                             <span className="text-textColor">ase</span>
                         </h1>
                     </Link>
+                </div>
+                <div>
+                    <ul className="flex gap-10 justify-center font-medium">
+                        <li><a href="#home">Home</a></li>
+                        <li><a href="#about-us">About Us</a></li>
+                        <li><a href="#services">Services</a></li>
+                        <li><a href="#contact">Contact Us</a></li>
+                    </ul>
                 </div>
 
                 {!localStorage.getItem("token") ? (

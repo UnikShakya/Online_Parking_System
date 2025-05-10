@@ -65,6 +65,7 @@ const LoginPopup = ({ setShowLogin }) => {
                     setToken(token);
                     localStorage.setItem("token", token);
                     localStorage.setItem("username", username);
+                    console.log("token:", token)
 
                     toast.success("Successfully logged in!");
                     setShowLogin(false);
@@ -123,7 +124,7 @@ const LoginPopup = ({ setShowLogin }) => {
                             value={data.password}
                             onChange={handleInputChange}
                             required
-                            className="w-full border px-4 py-2 pr-10 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full border px-4 py-2 pr-10 rounded-md focus:outline-none"
                         />
                         <span
                             className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-600"

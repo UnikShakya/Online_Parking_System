@@ -1,18 +1,17 @@
 const schedule = require("node-schedule");
-const moment = require('moment');
 const User = require("../User/userModel");
 const ParkingLot = require("./parkingLotModel");
 const nodemailer = require("nodemailer");
 
 
 // Get all parking lots
-exports.getAllLots = async (req, res) => {
+exports.getAllLot = async (req, res) => {
   try {
-    const lots = await ParkingLot.find();
-    res.json(lots);
+    const lot = await ParkingLot.find();
+    res.json(lot);
   } catch (err) {
-    console.error("Error fetching parking lots:", err);
-    res.status(500).json({ message: "Server error while fetching lots." });
+    console.error("Error fetching parking lot:", err);
+    res.status(500).json({ message: "Server error while fetching lot." });
   }
 };
 
@@ -21,21 +20,31 @@ exports.bookLot = async (req, res) => {
   const { location, date, startTime, endTime, selectedSpots } = req.body;
   const userId = req.user.id;
 
+
   console.log("Booking request:", req.body);
+  console.log("selectedSpots type:", typeof selectedSpots); // Should log 'string'
 
   try {
     const lot = await ParkingLot.findOne({ location,
-       selectedSpots: {$in: [selectedSpots]},
+       selectedSpots: {$in: selectedSpots},
         isBooked: false
        });
     console.log("Found lot:", lot);
 
-    if (!lot) return res.status(404).json({ message: "Lot not found" });
-    if (lot.isBooked) return res.status(400).json({ message: "Already booked" });
+    if (!lot) {
+      return res.status(404).json({ message: "No available spots found" });
+    }
+
+    // if (!lot) return res.status(404).json({ message: "Lot not found" });
+    // if (lot.isBooked) return res.status(400).json({ message: "Already booked" });
 
     lot.isBooked = true;
     lot.userId = userId;
+    lot.startTime = startTime;
+    lot.endTime = endTime;
+    lot.date = date;
     await lot.save();
+    console.log("✅ Lot updated:", lot);
 
     // 🔍 Fetch user email
     const user = await User.findById(userId);
@@ -125,7 +134,7 @@ exports.bookLot = async (req, res) => {
           <p>Your parking session at <strong>${location}</strong> has ended 😢.</p>
           <ul>
             <li><strong>Date:</strong> ${date}</li>
-            <li><strong>Spot:</strong> ${selectedSpots}</li>
+            <li><strong>Spot:</strong> ${selectedSpots.join(", ")}</li>
             <li><strong>Time:</strong> ${startTime} to ${endTime}</li>
           </ul>
           <p>If you need more time, you can extend your booking.</p>

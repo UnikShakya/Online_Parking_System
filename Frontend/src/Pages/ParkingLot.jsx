@@ -99,10 +99,16 @@ const ParkingLot = ({ discountRate }) => {
   };
 
   const render2WheelerParking = () => {
-    const twoWheelerSpots = parkingLots.filter(spot => !spot.selectedSpots.startsWith("R"));
-    const rows = [];
+    const twoWheelerSpots = parkingLots.filter(spot => {
+      const spotId = String(spot.selectedSpots || '');
+      return spotId && !spotId.startsWith("R");
+    });
     
-    // Create rows with 10 spots each
+    if (twoWheelerSpots.length === 0) {
+      return <div className="text-center py-4">No 2-wheeler spots available</div>;
+    }
+
+    const rows = [];
     for (let i = 0; i < twoWheelerSpots.length; i += 10) {
       const rowSpots = twoWheelerSpots.slice(i, i + 10);
       rows.push(
@@ -126,8 +132,15 @@ const ParkingLot = ({ discountRate }) => {
   };
 
   const render4WheelerParking = () => {
-    const fourWheelerSpots = parkingLots.filter(spot => spot.selectedSpots.startsWith("R"));
+    const fourWheelerSpots = parkingLots.filter(spot => {
+      const spotId = String(spot.selectedSpots || '');
+      return spotId && spotId.startsWith("R");
+    });
     
+    if (fourWheelerSpots.length === 0) {
+      return <div className="text-center py-4">No 4-wheeler spots available</div>;
+    }
+
     return (
       <div className="flex justify-center">
         <div className="grid grid-cols-6 gap-4">
@@ -145,6 +158,7 @@ const ParkingLot = ({ discountRate }) => {
       </div>
     );
   };
+
 
   return (
     <div className="relative p-5 mt-20 bg-designColor min-h-screen flex flex-col items-center">

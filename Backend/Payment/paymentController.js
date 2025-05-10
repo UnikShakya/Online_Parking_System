@@ -118,11 +118,11 @@ const payment = async (req, res) => {
   }
 };
 
-// get user booking
 const getUserBookings = async (req, res) => {
+  console.log("User ID from token:", req.user.id); // Log the user ID
   try {
     const userBookings = await parkingLotModel.find({ userId: req.user.id });
-
+    
     if (userBookings.length === 0) {
       return res.status(404).json({ message: "No bookings found" });
     }
@@ -133,6 +133,5 @@ const getUserBookings = async (req, res) => {
     res.status(500).json({ message: "Failed to fetch bookings" });
   }
 };
-
 // Update exports
 module.exports = { verifyPayment, payment, getUserBookings };

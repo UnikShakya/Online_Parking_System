@@ -182,30 +182,33 @@ const handleConfirmYes = async () => {
   
 
   const saveBooking = async (bookingData) => {
-    const apiUrl = 'http://localhost:3000/api/parking/book';
+    const token = localStorage.getItem("token");
     const payload = {
       ...bookingData,
       location: currentLocation,
+      selectedSpots,
       startTime,
       endTime,
-      selectedSpots: Array.isArray(selectedSpots) ? selectedSpots[0] : selectedSpots,
+      selectedDate,
       totalCost: calculateTotalPrice(),
-      vehicleType: bookingData.vehicleType || (selectedSpots[0]?.charAt(0) === 'R' ? '4-wheeler' : '2-wheeler'),
-      paymentVerified: bookingData.paymentMethod === 'cash',
+      vehicleType:
+        bookingData.vehicleType ||
+        (selectedSpots[0]?.charAt(0) === "R" ? "4-wheeler" : "2-wheeler"),
     };
-    console.log("Sending request to:", apiUrl);
-    console.log("Data being sent:", payload);
+
     try {
-      const response = await axios.post(apiUrl, payload);
-      console.log("Server response:", response.data);
-      return response.data;
-    } catch (error) {
-      console.error("Error details:", {
-        message: error.message,
-        status: error.response?.status,
-        responseData: error.response?.data,
+      const res = await axios.post("http://localhost:3000/api/parking/book", payload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
-      throw new Error(error.response?.data?.message || "Failed to save booking");
+      return res.data;
+    } catch (error) {
+      console.error("Error saving booking:", {
+        status: error.response?.status,
+        data: error.response?.data,
+      });
+      throw new Error(error.response?.data?.message || "Booking failed");
     }
   };
 
