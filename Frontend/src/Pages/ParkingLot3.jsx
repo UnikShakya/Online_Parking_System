@@ -1,54 +1,93 @@
-import React, { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import ConnectedCircles from "../Components/Stepper";
 
-const ParkingLot2 = () => {
+const ParkingLot3 = ({ discountRate }) => {
   const { state } = useLocation();
+  const { locationId } = useParams();
   const totalCost2Wheeler = state?.totalCost2Wheeler || 0;
   const totalCost4Wheeler = state?.totalCost4Wheeler || 0;
   const startTime = state?.startTime || "";
   const endTime = state?.endTime || "";
+  const selectedDate = state?.selectedDate || "";
+  const isPeak = state?.isPeak || false;
+  const rates = state?.rates || {
+    "2Wheeler": { offPeakRate: 20 },
+    "4Wheeler": { offPeakRate: 40 }
+  };
 
+  const [parkingLots, setParkingLots] = useState([]);
   const [selectedSpots, setSelectedSpots] = useState([]);
   const [bookedSpots, setBookedSpots] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [activeStep, setActiveStep] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
+  const [currentLocation, setCurrentLocation] = useState(locationId || "Location 3");
 
   const navigate = useNavigate();
 
-  // Parking lot configuration (single level, no floors)
-  const parkingConfig = {
-    "2Wheeler": {
-      rows: ["A", "B", "C", "D"],
-      spotsPerRow: 20,
-    },
-    "4Wheeler": {
-      rows: ["R1", "R2", "R3", "R4", "R5", "R6"],
-      spotsPerRow: 1,
-    },
+ useEffect(() => {
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      // Fetch all parking lots
+      const parkingResponse = await axios.get("http://localhost:3000/api/parking/location3");
+      console.log("Parking API Response:", parkingResponse.data);
+
+      const filteredParkingLots = parkingResponse.data.filter(
+        (spot) => spot.location === currentLocation
+      );
+      console.log("Filtered Parking Lots for Location 3:", filteredParkingLots);
+      setParkingLots(filteredParkingLots);
+
+      // Fetch booked spots
+      const bookedResponse = await axios.get("http://localhost:3000/api/parking/booked-location3");
+      console.log("Booked Spots Response:", bookedResponse.data);
+
+      // Flatten selectedSpots if they are arrays
+      const bookedSpotNumbers = bookedResponse.data
+        .map(spot => spot.selectedSpots)
+        .filter(Boolean)
+        .flat(); // Flatten nested arrays like [[1, 2], [3]] => [1, 2, 3]
+
+      console.log("Flattened Booked Spot Numbers:", bookedSpotNumbers);
+      setBookedSpots(bookedSpotNumbers);
+    } catch (err) {
+      console.error("Error fetching data:", err);
+      // setErrorMessage("Failed to fetch parking data. Please try again later.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleSpotClick = (spotId) => {
-    setErrorMessage("");
-    if (bookedSpots.includes(spotId)) return;
-    setSelectedSpots((prev) =>
-      prev.includes(spotId) ? prev.filter((spot) => spot !== spotId) : [...prev, spotId]
+  fetchData();
+}, [currentLocation]);
+
+
+  const handleSpotClick = (spot) => {
+    if (!spot?.selectedSpots || bookedSpots.includes(spot.selectedSpots)) return;
+
+    setSelectedSpots(prev =>
+      prev.includes(spot.selectedSpots)
+        ? prev.filter(spotId => spotId !== spot.selectedSpots)
+        : [...prev, spot.selectedSpots]
     );
   };
 
   const handleBookParking = () => {
     if (selectedSpots.length === 0) {
-      setErrorMessage("Please select at least one parking spot.");
-    } else {
-      setErrorMessage("");
-      setShowModal(true);
+      setErrorMessage("Please select a parking lot.");
+      return;
     }
+    setErrorMessage("");
+    setShowModal(true);
   };
 
   const calculatePrice = (spotId) => {
-    const is2Wheeler = /^[A-Za-z]/.test(spotId);
-    return is2Wheeler ? Number(totalCost2Wheeler) : Number(totalCost4Wheeler);
+    if (!spotId) return 0;
+    return spotId.startsWith("R") ? Number(totalCost4Wheeler) : Number(totalCost2Wheeler);
   };
 
   const calculateTotalPrice = () => {
@@ -56,11 +95,12 @@ const ParkingLot2 = () => {
   };
 
   const handleConfirm = () => {
-    setBookedSpots([...bookedSpots, ...selectedSpots]);
-    setSelectedSpots([]);
-    setActiveStep(2);
-    setShowModal(false);
+    if (selectedSpots.length === 0) {
+      setErrorMessage("Please select a parking lot.");
+      return;
+    }
 
+    setErrorMessage("");
     navigate("/bookingform", {
       state: {
         selectedSpots,
@@ -68,177 +108,261 @@ const ParkingLot2 = () => {
         endTime,
         totalCost2Wheeler,
         totalCost4Wheeler,
-      },
+        selectedDate,
+        location: currentLocation
+       },
     });
   };
 
-  const renderParkingRow = (rowId, numSpots, type) => {
+  const render2WheelerParking = () => {
+    const twoWheelerSpots = parkingLots.filter(spot => {
+      const spotId = String(spot.selectedSpots || '');
+      return spotId && !spotId.startsWith("R");
+    });
+
+    if (twoWheelerSpots.length === 0) {
+      return <div className="text-center py-4">No 3-wheeler spots available</div>;
+    }
+
+    const rows = [];
+    for (let i = 0; i < twoWheelerSpots.length; i += 10) {
+      const rowSpots = twoWheelerSpots.slice(i, i + 10);
+      rows.push(
+        <div key={`row-${i}`} className="flex justify-center gap-4 mb-2">
+          <div className="flex space-x-1">
+            {rowSpots.map((spot) => (
+              <ParkingSpot
+                key={spot.selectedSpots}
+                spot={spot}
+                selectedSpots={selectedSpots}
+                bookedSpots={bookedSpots}
+                onClick={handleSpotClick}
+                is4Wheeler={false}
+              />
+            ))}
+          </div>
+        </div>
+      );
+    }
+    return rows;
+  };
+
+  const render4WheelerParking = () => {
+    const fourWheelerSpots = parkingLots.filter(spot => {
+      const spotId = String(spot.selectedSpots || '');
+      return spotId && spotId.startsWith("R");
+    });
+
+    if (fourWheelerSpots.length === 0) {
+      return <div className="text-center py-4">No 4-wheeler spots available</div>;
+    }
+
     return (
-      <div key={rowId} className="flex justify-center mb-4">
-        {Array.from({ length: numSpots }).map((_, index) => {
-          const spotId = `${rowId}${index}`;
-          const isSelected = selectedSpots.includes(spotId);
-          const isBooked = bookedSpots.includes(spotId);
-          return (
-            <div
-              key={spotId}
-              className={`w-12 h-12 m-2 rounded-lg border-2 flex items-center justify-center text-sm font-semibold shadow-md
-                ${isSelected ? "bg-yellow-300 border-yellow-400 text-gray-800" : 
-                  isBooked ? "bg-red-500 border-red-600 text-white" : 
-                  type === "2Wheeler" ? "bg-blue-100 border-blue-200 text-blue-800 hover:bg-blue-200" : 
-                  "bg-green-100 border-green-200 text-green-800 hover:bg-green-200"}
-                cursor-pointer transition-all duration-300 transform hover:scale-105`}
-              onClick={() => handleSpotClick(spotId)}
-            >
-              {spotId}
-            </div>
-          );
-        })}
+      <div className="flex justify-center">
+        <div className="grid grid-cols-6 gap-4">
+          {fourWheelerSpots.map((spot) => (
+            <ParkingSpot
+              key={spot.selectedSpots}
+              spot={spot}
+              selectedSpots={selectedSpots}
+              bookedSpots={bookedSpots}
+              onClick={handleSpotClick}
+              is4Wheeler={true}
+            />
+          ))}
+        </div>
       </div>
     );
   };
 
   return (
-    <div className="min-h-screen bg-designColor mt-[5rem] p-6 flex flex-col items-center">
+    <div className="relative p-5 bg-designColor min-h-screen flex flex-col items-center">
       <ConnectedCircles activeStep={activeStep} />
 
-      <h1 className="text-4xl font-extrabold text-white mb-8 mt-4 tracking-tight">
-        Select Your Parking Spot
+      <h1 className="text-3xl font-bold text-center text-textColor my-8">
+        Parking Lots - {currentLocation}
       </h1>
 
-      {/* Parking Layout */}
-      <div className="w-full relative max-w-8xl bg-white rounded-xl shadow-lg p-6">
-        <div className="flex flex-col md:flex-row gap-8">
-          {/* 2-Wheeler Section */}
-          <div className="flex-1">
-            <h2 className="text-2xl font-bold text-blue-700 mb-4 text-center">2-Wheeler Parking</h2>
-            {parkingConfig["2Wheeler"].rows.map((row) =>
-              renderParkingRow(row, parkingConfig["2Wheeler"].spotsPerRow, "2Wheeler")
-            )}
+      {isLoading ? (
+        <div className="text-center py-8">
+          <p className="text-lg text-gray-700">Loading parking data...</p>
+        </div>
+      ) : (
+        <>
+          {/* Main Parking Area */}
+          <div className="w-full max-w-6xl bg-white rounded-xl shadow-lg p-6 mb-8">
+            {/* Entry Road */}
+            <div className="bg-gray-500 h-12 mb-6 flex items-center justify-center">
+              <span className="text-white font-bold text-lg">ENTRY</span>
+            </div>
+
+            {/* 2-Wheeler Parking Section */}
+            <div className="mb-8">
+              <h3 className="text-xl font-bold mb-4 text-center text-gray-700 bg-blue-100 py-2 rounded">
+                2-Wheeler Parking
+              </h3>
+              <div className="parking-rows">
+                {render2WheelerParking()}
+              </div>
+            </div>
+
+            {/* Divider */}
+            <div className="border-t-4 border-dashed border-gray-300 my-6"></div>
+
+            {/* 4-Wheeler Parking Section */}
+            <div className="mt-8">
+              <h3 className="text-xl font-bold mb-4 text-center text-gray-700 bg-green-100 py-2 rounded">
+                4-Wheeler Parking
+              </h3>
+              <div className="parking-rows">
+                {render4WheelerParking()}
+              </div>
+            </div>
+
+            {/* Exit Road */}
+            <div className="bg-gray-500 h-12 mt-6 flex items-center justify-center">
+              <span className="text-white font-bold text-lg">EXIT</span>
+            </div>
           </div>
 
-          {/* 4-Wheeler Section */}
-          <div className="w-full md:w-1/4">
-            <h2 className="text-2xl font-bold text-green-700 text-center">4-Wheeler Parking</h2>
-            {parkingConfig["4Wheeler"].rows.map((row) =>
-              renderParkingRow(row, parkingConfig["4Wheeler"].spotsPerRow, "4Wheeler")
-            )}
+          {/* Legend */}
+          <div className="flex justify-center mt-4 space-x-8 mb-8 bg-white p-4 rounded-lg shadow">
+            <div className="flex items-center">
+              <div className="w-6 h-6 bg-blue-400 rounded mr-2"></div>
+              <span className="text-gray-700">Available</span>
+            </div>
+            <div className="flex items-center">
+              <div className="w-6 h-6 bg-yellow-400 rounded mr-2"></div>
+              <span className="text-gray-700">Selected</span>
+            </div>
+            <div className="flex items-center">
+              <div className="w-6 h-6 bg-red-500 rounded mr-2"></div>
+              <span className="text-gray-700">Booked</span>
+            </div>
           </div>
-        </div>
 
-        {/* Entry Sign */}
-        <div className="absolute left-0 top-1/2 transform -translate-y-1/2 rotate-90 text-lg font-semibold">
-          Entry
-        </div>
-      </div>
-
-      {/* Legend */}
-      <div className="flex flex-wrap justify-center mt-6 gap-6 bg-white p-4 rounded-lg shadow-md w-full max-w-8xl">
-        <div className="flex items-center">
-          <div className="w-5 h-5 bg-blue-100 border-2 border-blue-200 rounded mr-2"></div>
-          <span className="text-gray-700 font-medium">2-Wheeler Available</span>
-        </div>
-        <div className="flex items-center">
-          <div className="w-5 h-5 bg-green-100 border-2 border-green-200 rounded mr-2"></div>
-          <span className="text-gray-700 font-medium">4-Wheeler Available</span>
-        </div>
-        <div className="flex items-center">
-          <div className="w-5 h-5 bg-yellow-300 border-2 border-yellow-400 rounded mr-2"></div>
-          <span className="text-gray-700 font-medium">Selected</span>
-        </div>
-        <div className="flex items-center">
-          <div className="w-5 h-5 bg-red-500 border-2 border-red-600 rounded mr-2"></div>
-          <span className="text-gray-700 font-medium">Booked</span>
-        </div>
-      </div>
-
-      {/* Action Buttons */}
-      <div className="flex flex-col items-center mt-8 w-full max-w-6xl">
-        <button
-          className="bg-gradient-to-r from-gradientStart to-gradientEnd text-white rounded-full px-8 py-3 text-lg font-semibold shadow-lg hover:opacity-90 transition-all duration-300 transform hover:scale-105"
-          onClick={handleBookParking}
-        >
-          Book Selected Spots
-        </button>
-        {errorMessage && (
-          <p className="mt-3 text-red-600 font-medium animate-pulse">{errorMessage}</p>
-        )}
-      </div>
-
-      {/* Confirmation Modal */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50">
-          <div className="bg-white w-full max-w-2xl rounded-xl p-8 shadow-2xl transform transition-all duration-300 scale-100">
+          {/* Book Now Button */}
+          <div className="flex flex-col items-center mt-4 mb-12">
             <button
-              className="absolute top-4 right-4 text-gray-500 text-2xl font-bold hover:text-red-500 transition-colors"
-              onClick={() => setShowModal(false)}
+              className="bg-gradient-to-r from-gradientStart to-gradientEnd hover:opacity-70 text-white font-bold py-3 px-8 rounded-full text-lg transition duration-300 transform hover:scale-105 shadow-lg"
+              onClick={handleBookParking}
             >
-              ✖
+              Book Now
             </button>
-
-            <h2 className="text-3xl font-extrabold mb-6 text-center bg-gradient-to-r from-gradientStart to-gradientEnd bg-clip-text text-transparent">
-              Booking Summary
-            </h2>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              <div>
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">Time Details</h3>
-                <p className="text-gray-600"><span className="font-medium">From:</span> {startTime}</p>
-                <p className="text-gray-600"><span className="font-medium">To:</span> {endTime}</p>
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">Pricing</h3>
-                <p className="text-gray-600"><span className="font-medium">2-Wheeler:</span> Rs {totalCost2Wheeler}</p>
-                <p className="text-gray-600"><span className="font-medium">4-Wheeler:</span> Rs {totalCost4Wheeler}</p>
-              </div>
-            </div>
-
-            <div className="overflow-x-auto mb-6">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="bg-gray-100">
-                    <th className="text-left py-3 px-4 font-semibold text-gray-700">Spot ID</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-700">Type</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-700">Price</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {selectedSpots.map((spot, index) => (
-                    <tr key={index} className="border-b border-gray-200 hover:bg-gray-50">
-                      <td className="py-3 px-4 text-gray-700">{spot}</td>
-                      <td className="py-3 px-4 text-gray-700">{/^[A-Za-z]/.test(spot) ? "2-Wheeler" : "4-Wheeler"}</td>
-                      <td className="py-3 px-4 text-gray-700">Rs {calculatePrice(spot)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-                <tfoot>
-                  <tr className="bg-gray-50 font-semibold text-gray-800">
-                    <td className="py-3 px-4" colSpan="2">Total</td>
-                    <td className="py-3 px-4">Rs {calculateTotalPrice()}</td>
-                  </tr>
-                </tfoot>
-              </table>
-            </div>
-
-            <div className="flex justify-center gap-4">
-              <button
-                className="bg-gray-200 text-gray-700 rounded-full px-6 py-2 font-medium hover:bg-gray-300 transition-all duration-300 shadow"
-                onClick={() => setShowModal(false)}
-              >
-                Cancel
-              </button>
-              <button
-                className="bg-gradient-to-r from-gradientStart to-gradientEnd text-white rounded-full px-8 py-2 font-semibold hover:opacity-90 transition-all duration-300 shadow-lg"
-                onClick={handleConfirm}
-              >
-                Confirm Booking
-              </button>
-            </div>
+            {errorMessage && (
+              <p className="mt-3 text-red-500 font-semibold">{errorMessage}</p>
+            )}
           </div>
-        </div>
+
+          {/* Booking Confirmation Modal */}
+          {showModal && (
+            <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50">
+              <div className="bg-gray-900 text-white w-11/12 max-w-4xl rounded-xl p-8 relative shadow-2xl transform transition-all duration-300">
+                <button
+                  className="absolute top-4 right-4 text-white text-2xl font-bold hover:text-red-400 transition-colors duration-200"
+                  onClick={() => setShowModal(false)}
+                >
+                  ✖
+                </button>
+
+                <h2 className="text-3xl font-extrabold mb-6 text-center bg-clip-text text-transparent bg-textColor">
+                  Selected Parking Lot
+                </h2>
+
+                <div className="mb-6 text-center">
+                  <p className="text-lg text-gray-300">
+                    {`2-Wheeler: Rs ${rates["2Wheeler"].offPeakRate} per hour`}
+                  </p>
+                  <p className="text-lg text-gray-300">
+                    {`4-Wheeler: Rs ${rates["4Wheeler"].offPeakRate} per hour`}
+                  </p>
+                </div>
+                {isPeak && (
+                  <p className="text-sm text-yellow-600">
+                    A discount of {discountRate * 100}% has been applied due to peak hours.
+                  </p>
+                )}
+
+                <div className="overflow-x-auto">
+                  <table className="w-full mb-8 border-separate border-spacing-0">
+                    <thead>
+                      <tr className="bg-gray-800 rounded-t-lg">
+                        <th className="text-left py-3 px-6 font-semibold text-blue-400 rounded-tl-lg">Parking Lot ID</th>
+                        <th className="text-left py-3 px-6 font-semibold text-blue-300">From</th>
+                        <th className="text-left py-3 px-6 font-semibold text-blue-300">To</th>
+                        <th className="text-left py-3 px-6 font-semibold text-blue-300 rounded-tr-lg">Price</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {selectedSpots.map((spot, index) => (
+                        <tr key={index} className="hover:bg-gray-700 transition-colors duration-150">
+                          <td className="py-4 px-6 border-b border-gray-700">{spot}</td>
+                          <td className="py-4 px-6 border-b border-gray-700">{startTime}</td>
+                          <td className="py-4 px-6 border-b border-gray-700">{endTime}</td>
+                          <td className="py-4 px-6 border-b border-gray-700">Rs {calculatePrice(spot)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="mb-6 text-right">
+                  <span className="text-2xl font-bold text-textColor">Total: Rs {calculateTotalPrice()}</span>
+                </div>
+
+                <div className="flex justify-center">
+                  <button
+                    className="bg-gradient-to-r from-gradientStart to-gradientEnd text-white rounded-full px-8 py-3 text-lg font-semibold cursor-pointer hover:opacity-80 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                    onClick={handleConfirm}
+                  >
+                    Confirm Booking
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
 };
 
-export default ParkingLot2;
+const ParkingSpot = ({ spot, selectedSpots, bookedSpots, onClick, is4Wheeler = false }) => {
+  const isSelected = selectedSpots.includes(spot.selectedSpots);
+  const isBooked = spot.isBooked || bookedSpots.includes(spot.selectedSpots);
+
+  return (
+    <div
+      onClick={() => !isBooked && onClick(spot)}
+      className={`flex flex-col justify-center items-center rounded-md ${
+        isBooked
+          ? "bg-red-500 cursor-not-allowed"
+          : isSelected
+          ? "bg-yellow-400 cursor-pointer"
+          : "bg-blue-400 cursor-pointer"
+      } ${
+        is4Wheeler
+          ? "w-20 h-32 m-1"
+          : "w-12 h-8 m-1"
+      } relative transition-all duration-200 hover:opacity-90`}
+    >
+      <span
+        className={`font-bold ${
+          is4Wheeler ? "text-sm" : "text-xs"
+        } ${isBooked ? "text-white" : "text-gray-800"}`}
+      >
+        {spot.selectedSpots}
+      </span>
+      {isBooked && (
+        <div className="flex items-center justify-center">
+          <div className="w-full h-0.5 bg-white"></div>
+        </div>
+      )}
+      {is4Wheeler && (
+        <div className="absolute bottom-1 w-4/5 h-1 bg-gray-600 rounded-full"></div>
+      )}
+    </div>
+  );
+};
+
+export default ParkingLot3;

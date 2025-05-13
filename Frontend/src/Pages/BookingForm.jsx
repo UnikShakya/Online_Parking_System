@@ -24,8 +24,8 @@ const BookingForm = ({ onSubmit }) => {
   const totalCost2Wheeler = Number(state?.totalCost2Wheeler) || 0;
   const startTime = state?.startTime || "11:00";
   const endTime = state?.endTime || "12:00";
-  const selectedSpots = state?.selectedSpots || ["A1"];
-  const currentLocation = state?.currentLocation || "Location 1"; // Fallback to "Location 1"
+const selectedSpots = Array.isArray(state?.selectedSpots) ? state.selectedSpots : ["A1"];
+  const currentLocation = state?.location || "Location 1"; // Fallback to "Location 1"
   const selectedDate = state?.selectedDate || ""; // Fallback to "Location 1"
   const navigate = useNavigate();
 
@@ -222,6 +222,7 @@ const handleConfirmYes = async () => {
       
       // THEN show success and navigate
       toast.success("Booking created successfully!");
+      console.log("Booking successfull")
       navigateToSuccessPage();
     } catch (error) {
       console.error("Cash payment processing error:", error);

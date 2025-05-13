@@ -22,7 +22,14 @@ import ParkingCost from './Admin/ParkingCost';
 import ParkingLots from './Admin/ParkingLots';
 import ParkingLotWrapper from './Pages/ParkingLotWrapper';
 import { ParkingCostProvider } from './Context/ParkingCostContext';
-import Profile from './Pages/Profile';
+// import Profile from './Pages/Profile';
+import ProfileLayout from './Pages/Profile/ProfileLayout';
+import UpcomingBookings from './Pages/Profile/UpcomingBookings';
+import BookingHistory from './Pages/Profile/BookingHistory';
+// import ProfileOverview from './Pages/Profile/ProfileOverview';
+import UserSettings from './Pages/Profile/UserSettings';
+import UserDashboard from './Pages/Profile/UserDashboard';
+
 
 export const RecoveryContext = createContext();
 
@@ -59,10 +66,19 @@ function App() {
           <Route path="/booking-ticket" element={<BookingTicket />} />
           <Route path="/forget-password" element={<ForgetPassword />} />
           <Route path="/middleman/:id" element={<Middleware/>} />
-          <Route path="/profile" element={<Profile/>} />
+          {/* <Route path="/profile" element={<Profile/>} /> */}
           <Route path="/calendar" element={<TravelForm />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/bookingform" element={<BookingForm onSubmit={handleFormSubmit}/>} />
+
+          <Route path="/profile" element={<ProfileLayout setShowLogin={setShowLogin} />}>
+  {/* <Route index element={<ProfileOverview />} /> */}
+  <Route index element={<UserDashboard />} />
+  <Route path="upcoming" element={<UpcomingBookings />} />
+  <Route path="history" element={<BookingHistory />} />
+  <Route path="settings" element={<UserSettings />} />
+</Route>
+
 
   {/* Admin Route for /admin/:id with nested routes */}
   <Route path="/admin/:id" element={<MainLayout setShowLogin={setShowLogin} />}>

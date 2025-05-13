@@ -14,6 +14,26 @@ exports.getAllLot = async (req, res) => {
     res.status(500).json({ message: "Server error while fetching lot." });
   }
 };
+// Get all parking lots for Location 2
+exports.getAllLotLocation2 = async (req, res) => {
+  try {
+    const lot = await ParkingLot.find({ location: "Location 2" });
+    res.json(lot);
+  } catch (err) {
+    console.error("Error fetching parking lot:", err);
+    res.status(500).json({ message: "Server error while fetching lot." });
+  }
+};
+// Get all parking lots for Location 2
+exports.getAllLotLocation3 = async (req, res) => {
+  try {
+    const lot = await ParkingLot.find({ location: "Location 3" });
+    res.json(lot);
+  } catch (err) {
+    console.error("Error fetching parking lot:", err);
+    res.status(500).json({ message: "Server error while fetching lot." });
+  }
+};
 
 // Book a specific parking lot
 exports.bookLot = async (req, res) => {
@@ -32,7 +52,7 @@ exports.bookLot = async (req, res) => {
     console.log("Found lot:", lot);
 
     if (!lot) {
-      return res.status(404).json({ message: "No available spots found" });
+      return res.status(200).json({ message: "No available spots found" });
     }
 
     // if (!lot) return res.status(404).json({ message: "Lot not found" });
@@ -161,7 +181,7 @@ exports.bookedLot = async (req, res) => {
   try {
     const bookedSpots = await ParkingLot.find({ isBooked: true });
     if (bookedSpots.length === 0) {
-      return res.status(404).json({ message: 'No booked spots found' });
+      return res.status(200).json({ message: 'No booked spots found' });
     }
     res.json(bookedSpots);
   } catch (error) {
@@ -169,3 +189,88 @@ exports.bookedLot = async (req, res) => {
     res.status(500).json({ message: 'Error fetching booked spots', error: error.message });
   }
 };
+// Get all booked spots for Location 2
+exports.bookedLotLocation2 = async (req, res) => {
+  try {
+    const bookedSpots = await ParkingLot.find({ 
+      location: "Location 2", 
+      isBooked: true 
+    });
+
+    if (bookedSpots.length === 0) {
+      return res.status(200).json({ message: "No booked spots found in Location 2" });
+    }
+    res.json(bookedSpots);
+  } catch (error) {
+    console.error("Error fetching booked spots:", error);
+    res.status(500).json({ message: "Error fetching booked spots in Location 2" });
+  }
+};
+// Get all booked spots for Location 2
+exports.bookedLotLocation3 = async (req, res) => {
+  try {
+    const bookedSpots = await ParkingLot.find({ 
+      location: "Location 3", 
+      isBooked: true 
+    });
+
+    if (bookedSpots.length === 0) {
+      return res.status(200).json({ message: "No booked spots found in Location 3" });
+    }
+    res.json(bookedSpots);
+  } catch (error) {
+    console.error("Error fetching booked spots:", error);
+    res.status(500).json({ message: "Error fetching booked spots in Location 3" });
+  }
+};
+exports.cancelBooking = async(req, res)=>{
+   try {
+    const bookingId = req.params.id;
+
+    const updated = await ParkingLot.findByIdAndUpdate(
+      bookingId,
+      {
+        $set: { isBooked: false },
+        $unset: {
+          userId: "",
+          date: "",
+          startTime: "",
+          endTime: ""
+        }
+      },
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ message: "Booking not found." });
+    }
+
+    res.status(200).json({ message: "Booking cancelled successfully.", booking: updated });
+  } catch (err) {
+    console.error("Cancel Error:", err);
+    res.status(500).json({ message: "Error cancelling booking." });
+  }
+}
+exports.extendBooking = async (req, res)=>{
+  const bookingId = req.params.id;
+  const { date, endTime } = req.body;
+
+  try {
+    const booking = await ParkingLot.findById(bookingId);
+    if (!booking) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+
+    // Optional: add business logic like checking for conflicts
+
+    booking.date = date;
+    booking.endTime = endTime;
+
+    await booking.save();
+
+    res.status(200).json({ message: 'Booking extended successfully.' });
+  } catch (error) {
+    console.error('Extend error:', error);
+    res.status(500).json({ message: 'Server error while extending booking.' });
+  }
+}

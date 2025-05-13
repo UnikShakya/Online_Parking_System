@@ -161,10 +161,10 @@ const ParkingLot = ({ discountRate }) => {
 
 
   return (
-    <div className="relative p-5 mt-20 bg-designColor min-h-screen flex flex-col items-center">
+    <div className="relative p-5 bg-designColor min-h-screen flex flex-col items-center">
       <ConnectedCircles activeStep={activeStep} />
 
-      <h1 className="text-3xl font-bold text-center text-textColor my-8 text-gray-800">
+      <h1 className="text-3xl font-bold text-center text-textColor my-8">
         Parking Lots - {currentLocation}
       </h1>
 

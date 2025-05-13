@@ -102,7 +102,7 @@ function ContactUs() {
     };
 
     return (
-        <div id="contact-us" className="min-h-screen p-6">
+        <section id="contact" className="min-h-screen p-6">
             <h2 className="text-5xl font-bold text-gray-800 text-center my-6">
                 Get in Touch with <span className="">ParkEase</span>
             </h2>
@@ -176,7 +176,7 @@ function ContactUs() {
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
     );
 }
 

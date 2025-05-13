@@ -43,7 +43,7 @@ function BookingTicket() {
   };
 
   return (
-    <div className="p-5 bg-designColor text-textColor max-h-max mt-[5rem] flex flex-col items-center">
+    <div className="p-5 bg-designColor text-textColor max-h-max flex flex-col items-center">
       <ConnectedCircles />
 
       <div className="flex flex-col items-center justify-center p-5">
