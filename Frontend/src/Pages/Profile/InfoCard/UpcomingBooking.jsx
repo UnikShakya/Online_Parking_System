@@ -9,11 +9,11 @@ function UpcomingBooking() {
   };
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200 flex items-center gap-4">
-      <FaCalendarAlt className="text-green-600 text-3xl" />
+    <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-6 rounded-lg shadow-md text-white hover:shadow-lg transform transition duration-300 hover:scale-105 cursor-pointer4">
+      <FaCalendarAlt className="text-red-600 text-3xl" />
       <div>
         <h3 className="text-xl font-bold">{nextBooking.date}</h3>
-        <p className="text-sm text-gray-500">Next at {nextBooking.time} - {nextBooking.location}</p>
+        <p className="text-sm text-white">Next at {nextBooking.time} - {nextBooking.location}</p>
       </div>
     </div>
   );

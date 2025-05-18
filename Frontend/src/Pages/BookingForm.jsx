@@ -392,9 +392,9 @@ const handleConfirmYes = async () => {
       {/* Confirmation Dialog */}
       {showConfirmDialog && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white rounded-lg p-6 w-96 shadow-lg">
-            <h3 className="text-lg font-bold text-gray-800 mb-4">Confirm Booking</h3>
-            <p className="text-gray-600 mb-6">
+          <div className="bg-designColor rounded-lg p-6 w-96 shadow-lg">
+            <h3 className="text-lg font-bold text-white mb-4">Confirm Booking</h3>
+            <p className="text-white mb-6">
               {formData.paymentMethod === "khalti"
                 ? "You will be redirected to Khalti payment. Are you sure?"
                 : "Are you sure you want to confirm this booking?"}
