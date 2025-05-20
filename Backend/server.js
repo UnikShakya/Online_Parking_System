@@ -70,6 +70,7 @@ const createDefaultmiddleman = async () => {
                 email: "parkease@gmail.com",
                 password: hashedPassword,
                 role: "middleman", // Set role to "middleman"
+                location: "Bouddha"
             });
 
             await newmiddleman.save();

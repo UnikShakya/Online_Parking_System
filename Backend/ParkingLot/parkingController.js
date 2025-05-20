@@ -40,9 +40,30 @@ exports.bookLot = async (req, res) => {
   const { location, date, startTime, endTime, selectedSpots } = req.body;
   const userId = req.user.id;
 
+    // Validate and format the date
+  let formattedDate;
+  try {
+    // First check if date is already in YYYY-MM-DD format
+    if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      formattedDate = date;
+    } else {
+      // Parse other date formats
+      const dateObj = new Date(date);
+      if (isNaN(dateObj.getTime())) {
+        throw new Error("Invalid date format");
+      }
+      formattedDate = dateObj.toISOString().split('T')[0];
+    }
+  } catch (err) {
+    return res.status(400).json({ 
+      message: "Invalid date format. Please use YYYY-MM-DD format",
+      error: err.message
+    });
+  }
 
   console.log("Booking request:", req.body);
   console.log("selectedSpots type:", typeof selectedSpots); // Should log 'string'
+  console.log("Formatted date:", formattedDate);
 
   try {
     const lot = await ParkingLot.findOne({ location,
@@ -62,7 +83,7 @@ exports.bookLot = async (req, res) => {
     lot.userId = userId;
     lot.startTime = startTime;
     lot.endTime = endTime;
-    lot.date = date;
+    lot.date = formattedDate;
     await lot.save();
     console.log("✅ Lot updated:", lot);
 
@@ -89,7 +110,7 @@ exports.bookLot = async (req, res) => {
         <p>Your parking lot has been booked.</p>
         <ul>
           <li><strong>Location:</strong> ${location}</li>
-          <li><strong>Date:</strong> ${date}</li>
+          <li><strong>Date:</strong> ${formattedDate}</li>
           <li><strong>Time:</strong> ${startTime} to ${endTime}</li>
           <li><strong>Spot:</strong> ${selectedSpots}</li>
         </ul>
@@ -124,7 +145,7 @@ exports.bookLot = async (req, res) => {
          <h3>Your Parking Session is Ending Soon</h3>
          <p>Your parking session at <strong>${location}</strong> will end in 30 minutes.</p>
          <ul>
-           <li><strong>Date:</strong> ${date}</li>
+           <li><strong>Date:</strong> ${formattedDate}</li>
            <li><strong>Spot:</strong> ${selectedSpots}</li>
            <li><strong>Time:</strong> ${startTime} to ${endTime}</li>
          </ul>
@@ -153,7 +174,7 @@ exports.bookLot = async (req, res) => {
           <h3>Your Parking Session Has Ended</h3>
           <p>Your parking session at <strong>${location}</strong> has ended 😢.</p>
           <ul>
-            <li><strong>Date:</strong> ${date}</li>
+            <li><strong>Date:</strong> ${formattedDate}</li>
             <li><strong>Spot:</strong> ${selectedSpots.join(", ")}</li>
             <li><strong>Time:</strong> ${startTime} to ${endTime}</li>
           </ul>
@@ -251,7 +272,7 @@ exports.cancelBooking = async(req, res)=>{
     res.status(500).json({ message: "Error cancelling booking." });
   }
 }
-exports.extendBooking = async (req, res)=>{
+exports.extendBooking = async (req, res) => {
   const bookingId = req.params.id;
   const { date, endTime } = req.body;
 
@@ -261,16 +282,19 @@ exports.extendBooking = async (req, res)=>{
       return res.status(404).json({ message: 'Booking not found' });
     }
 
-    // Optional: add business logic like checking for conflicts
+    // Ensure new endTime is greater than existing one
+    if (new Date(`1970-01-01T${endTime}:00Z`) <= new Date(`1970-01-01T${booking.endTime}:00Z`)) {
+      return res.status(400).json({ message: 'New end time must be later than the current end time.' });
+    }
 
     booking.date = date;
     booking.endTime = endTime;
 
     await booking.save();
 
-    res.status(200).json({ message: 'Booking extended successfully.' });
+    res.status(200).json({ message: 'Booking extended successfully.', updatedBooking: booking });
   } catch (error) {
     console.error('Extend error:', error);
     res.status(500).json({ message: 'Server error while extending booking.' });
   }
-}
+};

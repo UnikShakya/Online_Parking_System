@@ -9,7 +9,7 @@ import BookingTicket from './Pages/BookingTicket';
 import ForgetPassword from './Pages/ForgetPassword';
 import ResetPassword from './Pages/ResetPassword';
 import BookingForm from './Pages/BookingForm';
-import Middleware from './Middleman/Table';
+import Table from './Middleman/Table';
 import Booking from './Admin/Booking';
 import Home from './Pages/Home';
 import TravelForm from './Components/Calendar';
@@ -29,6 +29,9 @@ import BookingHistory from './Pages/Profile/BookingHistory';
 // import ProfileOverview from './Pages/Profile/ProfileOverview';
 import UserSettings from './Pages/Profile/UserSettings';
 import UserDashboard from './Pages/Profile/UserDashboard';
+import MiddlemanMainLayout from './Middleman/MiddlemanMainLayout';
+import ParkingLot from './Middleman/ParkingLot';
+import TotalMiddlemen from './Middleman/TotalMiddlemen';
 
 
 export const RecoveryContext = createContext();
@@ -65,7 +68,7 @@ function App() {
           <Route path="/parking-lot" element={<ParkingLotWrapper />} />
           <Route path="/booking-ticket" element={<BookingTicket />} />
           <Route path="/forget-password" element={<ForgetPassword />} />
-          <Route path="/middleman/:id" element={<Middleware/>} />
+          {/* <Route path="/middleman/:id" element={<Table/>} /> */}
           {/* <Route path="/profile" element={<Profile/>} /> */}
           <Route path="/calendar" element={<TravelForm />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
@@ -90,6 +93,12 @@ function App() {
     <Route path="parkinglot" element={<ParkingLots />} />
     <Route path="settings" element={<Settings />} />
   </Route>
+
+    <Route path="/middleman/:id" element={<MiddlemanMainLayout setShowLogin={setShowLogin} />}>
+    <Route index element={<Table />} />
+    <Route path="parkinglot" element={<ParkingLot/>} />
+    <Route path="middleman" element={<TotalMiddlemen/>} />
+    </Route>
 
         </Routes>
       </ParkingCostProvider>

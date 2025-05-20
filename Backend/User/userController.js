@@ -75,7 +75,7 @@ const loginUser = async (req, res) => {
         if (user.role === 'admin') {
             redirectPath = `/admin/${token}`; // Redirect admin users to /admin/:id
         } else if (user.role === 'middleman') {
-            redirectPath = `/admin/${token}`; // Redirect middleman users to /middleman/:id
+            redirectPath = `/middleman/${token}`; // Redirect middleman users to /middleman/:id
         }
 
         // Return the response
@@ -83,7 +83,9 @@ const loginUser = async (req, res) => {
             success: true,
             token,
             username: user.username,
-            redirect: redirectPath, // Use the correct redirect path based on role
+            role: user.role,
+            redirect: redirectPath, // Use the correct redirect path based on role\
+            location: user.location
         });
     } catch (error) {
         console.error("Error during login:", error);
@@ -94,8 +96,6 @@ const loginUser = async (req, res) => {
         });
     }
 };
-
-
 
 // Register User
 const registerUser = async (req, res) => {

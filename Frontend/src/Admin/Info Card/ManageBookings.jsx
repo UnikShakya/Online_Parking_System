@@ -9,7 +9,7 @@ useEffect(() => {
   // Function to  fetchBookingCount  from the backend
   const fetchBookingCount = async () => {
     try {
-      const response = await axios.get('http://localhost:4000/api/bookingCount');  // Adjust URL based on your backend
+      const response = await axios.get('http://localhost:3000/api/bookingCount');  // Adjust URL based on your backend
       if (response.data && response.data.bookingCount !== undefined) {
         setBookingCount(response.data.bookingCount);
       } else {

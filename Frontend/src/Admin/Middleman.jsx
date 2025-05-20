@@ -6,6 +6,7 @@ function Middleman() {
     username: '',
     email: '',
     password: '',
+    location: '',
   });
 
   const handleChange = (e) => {
@@ -19,46 +20,99 @@ function Middleman() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    try {
-      console.log('Submitting form with data:', formData); // Log form data
-      const token = localStorage.getItem('token');
-      console.log('Token retrieved from localStorage:', token); // Log the token
+    // Trim all fields
+    const trimmedData = {
+      username: formData.username.trim(),
+      email: formData.email.trim(),
+      password: formData.password.trim(), // Also trim password to remove leading/trailing spaces
+      location: formData.location.trim(),
+    };
 
+    // Check for empty fields
+    if (!trimmedData.username) {
+      toast.error("Username is required");
+      return;
+    }
+
+    if (!trimmedData.email) {
+      toast.error("Email is required");
+      return;
+    }
+
+    if (!trimmedData.password) {
+      toast.error("Password is required");
+      return;
+    }
+
+    if (!trimmedData.location) {
+      toast.error("Location is required");
+      return;
+    }
+
+    // Username validations
+    const cleanedUsername = trimmedData.username.replace(/\s/g, '');
+    if (!cleanedUsername) {
+      toast.error("Username cannot be just spaces");
+      return;
+    }
+
+    if (/^\d/.test(cleanedUsername)) {
+      toast.error("Username cannot start with a number");
+      return;
+    }
+
+    // Email validations
+    if (/^\d/.test(trimmedData.email)) {
+      toast.error("Email cannot start with a number");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(trimmedData.email)) {
+      toast.error("Please enter a valid email");
+      return;
+    }
+
+    // Password validations
+    if (trimmedData.password.length < 8) {
+      toast.error("Password must be at least 8 characters long");
+      return;
+    }
+
+    if (/\s/.test(trimmedData.password)) {
+      toast.error("Password cannot contain spaces");
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
       if (!token) {
-        console.log('No token found in localStorage');
-        toast.error('Please log in as an admin first');
+        toast.error("Please log in as an admin first");
         return;
       }
 
-      console.log('Making fetch request to add-middleman endpoint');
-      const response = await fetch('http://localhost:3000/api/middleman/signup-middleman', {
-        method: 'POST',
+      const response = await fetch("http://localhost:3000/api/middleman/signup-middleman", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(trimmedData),
       });
 
-      console.log('Response status:', response.status); // Log HTTP status
       const data = await response.json();
-      console.log('Response data:', data); // Log the full response
 
       if (response.ok) {
-        console.log('Middleman creation successful:', data);
-        toast.success(data.message || 'Middleman added successfully!');
-        localStorage.setItem('token', data.token); // Update token if returned
-        localStorage.setItem('username', data.username); // Update username if returned
-        console.log('New token stored:', data.token);
-        console.log('New username stored:', data.username);
-        setFormData({ username: '', email: '', password: '' }); // Clear form
+        toast.success(data.message || "Middleman added successfully!");
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("username", data.username);
+        setFormData({ username: '', email: '', password: '', location: '' });
+        console.log(data)
       } else {
-        console.log('Middleman creation failed:', data.message);
-        toast.error(data.message || 'Failed to add middleman');
+        toast.error(data.message || "Failed to add middleman");
       }
     } catch (error) {
-      console.error('Error during fetch:', error.message); // Log fetch errors
-      toast.error('Error adding middleman: ' + error.message);
+      toast.error("Error adding middleman: " + error.message);
     }
   };
 
@@ -81,7 +135,7 @@ function Middleman() {
               onChange={handleChange}
               required
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              placeholder="Enter username"
+              placeholder="Enter username (cannot start with number)"
             />
           </div>
 
@@ -97,7 +151,7 @@ function Middleman() {
               onChange={handleChange}
               required
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              placeholder="Enter email"
+              placeholder="Enter email (cannot start with number)"
             />
           </div>
 
@@ -113,8 +167,27 @@ function Middleman() {
               onChange={handleChange}
               required
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              placeholder="Enter password"
+              placeholder="Enter password (min 8 chars, no spaces)"
             />
+          </div>
+
+          <div>
+            <label htmlFor="location" className="block text-sm font-medium text-gray-700">
+              Location
+            </label>
+            <select
+              id="location"
+              name="location"
+              value={formData.location}
+              onChange={handleChange}
+              required
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            >
+              <option value="">Select location</option>
+              <option value="Bouddha">Bouddha</option>
+              <option value="Patan">Patan</option>
+              <option value="Dharahara">Dharahara</option>
+            </select>
           </div>
 
           <div>
