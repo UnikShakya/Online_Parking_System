@@ -1,0 +1,9 @@
+POST http://localhost:3000/api/middleman/signup-middleman
+Content-Type: application/json
+
+{
+    "username":"ParkEase_Dharahara",
+    "email": "parkeasedharahara@gmail.com",
+    "password":"parkeasedharahara",
+    "location":"Dharahara"
+}

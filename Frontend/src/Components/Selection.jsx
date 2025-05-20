@@ -12,6 +12,7 @@ import { useParkingCost } from "../Context/ParkingCostContext";
 function Selection({ setShowLogin }) {
   const today = dayjs();
   const [selectedDate, setSelectedDate] = useState(null);
+  const [formattedDate, setFormattedDate] = useState(""); // For storing formatted date
   const [location, setLocation] = useState("");
   const [startTime, setStartTime] = useState(null);
   const [endTime, setEndTime] = useState(null);
@@ -21,19 +22,18 @@ function Selection({ setShowLogin }) {
   const navigate = useNavigate();
   const { twoWheelerNum, fourWheelerNum } = useParkingCost();
 
-  // Update usage in calculations
   const rates = useMemo(
     () => ({
       "2Wheeler": {
-        peakRate: twoWheelerNum * 0.8,   // Changed from twoWheelerCost
+        peakRate: twoWheelerNum * 0.8,
         offPeakRate: twoWheelerNum,
       },
       "4Wheeler": {
-        peakRate: fourWheelerNum * 0.8,   // Changed from fourWheelerCost
+        peakRate: fourWheelerNum * 0.8,
         offPeakRate: fourWheelerNum,
       },
     }),
-    [twoWheelerNum, fourWheelerNum]      // Update dependencies
+    [twoWheelerNum, fourWheelerNum]
   );
 
   const calculateCost = (vehicleType) => {
@@ -59,6 +59,9 @@ function Selection({ setShowLogin }) {
 
   const handleDateChange = (newValue) => {
     setSelectedDate(newValue);
+    // Format and store the date immediately
+    setFormattedDate(newValue ? dayjs(newValue).format("YYYY-MM-DD") : "");
+    
     if (newValue && newValue.isBefore(today, "day")) {
       setError("Cannot select a past date!");
     } else {
@@ -106,12 +109,12 @@ function Selection({ setShowLogin }) {
       setShowLogin(true);
       return;
     }
-
+    
     if (!location) {
       setError("Please select a parking lot");
       return;
     }
-    if (!selectedDate) {
+    if (!formattedDate) {  // Check formattedDate instead of selectedDate
       setError("Please select a date");
       return;
     }
@@ -143,10 +146,11 @@ function Selection({ setShowLogin }) {
         endTime: endTime.format("HH:mm A"),
         parkingLotId,
         isPeak: twoWheelerData.isPeak,
-        selectedDate: dayjs(selectedDate).format("YYYY-MM-DD"), // ✅ format here
+        selectedDate: formattedDate, // Use the pre-formatted date
         location,
       },
     });
+    console.log(formattedDate)
   };
 
   return (
@@ -191,7 +195,7 @@ function Selection({ setShowLogin }) {
                     },
                     openPickerButton: { sx: { color: "#6b7280" } },
                   }}
-                  format="DD/MM/YYYY"
+                  format="YYYY-MM-DD"
                 />
               </LocalizationProvider>
             </div>

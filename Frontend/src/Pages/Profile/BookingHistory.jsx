@@ -15,14 +15,14 @@ function BookingHistory() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showExtendModal, setShowExtendModal] = useState(false);
+  const [currentBooking, setCurrentBooking] = useState(null);
+  const [newDate, setNewDate] = useState('');
+  const [newEndTime, setNewEndTime] = useState('');
+  const [validationError, setValidationError] = useState('');
+
   const username = localStorage.getItem('username');
   const token = localStorage.getItem('token');
-
-  // Modal state
-  const [isExtendModalOpen, setIsExtendModalOpen] = useState(false);
-  const [selectedBooking, setSelectedBooking] = useState(null);
-  const [selectedDate, setSelectedDate] = useState(dayjs());
-  const [newEndTime, setNewEndTime] = useState('');
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -33,14 +33,11 @@ function BookingHistory() {
       }
 
       try {
-        const response = await axios.get(
-          'http://localhost:3000/api/profile/my-bookings',
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await axios.get('http://localhost:3000/api/profile/my-bookings', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
         setBookings(response.data || []);
       } catch (error) {
@@ -67,9 +64,7 @@ function BookingHistory() {
       );
 
       if (response.data.message === 'Booking cancelled successfully.') {
-        setBookings((prev) =>
-          prev.filter((booking) => booking._id !== bookingId)
-        );
+        setBookings((prev) => prev.filter((booking) => booking._id !== bookingId));
       }
     } catch (error) {
       console.error('Error cancelling booking:', error);
@@ -78,64 +73,64 @@ function BookingHistory() {
   };
 
   const openExtendModal = (booking) => {
-    setSelectedBooking(booking);
-    setSelectedDate(dayjs(booking.date));
-    setNewEndTime(booking.endTime);
-    setError('');
-    setIsExtendModalOpen(true);
+    const formattedEndTime = booking.endTime.slice(0, 5);
+    setCurrentBooking(booking);
+    setNewDate(booking.date);
+    setNewEndTime(formattedEndTime);
+    setValidationError('');
+    setShowExtendModal(true);
   };
 
   const closeExtendModal = () => {
-    setIsExtendModalOpen(false);
-    setSelectedBooking(null);
-    setError('');
+    setShowExtendModal(false);
+    setCurrentBooking(null);
+    setNewDate('');
+    setNewEndTime('');
+    setValidationError('');
   };
 
-  const handleExtend = async () => {
-    setError('');
+  const handleExtendBooking = async () => {
+    if (!currentBooking) return;
 
-    if (!selectedDate || !newEndTime) {
-      setError('Please fill in both new date and end time.');
+    const originalEndDateTime = new Date(`${currentBooking.date}T${currentBooking.endTime}`);
+    const newEndDateTime = new Date(`${newDate}T${newEndTime}:00`);
+
+    if (newDate === currentBooking.date && newEndTime <= currentBooking.endTime.slice(0, 5)) {
+      setValidationError('New end time must be later than the current end time.');
       return;
     }
 
-    const oldDate = new Date(selectedBooking.date);
-    const oldEndTime = new Date(`${selectedBooking.date}T${selectedBooking.endTime}`);
-    const newDate = selectedDate.format('YYYY-MM-DD');
-    const newDateTime = new Date(`${newDate}T${newEndTime}`);
-
-    if (selectedDate.isBefore(dayjs(oldDate), 'day')) {
-      setError('New date must be the same or after the current booking date.');
-      return;
-    }
-
-    if (newDateTime <= oldEndTime) {
-      setError('New end time must be after the current end time.');
+    if (newEndDateTime <= originalEndDateTime) {
+      setValidationError('New end time must be after the current booking end.');
       return;
     }
 
     try {
       const response = await axios.put(
-        `http://localhost:3000/api/parking/extend/${selectedBooking._id}`,
-        { newDate, newEndTime },
-        { headers: { Authorization: `Bearer ${token}` } }
+        `http://localhost:3000/api/parking/extend/${currentBooking._id}`,
+        { endTime: newEndTime, date: newDate },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
 
       if (response.data.message === 'Booking extended successfully.') {
-        setBookings((prev) =>
-          prev.map((b) =>
-            b._id === selectedBooking._id
-              ? { ...b, date: newDate, endTime: newEndTime }
-              : b
+        setBookings((prevBookings) =>
+          prevBookings.map((booking) =>
+            booking._id === currentBooking._id
+              ? { ...booking, endTime: newEndTime, date: newDate }
+              : booking
           )
         );
         closeExtendModal();
       } else {
-        setError('Failed to extend booking.');
+        setValidationError('Failed to extend booking.');
       }
     } catch (error) {
       console.error('Error extending booking:', error);
-      setError('Error extending booking. Please try again later.');
+      setValidationError('Error extending booking. Please try again later.');
     }
   };
 
@@ -160,112 +155,80 @@ function BookingHistory() {
                 <div className="text-lg font-semibold flex items-center gap-2 mb-2">
                   <FaParking /> Spot: {booking.selectedSpots}
                 </div>
-                <div className="flex justify-between">
-                  <div className="text-sm space-y-1">
-                    <p className="flex items-center gap-2">
-                      <FaSearchLocation /> Location: {booking.location}
-                    </p>
-                    <p className="flex items-center gap-2">
-                      <FaCalendarAlt /> Date: {booking.date}
-                    </p>
-                    <p className="flex items-center gap-2">
-                      <FaClock /> Start Time: {booking.startTime}
-                    </p>
-                    <p className="flex items-center gap-2">
-                      <FaClock /> End Time: {booking.endTime}
-                    </p>
-                  </div>
-                  <div>
-                    <button
-                      onClick={() => openExtendModal(booking)}
-                      className="px-4 me-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-200"
-                    >
-                      Extend
-                    </button>
-                    <button
-                      onClick={() => cancelBooking(booking._id)}
-                      className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition duration-200"
-                    >
-                      Cancel
-                    </button>
-                  </div>
+                <div className="text-sm space-y-1">
+                  <p className="flex items-center gap-2">
+                    <FaSearchLocation /> Location: {booking.location}
+                  </p>
+                  <p className="flex items-center gap-2">
+                    <FaCalendarAlt /> Date: {booking.date}
+                  </p>
+                  <p className="flex items-center gap-2">
+                    <FaClock /> End Time: {booking.endTime}
+                  </p>
+                </div>
+                <div className="mt-4 flex gap-4">
+                  <button
+                    onClick={() => cancelBooking(booking._id)}
+                    className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => openExtendModal(booking)}
+                    className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                  >
+                    Extend
+                  </button>
                 </div>
               </li>
             ))}
           </ul>
         ) : (
-          !loading && (
-            <div className="text-center mt-20">
-              <p className="text-2xl">🚫 You have no bookings yet.</p>
-            </div>
-          )
-        )}
-
-        {/* Extend Modal */}
-        {isExtendModalOpen && selectedBooking && (
-          <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
-            <div className="bg-designColor p-6 rounded-lg max-w-md w-full text-white">
-              <h3 className="text-xl font-semibold mb-4">Extend Booking</h3>
-
-              <div className="mb-4">
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
-                    label="Select New Date"
-                    value={selectedDate}
-                    onChange={(newValue) => setSelectedDate(newValue)}
-                    minDate={dayjs()}
-                    format="YYYY-MM-DD"
-                    slotProps={{
-                      textField: {
-                        variant: 'standard',
-                        fullWidth: true,
-                        sx: {
-                          input: { color: '#ffffff' },
-                          '& .MuiInputLabel-root': { color: '#ffffff' },
-                          '& label.Mui-focused': { color: '#ffffff' },
-                          '& .MuiInput-underline:before': { borderBottomColor: '#ffffff' },
-                          '& .MuiInput-underline:hover:before': { borderBottomColor: '#3b82f6' },
-                          '& .MuiInput-underline:after': { borderBottomColor: '#3b82f6' },
-                        },
-                      },
-                      openPickerButton: {
-                        sx: { color: '#ffffff' },
-                      },
-                    }}
-                  />
-                </LocalizationProvider>
-              </div>
-
-              <label className="block mb-4">
-                New End Time:
-                <input
-                  type="time"
-                  value={newEndTime}
-                  onChange={(e) => setNewEndTime(e.target.value)}
-                  className="w-full px-3 py-2 mt-1 rounded-md text-black"
-                />
-              </label>
-
-              {error && <p className="text-red-400 mb-2">{error}</p>}
-
-              <div className="flex justify-end gap-4">
-                <button
-                  onClick={closeExtendModal}
-                  className="px-4 py-2 bg-gray-600 rounded hover:bg-gray-700"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleExtend}
-                  className="px-4 py-2 bg-blue-600 rounded hover:bg-blue-700"
-                >
-                  Confirm
-                </button>
-              </div>
-            </div>
-          </div>
+          !loading && <p className="text-center text-gray-600">No bookings found.</p>
         )}
       </div>
+
+      {/* Extend Modal */}
+      {showExtendModal && currentBooking && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <h2 className="text-xl font-bold mb-4">Extend Booking</h2>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                label="New Date"
+                value={dayjs(newDate)}
+                onChange={(date) => setNewDate(date.format('YYYY-MM-DD'))}
+              />
+            </LocalizationProvider>
+            <div className="mt-4">
+              <label className="block mb-1 font-semibold">New End Time</label>
+              <input
+                type="time"
+                value={newEndTime}
+                onChange={(e) => setNewEndTime(e.target.value)}
+                className="w-full border px-3 py-2 rounded"
+              />
+            </div>
+            {validationError && (
+              <p className="text-red-500 text-sm mt-2">{validationError}</p>
+            )}
+            <div className="mt-6 flex justify-end gap-4">
+              <button
+                onClick={closeExtendModal}
+                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleExtendBooking}
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

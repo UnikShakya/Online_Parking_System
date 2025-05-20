@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+<<<<<<< HEAD
 import {
   FaParking, FaCalendarAlt, FaClock,
   FaSearchLocation
@@ -19,19 +20,30 @@ function UpcomingBookings() {
   const [selectedDate, setSelectedDate] = useState(null);
   const [newEndTime, setNewEndTime] = useState('');
 
+=======
+import { FaParking, FaCalendarAlt, FaClock, FaSearchLocation } from 'react-icons/fa';
+
+function UpcomingBookings() {
+  const [upcomingBookings, setUpcomingBookings] = useState([]);
+>>>>>>> b35dab6 (Successfully user can extend date and endTime)
   const username = localStorage.getItem('username');
   const token = localStorage.getItem('token');
 
   useEffect(() => {
     const fetchBookings = async () => {
       if (!token) {
+<<<<<<< HEAD
         setError("No token found.");
         setLoading(false);
         return;
+=======
+        return; // Return if no token is found
+>>>>>>> b35dab6 (Successfully user can extend date and endTime)
       }
 
       try {
         const response = await axios.get('http://localhost:3000/api/profile/my-bookings', {
+<<<<<<< HEAD
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -47,12 +59,33 @@ function UpcomingBookings() {
         setError("Failed to fetch bookings. Please try again later.");
       } finally {
         setLoading(false);
+=======
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response && response.data) {
+          // Filter upcoming bookings based on the date and time
+          const now = new Date();
+          const filteredBookings = response.data.filter((booking) => {
+            const bookingDate = new Date(booking.date);
+            const bookingStartTime = new Date(`${booking.date}T${booking.startTime}:00`);
+            return bookingStartTime > now; // Only keep bookings with start time in the future
+          });
+          setUpcomingBookings(filteredBookings);
+          console.log(response.data)
+        }
+      } catch (error) {
+        console.error("Error fetching bookings:", error);
+>>>>>>> b35dab6 (Successfully user can extend date and endTime)
       }
     };
 
     fetchBookings();
   }, [token]);
 
+<<<<<<< HEAD
   const cancelBooking = async (bookingId) => {
     const confirmCancel = window.confirm("Are you sure you want to cancel this booking?");
     if (!confirmCancel) return;
@@ -121,6 +154,13 @@ function UpcomingBookings() {
       console.error("Error extending booking:", error);
     }
   };
+=======
+  // Function to format date to the desired local format
+  const formatDate = (date) => {
+    const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+    return new Date(date).toLocaleDateString('en-US', options); // Format as "MM/DD/YYYY"
+};
+>>>>>>> b35dab6 (Successfully user can extend date and endTime)
 
   return (
     <div className="text-designColor">
@@ -130,15 +170,22 @@ function UpcomingBookings() {
         </h2>
         <h3 className="text-xl font-semibold text-center mb-8 text-designColor">Your Upcoming Bookings</h3>
 
+<<<<<<< HEAD
         {loading ? (
           <p className="text-center">Loading...</p>
         ) : bookings.length > 0 ? (
           <ul className="divide-y divide-gray-700 border border-gray-700 rounded-xl overflow-hidden">
             {bookings.map((booking, index) => (
+=======
+        {upcomingBookings.length > 0 ? (
+          <ul className="divide-y divide-gray-700 border border-gray-700 rounded-xl overflow-hidden">
+            {upcomingBookings.map((booking, index) => (
+>>>>>>> b35dab6 (Successfully user can extend date and endTime)
               <li key={index} className="p-4 hover:bg-white/10 transition duration-200">
                 <div className="text-lg font-semibold text-designColor flex items-center gap-2 mb-2">
                   <FaParking /> Spot: {booking.selectedSpots}
                 </div>
+<<<<<<< HEAD
                 <div className="flex justify-between">
                   <div className="text-sm text-designColor space-y-1">
                     <p className="flex items-center gap-2"><FaSearchLocation /> Location: {booking.location}</p>
@@ -160,6 +207,23 @@ function UpcomingBookings() {
                       Cancel
                     </button>
                   </div>
+=======
+                <div className='flex justify-between'>
+                <div className="text-sm text-designColor space-y-1">
+                  <p className="flex items-center gap-2"><FaSearchLocation /> Location: {booking.location}</p>
+                  <p className="flex items-center gap-2"><FaCalendarAlt /> Date: {formatDate(booking.date)}</p> {/* Format date here */}
+                  <p className="flex items-center gap-2"><FaClock /> Start Time: {booking.startTime}</p>
+                  <p className="flex items-center gap-2"><FaClock /> End Time: {booking.endTime}</p>
+                </div>
+                <div className=''>
+                  <button className="px-4 me-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-200">
+                    Extend
+                  </button>
+                  <button className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition duration-200">
+                    Cancel
+                  </button>
+                </div>
+>>>>>>> b35dab6 (Successfully user can extend date and endTime)
                 </div>
               </li>
             ))}
@@ -170,6 +234,7 @@ function UpcomingBookings() {
           </div>
         )}
       </div>
+<<<<<<< HEAD
 
       {/* Modal */}
       {modalOpen && (
@@ -249,6 +314,8 @@ function UpcomingBookings() {
           </div>
         </div>
       )}
+=======
+>>>>>>> b35dab6 (Successfully user can extend date and endTime)
     </div>
   );
 }

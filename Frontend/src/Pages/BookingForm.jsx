@@ -24,9 +24,9 @@ const BookingForm = ({ onSubmit }) => {
   const totalCost2Wheeler = Number(state?.totalCost2Wheeler) || 0;
   const startTime = state?.startTime || "11:00";
   const endTime = state?.endTime || "12:00";
-const selectedSpots = Array.isArray(state?.selectedSpots) ? state.selectedSpots : ["A1"];
-  const currentLocation = state?.location || "Location 1"; // Fallback to "Location 1"
-  const selectedDate = state?.selectedDate || ""; // Fallback to "Location 1"
+  const selectedSpots = Array.isArray(state?.selectedSpots) ? state.selectedSpots : ["A1"];
+  const currentLocation = state?.location || "Location 1";
+  const selectedDate = state?.selectedDate || ""; // Fallback to empty string
   const navigate = useNavigate();
 
   // Check if Khalti script is loaded
@@ -35,7 +35,7 @@ const selectedSpots = Array.isArray(state?.selectedSpots) ? state.selectedSpots 
       if (window.KhaltiCheckout) {
         setKhaltiLoaded(true);
       } else {
-        setTimeout(checkKhalti, 500); // Keep checking until loaded
+        setTimeout(checkKhalti, 500);
       }
     };
     checkKhalti();
@@ -44,13 +44,10 @@ const selectedSpots = Array.isArray(state?.selectedSpots) ? state.selectedSpots 
   // Price calculations
   const calculatePrice = (spotId) => {
     const twoWheelerRows = ["A", "B", "C", "D"];
-    return twoWheelerRows.includes(spotId.charAt(0))
-      ? totalCost2Wheeler
-      : totalCost4Wheeler;
+    return twoWheelerRows.includes(spotId.charAt(0)) ? totalCost2Wheeler : totalCost4Wheeler;
   };
 
-  const calculateTotalPrice = () =>
-    selectedSpots.reduce((sum, spot) => sum + calculatePrice(spot), 0);
+  const calculateTotalPrice = () => selectedSpots.reduce((sum, spot) => sum + calculatePrice(spot), 0);
 
   // Form handlers
   const handleInputChange = (e) => {
@@ -61,24 +58,27 @@ const selectedSpots = Array.isArray(state?.selectedSpots) ? state.selectedSpots 
     }));
   };
 
-    // Validate form data
-    const validateFormData = () => {
+  // Validate form data
+  const validateFormData = () => {
     const { name, vehicleNumber, phoneNumber, paymentMethod } = formData;
 
-    if (!name.trim() || !vehicleNumber.trim() || !phoneNumber.trim() || !paymentMethod) return "Please fill in all required fields.";
+    if (!name.trim() || !vehicleNumber.trim() || !phoneNumber.trim() || !paymentMethod) {
+      return "Please fill in all required fields.";
+    }
     if (/^\s*$/.test(name)) return "Name cannot contain only spaces.";
     if (/^\d+$/.test(name)) return "Name cannot contain only numbers.";
     if (/^\s*$/.test(vehicleNumber)) return "Vehicle number cannot contain only spaces.";
-    if (!/^[z0-9]+$/.test(vehicleNumber)) return "Vehicle number should only contain numbers.";
+    if (!/^[a-zA-Z0-9]+$/.test(vehicleNumber)) return "Vehicle number should only contain letters and numbers.";
     if (!/^\d{10}$/.test(phoneNumber)) return "Phone number should be exactly 10 digits.";
+    if (!selectedDate) return "Please select a valid date.";
     if (paymentMethod === "khalti" && !khaltiLoaded) return "Payment system is loading. Please try again in a moment.";
-    return ""
+    return "";
   };
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage("");
-    
+
     const validationError = validateFormData();
     if (validationError) {
       setErrorMessage(validationError);
@@ -88,46 +88,44 @@ const selectedSpots = Array.isArray(state?.selectedSpots) ? state.selectedSpots 
   };
 
   const handleBack = () => {
-    navigate('/parking-lot', {
+    navigate("/parking-lot", {
       state: {
         selectedSpots,
         startTime,
         endTime,
         totalCost2Wheeler,
         totalCost4Wheeler,
-      }
+        selectedDate,
+      },
     });
   };
 
   // Payment handlers
-// Payment handlers
-const handleConfirmYes = async () => {
-  setShowConfirmDialog(false);
-  setIsProcessingPayment(true);
-  setErrorMessage("");
+  const handleConfirmYes = async () => {
+    setShowConfirmDialog(false);
+    setIsProcessingPayment(true);
+    setErrorMessage("");
 
-  try {
-    if (formData.paymentMethod === "khalti") {
-      await handleKhaltiPayment();
-    } else {
-      // Directly handle cash payment without verification
-      await handleCashPayment();
+    try {
+      if (formData.paymentMethod === "khalti") {
+        await handleKhaltiPayment();
+      } else {
+        await handleCashPayment();
+      }
+    } catch (error) {
+      console.error("Payment error:", error);
+      setErrorMessage(error.message || "Payment processing failed");
+      toast.error(error.message || "Payment processing failed");
+    } finally {
+      setIsProcessingPayment(false);
     }
-  } catch (error) {
-    console.error("Payment error:", error);
-    setErrorMessage(error.message || "Payment processing failed");
-    toast.error(error.message || "Payment processing failed");
-  } finally {
-    setIsProcessingPayment(false);
-  }
-};
+  };
 
   const handleKhaltiPayment = async () => {
     return new Promise((resolve, reject) => {
       const amountPaisa = calculateTotalPrice() * 100;
-      
+
       const config = {
-        // Correct public key format (replace with your actual test key)
         publicKey: "19c1199a4e9146a492cb21d6c7c96c15",
         productIdentity: `parking_${Date.now()}`,
         productName: "Parking Booking",
@@ -136,27 +134,25 @@ const handleConfirmYes = async () => {
         eventHandler: {
           onSuccess: async (payload) => {
             try {
-              // Verify payment with backend
               const verifyResponse = await axios.post(
                 "http://localhost:3000/api/verify-khalti-payment",
                 {
                   token: payload.token,
-                  amount: calculateTotalPrice()
+                  amount: calculateTotalPrice(),
                 }
               );
-  
+
               if (!verifyResponse.data.success) {
                 throw new Error(verifyResponse.data.error || "Payment verification failed");
               }
-  
-              // Save booking with payment details
+
               await saveBooking({
                 ...formData,
                 paymentVerified: true,
                 paymentToken: payload.token,
-                pidx: payload.idx // Include Khalti transaction ID
+                pidx: payload.idx,
               });
-              
+
               toast.success("Payment successful! Booking confirmed.");
               navigateToSuccessPage();
               resolve();
@@ -171,30 +167,50 @@ const handleConfirmYes = async () => {
           },
           onClose: () => {
             reject(new Error("Payment cancelled by user"));
-          }
-        }
+          },
+        },
       };
-  
+
       const checkout = new window.KhaltiCheckout(config);
       checkout.show({ amount: amountPaisa });
     });
   };
-  
 
   const saveBooking = async (bookingData) => {
     const token = localStorage.getItem("token");
+
+    // Format selectedDate to YYYY-MM-DD
+    let formattedDate;
+    if (selectedDate) {
+      try {
+        const dateObj = new Date(selectedDate);
+        if (!isNaN(dateObj.getTime())) {
+          formattedDate = dateObj.toISOString().split("T")[0]; // Converts to YYYY-MM-DD
+        } else {
+          throw new Error("Invalid date format in selectedDate");
+        }
+      } catch (err) {
+        console.error("Date formatting error:", err);
+        throw new Error("Please provide a valid date");
+      }
+    } else {
+      throw new Error("Selected date is missing");
+    }
+
     const payload = {
       ...bookingData,
       location: currentLocation,
       selectedSpots,
       startTime,
       endTime,
-      selectedDate,
+      date: formattedDate, // Use formatted date
       totalCost: calculateTotalPrice(),
       vehicleType:
         bookingData.vehicleType ||
         (selectedSpots[0]?.charAt(0) === "R" ? "4-wheeler" : "2-wheeler"),
     };
+
+    console.log("Booking payload:", payload); // Debug payload
 
     try {
       const res = await axios.post("http://localhost:3000/api/parking/book", payload, {
@@ -214,15 +230,11 @@ const handleConfirmYes = async () => {
 
   const handleCashPayment = async () => {
     try {
-      // FIRST save the booking
       await saveBooking({
         ...formData,
         paymentVerified: true,
       });
-      
-      // THEN show success and navigate
       toast.success("Booking created successfully!");
-      console.log("Booking successfull")
       navigateToSuccessPage();
     } catch (error) {
       console.error("Cash payment processing error:", error);
@@ -241,7 +253,7 @@ const handleConfirmYes = async () => {
         startTime,
         endTime,
         totalAmount: calculateTotalPrice(),
-        paymentMethod: formData.paymentMethod
+        paymentMethod: formData.paymentMethod,
       },
     });
   };
@@ -251,7 +263,7 @@ const handleConfirmYes = async () => {
   };
 
   return (
-    <div className="p-5 bg-designColor text-textColor max-h-max mt-[5rem] flex flex-col items-center">
+    <div className="p-5 bg-designColor text-textColor max-h-max flex flex-col items-center">
       <ConnectedCircles />
       <div className="w-full max-w-6xl flex flex-col justify-center items-center p-4 my-5">
         <div className="flex flex-col md:flex-row justify-between w-full max-w-7xl bg-white p-6 rounded-lg shadow-md border border-gray-300">
@@ -321,7 +333,7 @@ const handleConfirmYes = async () => {
                 />
               </div>
               <div className="mb-4">
-              <style>
+                <style>
                   {`
                     .custom-radio:checked::after {
                       content: "✔";

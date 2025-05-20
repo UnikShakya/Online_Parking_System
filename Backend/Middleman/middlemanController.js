@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const middlemanModel = require("./middlemanModel"); // Import middlemanModel
 const validator = require("validator");
+const mongoose = require('mongoose'); // Added mongoose import
 
 // Create token
 const createToken = (id) => {
@@ -10,7 +11,7 @@ const createToken = (id) => {
 
 // Signup Middleman
 const signupMiddleman = async (req, res) => {
-    const { username, email, password } = req.body;
+    const { username, email, password, location } = req.body;
 
     try {
         // Check if middleman already exists
@@ -36,6 +37,8 @@ const signupMiddleman = async (req, res) => {
             username,
             email,
             password: hashedPassword,
+            location,
+            role: 'middleman'
         });
 
         // Save the new middleman to MongoDB
@@ -49,7 +52,10 @@ const signupMiddleman = async (req, res) => {
             success: true,
             message: "Middleman created successfully",
             token,
+            middlemanId: savedMiddleman._id, // Added _id
             username: savedMiddleman.username,
+            email,
+            location
         });
     } catch (error) {
         console.error("Error creating middleman:", error);
@@ -67,4 +73,61 @@ const getMiddlemen = async (req, res) => {
     }
 };
 
-module.exports = { signupMiddleman, getMiddlemen };
+// Get middlemen by Bouddha
+const getMiddlemanByBouddha = async (req, res) => {
+  try {
+    const middlemen = await middlemanModel.find({ location: 'Bouddha' }, 'username email _id');
+    res.json({ success: true, middlemen });
+  } catch (error) {
+    console.error('Error fetching middlemen from Bouddha:', error);
+    res.status(500).json({ success: false, message: 'Error fetching middlemen from Bouddha' });
+  }
+};
+
+// Get middlemen by Patan
+const getMiddlemanByPatan = async (req, res) => {
+    try {
+        const middlemen = await middlemanModel.find({ location: "Patan" }, "username email _id");
+        res.json({ success: true, middlemen });
+    } catch (error) {
+        console.error("Error fetching middlemen from Patan:", error);
+        res.status(500).json({ success: false, message: "Error fetching middlemen from Patan" });
+    }
+};
+
+// Get middlemen by Dharahara
+const getMiddlemanByDharahara = async (req, res) => {
+  try {
+    const middlemen = await middlemanModel.find({ location: 'Dharahara' }, 'username email _id');
+    res.json({ success: true, middlemen });
+  } catch (error) {
+    console.error('Error fetching middlemen from Dharahara:', error);
+    res.status(500).json({ success: false, message: 'Error fetching middlemen from Dharahara' });
+  }
+};
+
+
+// // Get middleman by ID
+// const getMiddlemanById = async (req, res) => {
+//   try {
+//     const middlemanId = req.params.id;
+
+//     // Validate ObjectId
+//     if (!mongoose.Types.ObjectId.isValid(middlemanId)) {
+//       return res.status(400).json({ success: false, message: 'Invalid middleman ID' });
+//     }
+
+//     const middleman = await middlemanModel.findById(middlemanId);
+
+//     if (!middleman) {
+//       return res.status(404).json({ success: false, message: 'Middleman not found' });
+//     }
+
+//     res.status(200).json({ success: true, middleman });
+//   } catch (error) {
+//     console.error('Error fetching middleman:', error);
+//     res.status(500).json({ success: false, message: 'Server error' });
+//   }
+// };
+
+module.exports = { signupMiddleman, getMiddlemen, getMiddlemanByDharahara, getMiddlemanByBouddha, getMiddlemanByPatan };

@@ -15,11 +15,11 @@ function Location() {
   const locations = [
     {
       name: 'Sundhara (Dharahara)',
-      position: [27.6994, 85.3114],
+      position: [27.7007, 85.3119],
     },
     {
       name: 'Patan (Lalitpur)',
-      position: [27.6674, 85.3206],
+      position: [27.6734, 85.3250],
     },
     {
       name: 'Bouddha',
