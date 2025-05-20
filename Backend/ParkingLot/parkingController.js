@@ -67,7 +67,7 @@ exports.bookLot = async (req, res) => {
 
   try {
     const lot = await ParkingLot.findOne({ location,
-       selectedSpots: {$in: selectedSpots},
+       selectedSpots: selectedSpots,
         isBooked: false
        });
     console.log("Found lot:", lot);
@@ -297,4 +297,22 @@ exports.extendBooking = async (req, res) => {
     console.error('Extend error:', error);
     res.status(500).json({ message: 'Server error while extending booking.' });
   }
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+}
+
+exports.getBookingCountByUser = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const count = await ParkingLot.countDocuments({ userId: id });
+    res.json({ bookingCount: count });
+  } catch (err) {
+    console.error("Error getting booking count:", err);
+    res.status(500).json({ message: "Server error while fetching booking count." });
+  }
+=======
+>>>>>>> b35dab6 (Successfully user can extend date and endTime)
+>>>>>>> e37b6b2
 };

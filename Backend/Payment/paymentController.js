@@ -133,5 +133,19 @@ const getUserBookings = async (req, res) => {
     res.status(500).json({ message: "Failed to fetch bookings" });
   }
 };
+
+const getUserBookingCount = async (req, res) => {
+  console.log("User ID from token:", req.user.id); // Log the user ID
+
+  try {
+    // Count documents where userId matches the logged-in user
+    const bookingCount = await parkingLotModel.countDocuments({ userId: req.user.id });
+
+    res.json({ bookingCount }); // Return count as JSON
+  } catch (err) {
+    console.error("Error fetching user booking count:", err);
+    res.status(500).json({ message: "Failed to fetch booking count" });
+  }
+};
 // Update exports
-module.exports = { verifyPayment, payment, getUserBookings };
+module.exports = { verifyPayment, payment, getUserBookings, getUserBookingCount };

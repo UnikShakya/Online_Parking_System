@@ -2,9 +2,9 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const userModel = require("./userModel");
 const validator = require("validator");
-const nodemailer = require("nodemailer")
 const adminModel = require("../adminModel")
 const middlemanModel = require("../Middleman/middlemanModel")
+const nodemailer = require("nodemailer")
 // Create token
 const createToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '3d' });

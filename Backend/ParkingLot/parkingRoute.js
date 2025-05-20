@@ -12,5 +12,6 @@ router.get("/booked-location2", parkingController.bookedLotLocation2);
 router.get("/booked-location3", parkingController.bookedLotLocation3);
 router.put("/cancel/:id", parkingController.cancelBooking);
 router.put("/extend/:id", parkingController.extendBooking);
+router.get("/countBooking/:id", parkingController.getBookingCountByUser);
 
 module.exports = router;
