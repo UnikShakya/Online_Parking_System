@@ -1,6 +1,6 @@
 import React from 'react'
 
-function ParkingLot() {
+function PatanParkingLot() {
   return (
     <div>
       This is ParkingLot
@@ -8,4 +8,4 @@ function ParkingLot() {
   )
 }
 
-export default ParkingLot
+export default PatanParkingLot

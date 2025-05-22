@@ -9,7 +9,6 @@ import BookingTicket from './Pages/BookingTicket';
 import ForgetPassword from './Pages/ForgetPassword';
 import ResetPassword from './Pages/ResetPassword';
 import BookingForm from './Pages/BookingForm';
-import Table from './Middleman/Table';
 import Booking from './Admin/Booking';
 import Home from './Pages/Home';
 import TravelForm from './Components/Calendar';
@@ -29,9 +28,18 @@ import BookingHistory from './Pages/Profile/BookingHistory';
 // import ProfileOverview from './Pages/Profile/ProfileOverview';
 import UserSettings from './Pages/Profile/UserSettings';
 import UserDashboard from './Pages/Profile/UserDashboard';
-import MiddlemanMainLayout from './Middleman/MiddlemanMainLayout';
-import ParkingLot from './Middleman/ParkingLot';
-import TotalMiddlemen from './Middleman/TotalMiddlemen';
+import PatanMainLayout from './Middleman/Patan/PatanMainLayout';
+import BhaktapurMainLayout from './Middleman/Bhaktapur/BhaktapurMainLayout';
+import PatanTable from './Middleman/Patan/PatanTable';
+import PatanParkingLot from './Middleman/Patan/PatanParkingLot';
+import PatanMiddlemen from './Middleman/Patan/PatanMiddlemen';
+import BhaktapurTable from './Middleman/Bhaktapur/BhaktapurTable';
+import BhaktapurParkingLot from './Middleman/Bhaktapur/BhaktapurParkingLot';
+import BhaktapurMiddlemen from './Middleman/Bhaktapur/BhaktapurMiddlemen';
+import BouddhaMainLayout from './Middleman/Bouddha/BouddhaMainLayout';
+import BouddhaTable from './Middleman/Bouddha/BouddhaTable';
+import BouddhaParkingLot from './Middleman/Bouddha/BouddhaParkingLot';
+import BouddhaMiddlemen from './Middleman/Bouddha/BouddhaMiddlemen';
 
 
 export const RecoveryContext = createContext();
@@ -94,10 +102,22 @@ function App() {
     <Route path="settings" element={<Settings />} />
   </Route>
 
-    <Route path="/middleman/:id" element={<MiddlemanMainLayout setShowLogin={setShowLogin} />}>
-    <Route index element={<Table />} />
-    <Route path="parkinglot" element={<ParkingLot/>} />
-    <Route path="middleman" element={<TotalMiddlemen/>} />
+    <Route path="/middleman/patan/:id" element={<PatanMainLayout setShowLogin={setShowLogin} />}>
+    <Route index element={<PatanTable />} />
+    <Route path="parkinglot" element={<PatanParkingLot/>} />
+    <Route path="middleman" element={<PatanMiddlemen/>} />
+    </Route>
+
+    <Route path="/middleman/bhaktapur/:id" element={<BhaktapurMainLayout setShowLogin={setShowLogin}/>}>
+    <Route index element={<BhaktapurTable/>}/>
+    <Route path="parkinglot" element={<BhaktapurParkingLot/>}/>
+    <Route path="middleman" element={<BhaktapurMiddlemen/>}/>
+    </Route>
+
+    <Route path="/middleman/bouddha/:id" element={<BouddhaMainLayout setShowLogin={setShowLogin}/>}>
+    <Route index element={<BouddhaTable/>}/>
+    <Route path="parkinglot" element={<BouddhaParkingLot/>}/>
+    <Route path="middleman" element={<BouddhaMiddlemen/>}/>
     </Route>
 
         </Routes>

@@ -4,50 +4,41 @@ const parkingLotModel = require('../ParkingLot/parkingLotModel');
 
 
 const verifyPayment = async (req, res) => {
-  const { token, amount } = req.body;
+  const { pidx, amount } = req.body;
 
+  if (!pidx || !amount) {
+    return res.status(400).json({ success: false, error: "Missing pidx or amount" });
+  }
 
   try {
-    const amountInPaisa = amount * 100;
-
     const response = await axios.post(
-      'https://a.khalti.com/api/v2/payment/verify/',
-      { token, 
-        amount: amountInPaisa
-       },
+      "https://a.khalti.com/api/v2/payment/verify/",
+      {},
       {
         headers: {
           Authorization: `Key ${process.env.KHALTI_SECRET_KEY}`,
+          "Content-Type": "application/json",
+        },
+        params: {
+          pidx: pidx,
+          amount: amount,
         },
       }
     );
- // Check if payment was successful
- if (response.data.state.name !== 'Completed') {
-  return res.status(400).json({ 
-    success: false, 
-    error: "Payment not completed" 
-  });
+
+    if (response.data.state.name === "Completed") {
+      return res.json({ success: true, data: response.data });
+    } else {
+      return res.status(400).json({ success: false, error: "Payment verification failed", khaltiError: response.data });
+    }
+  } catch (error) {
+    return res.status(500).json({ success: false, error: "Internal server error", details: error.message });
+  }
 }
-
-res.status(200).json({ 
-  success: true, 
-  data: response.data 
-});
-
-} catch (error) {
-console.error('Khalti verification error:', error.response?.data || error.message);
-
-// More detailed error response
-const errorData = error.response?.data || {};
-res.status(error.response?.status || 400).json({
-  success: false,
-  error: errorData.detail || errorData.error || 'Payment verification failed',
-  khaltiError: errorData
-});
-}
-};
 
 const payment = async (req, res) => {
+    const userId = req.user.id; 
+
   const {
     name,
     vehicleNumber,
@@ -60,6 +51,7 @@ const payment = async (req, res) => {
     // totalCost,
     // paymentVerified,
     // paymentToken,
+    pidx
   } = req.body;
 
   // Input validation
@@ -78,7 +70,7 @@ const payment = async (req, res) => {
 
   try {
     const newBooking = new Payment({
-      // userId: req.user.id, 
+      userId,
       name,
       vehicleNumber,
       phoneNumber,
@@ -90,6 +82,7 @@ const payment = async (req, res) => {
       // totalCost,
       paymentVerified: paymentMethod === 'khalti' ? paymentVerified : undefined,
       paymentToken: paymentMethod === 'khalti' ? paymentToken : undefined,
+      pidx: paymentMethod === 'khalti' ? pidx : undefined,
       status: paymentMethod === 'cash' ? 'pending' : 'paid',
       createdAt: new Date()
     });

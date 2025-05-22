@@ -2,26 +2,27 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 
-const ParkingLots = () => {
+const BhaktapurParkingLot = () => {
   const { locationId } = useParams();
   const [parkingLots, setParkingLots] = useState([]);
   const [bookedSpots, setBookedSpots] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [currentLocation, setCurrentLocation] = useState(locationId || "Patan");
+  const [currentLocation, setCurrentLocation] = useState(locationId || "Location 1");
 
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
         let parkingResponse, bookedResponse;
-
-        if (currentLocation === "Patan") {
+        
+        // Fetch data based on location
+        if (currentLocation === "Location 1") {
           parkingResponse = await axios.get("http://localhost:3000/api/parking");
           bookedResponse = await axios.get("http://localhost:3000/api/parking/booked");
-        } else if (currentLocation === "Bouddha") {
+        } else if (currentLocation === "Location 2") {
           parkingResponse = await axios.get("http://localhost:3000/api/parking/location2");
           bookedResponse = await axios.get("http://localhost:3000/api/parking/booked-location2");
-        } else if (currentLocation === "Bhaktapur") {
+        } else if (currentLocation === "Location 3") {
           parkingResponse = await axios.get("http://localhost:3000/api/parking/location3");
           bookedResponse = await axios.get("http://localhost:3000/api/parking/booked-location3");
         }
@@ -31,17 +32,13 @@ const ParkingLots = () => {
         );
         setParkingLots(filteredParkingLots);
 
-        // Safe check for booked data array
-        const bookedData = Array.isArray(bookedResponse.data) ? bookedResponse.data : [];
-        const bookedSpotNumbers = bookedData
+        const bookedSpotNumbers = bookedResponse.data
           .map(spot => spot.selectedSpots)
           .filter(Boolean)
           .flat();
         setBookedSpots(bookedSpotNumbers);
-
       } catch (err) {
         console.error("Error fetching data:", err);
-        setBookedSpots([]); // fallback
       } finally {
         setIsLoading(false);
       }
@@ -56,10 +53,20 @@ const ParkingLots = () => {
     return (
       <div
         className={`flex flex-col justify-center items-center rounded-md ${
-          isBooked ? "bg-red-500 cursor-not-allowed" : "bg-blue-400 cursor-default"
-        } ${is4Wheeler ? "w-20 h-32 m-1" : "w-12 h-8 m-1"} relative`}
+          isBooked
+            ? "bg-red-500 cursor-not-allowed"
+            : "bg-blue-400 cursor-default"
+        } ${
+          is4Wheeler
+            ? "w-20 h-32 m-1"
+            : "w-12 h-8 m-1"
+        } relative`}
       >
-        <span className={`font-bold ${is4Wheeler ? "text-sm" : "text-xs"} ${isBooked ? "text-white" : "text-gray-800"}`}>
+        <span
+          className={`font-bold ${
+            is4Wheeler ? "text-sm" : "text-xs"
+          } ${isBooked ? "text-white" : "text-gray-800"}`}
+        >
           {spot.selectedSpots}
         </span>
         {isBooked && (
@@ -143,19 +150,36 @@ const ParkingLots = () => {
 
       {/* Location Selector */}
       <div className="flex space-x-4 mb-8">
-        {["Patan", "Bouddha", "Bhaktapur"].map(loc => (
-          <button
-            key={loc}
-            onClick={() => handleLocationChange(loc)}
-            className={`px-4 py-2 rounded-lg ${
-              currentLocation === loc
-                ? "bg-gradient-to-r from-gradientStart to-gradientEnd text-white"
-                : "bg-white text-gray-800"
-            }`}
-          >
-            {loc}
-          </button>
-        ))}
+        <button
+          onClick={() => handleLocationChange("Location 1")}
+          className={`px-4 py-2 rounded-lg ${
+            currentLocation === "Location 1"
+              ? "bg-gradient-to-r from-gradientStart to-gradientEnd text-white"
+              : "bg-white text-gray-800"
+          }`}
+        >
+          Location 1
+        </button>
+        <button
+          onClick={() => handleLocationChange("Location 2")}
+          className={`px-4 py-2 rounded-lg ${
+            currentLocation === "Location 2"
+              ? "bg-gradient-to-r from-gradientStart to-gradientEnd text-white"
+              : "bg-white text-gray-800"
+          }`}
+        >
+          Location 2
+        </button>
+        <button
+          onClick={() => handleLocationChange("Location 3")}
+          className={`px-4 py-2 rounded-lg ${
+            currentLocation === "Location 3"
+              ? "bg-gradient-to-r from-gradientStart to-gradientEnd text-white"
+              : "bg-white text-gray-800"
+          }`}
+        >
+          Location 3
+        </button>
       </div>
 
       {isLoading ? (
@@ -164,32 +188,43 @@ const ParkingLots = () => {
         </div>
       ) : (
         <>
+          {/* Main Parking Area */}
           <div className="w-full max-w-6xl bg-white rounded-xl shadow-lg p-6 mb-8">
+            {/* Entry Road */}
             <div className="bg-gray-500 h-12 mb-6 flex items-center justify-center">
               <span className="text-white font-bold text-lg">ENTRY</span>
             </div>
 
+            {/* 2-Wheeler Parking Section */}
             <div className="mb-8">
               <h3 className="text-xl font-bold mb-4 text-center text-gray-700 bg-blue-100 py-2 rounded">
                 2-Wheeler Parking
               </h3>
-              <div className="parking-rows">{render2WheelerParking()}</div>
+              <div className="parking-rows">
+                {render2WheelerParking()}
+              </div>
             </div>
 
+            {/* Divider */}
             <div className="border-t-4 border-dashed border-gray-300 my-6"></div>
 
+            {/* 4-Wheeler Parking Section */}
             <div className="mt-8">
               <h3 className="text-xl font-bold mb-4 text-center text-gray-700 bg-green-100 py-2 rounded">
                 4-Wheeler Parking
               </h3>
-              <div className="parking-rows">{render4WheelerParking()}</div>
+              <div className="parking-rows">
+                {render4WheelerParking()}
+              </div>
             </div>
 
+            {/* Exit Road */}
             <div className="bg-gray-500 h-12 mt-6 flex items-center justify-center">
               <span className="text-white font-bold text-lg">EXIT</span>
             </div>
           </div>
 
+          {/* Legend */}
           <div className="flex justify-center mt-4 space-x-8 mb-8 bg-white p-4 rounded-lg shadow">
             <div className="flex items-center">
               <div className="w-6 h-6 bg-green-400 rounded mr-2"></div>
@@ -201,6 +236,7 @@ const ParkingLots = () => {
             </div>
           </div>
 
+          {/* Statistics */}
           <div className="w-full max-w-6xl bg-white rounded-xl shadow-lg p-6 mb-8">
             <h3 className="text-xl font-bold mb-4 text-center text-gray-700">
               Parking Statistics
@@ -208,27 +244,19 @@ const ParkingLots = () => {
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-blue-50 p-4 rounded-lg">
                 <h4 className="font-semibold text-blue-800">2-Wheeler</h4>
-                <p>Total Spots: {
-                  parkingLots.filter(spot => {
-                    const spotId = String(spot.selectedSpots || '');
-                    return spotId && !spotId.startsWith("R");
-                  }).length
-                }</p>
-                <p>Booked: {
-                  bookedSpots.filter(spotId => !String(spotId).startsWith("R")).length
-                }</p>
+                <p>Total Spots: {parkingLots.filter(spot => {
+                  const spotId = String(spot.selectedSpots || '');
+                  return spotId && !spotId.startsWith("R");
+                }).length}</p>
+                <p>Booked: {bookedSpots.filter(spotId => !String(spotId).startsWith("R")).length}</p>
               </div>
               <div className="bg-green-50 p-4 rounded-lg">
                 <h4 className="font-semibold text-green-800">4-Wheeler</h4>
-                <p>Total Spots: {
-                  parkingLots.filter(spot => {
-                    const spotId = String(spot.selectedSpots || '');
-                    return spotId && spotId.startsWith("R");
-                  }).length
-                }</p>
-                <p>Booked: {
-                  bookedSpots.filter(spotId => String(spotId).startsWith("R")).length
-                }</p>
+                <p>Total Spots: {parkingLots.filter(spot => {
+                  const spotId = String(spot.selectedSpots || '');
+                  return spotId && spotId.startsWith("R");
+                }).length}</p>
+                <p>Booked: {bookedSpots.filter(spotId => String(spotId).startsWith("R")).length}</p>
               </div>
             </div>
           </div>
@@ -238,4 +266,4 @@ const ParkingLots = () => {
   );
 };
 
-export default ParkingLots;
+export default BhaktapurParkingLot;

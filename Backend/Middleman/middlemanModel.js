@@ -7,7 +7,7 @@ const middlemanSchema = new mongoose.Schema({
     role: { type: String, default: "middleman" }, // Default role for middlemen
         location: {
         type: String,
-        enum: ["Bouddha", "Patan", "Dharahara"],
+        enum: ["Bouddha", "Patan", "Bhaktapur"],
         required: true
     }
 });

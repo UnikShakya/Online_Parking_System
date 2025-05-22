@@ -17,7 +17,7 @@ exports.getAllLot = async (req, res) => {
 // Get all parking lots for Location 2
 exports.getAllLotLocation2 = async (req, res) => {
   try {
-    const lot = await ParkingLot.find({ location: "Location 2" });
+    const lot = await ParkingLot.find({ location: "Bouddha" });
     res.json(lot);
   } catch (err) {
     console.error("Error fetching parking lot:", err);
@@ -27,7 +27,7 @@ exports.getAllLotLocation2 = async (req, res) => {
 // Get all parking lots for Location 2
 exports.getAllLotLocation3 = async (req, res) => {
   try {
-    const lot = await ParkingLot.find({ location: "Location 3" });
+    const lot = await ParkingLot.find({ location: "Bhaktapur" });
     res.json(lot);
   } catch (err) {
     console.error("Error fetching parking lot:", err);
@@ -132,6 +132,8 @@ exports.bookLot = async (req, res) => {
 
     // await newBooking.save();
  // ⏰ Schedule reminder 30 minutes before the end time
+
+
  const endDateTime = new Date(`${date}T${endTime.padStart(5, '0')}:00`);
  const reminderTime = new Date(endDateTime.getTime() - 30 * 60000); // 30 minutes before the end time
 
@@ -214,7 +216,7 @@ exports.bookedLot = async (req, res) => {
 exports.bookedLotLocation2 = async (req, res) => {
   try {
     const bookedSpots = await ParkingLot.find({ 
-      location: "Location 2", 
+      location: "Bouddha", 
       isBooked: true 
     });
 
@@ -231,7 +233,7 @@ exports.bookedLotLocation2 = async (req, res) => {
 exports.bookedLotLocation3 = async (req, res) => {
   try {
     const bookedSpots = await ParkingLot.find({ 
-      location: "Location 3", 
+      location: "Bhaktapur", 
       isBooked: true 
     });
 
@@ -297,9 +299,6 @@ exports.extendBooking = async (req, res) => {
     console.error('Extend error:', error);
     res.status(500).json({ message: 'Server error while extending booking.' });
   }
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
 }
 
 exports.getBookingCountByUser = async (req, res) => {
@@ -312,7 +311,4 @@ exports.getBookingCountByUser = async (req, res) => {
     console.error("Error getting booking count:", err);
     res.status(500).json({ message: "Server error while fetching booking count." });
   }
-=======
->>>>>>> b35dab6 (Successfully user can extend date and endTime)
->>>>>>> e37b6b2
 };

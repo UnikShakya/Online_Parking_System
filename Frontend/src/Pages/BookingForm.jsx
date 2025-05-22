@@ -26,7 +26,7 @@ const BookingForm = ({ onSubmit }) => {
   const endTime = state?.endTime || "12:00";
   const selectedSpots = Array.isArray(state?.selectedSpots) ? state.selectedSpots : ["A1"];
   const currentLocation = state?.location || "Location 1";
-  const selectedDate = state?.selectedDate || ""; // Fallback to empty string
+  const selectedDate = state?.selectedDate || "";
   const navigate = useNavigate();
 
   // Check if Khalti script is loaded
@@ -58,7 +58,6 @@ const BookingForm = ({ onSubmit }) => {
     }));
   };
 
-  // Validate form data
   const validateFormData = () => {
     const { name, vehicleNumber, phoneNumber, paymentMethod } = formData;
 
@@ -100,7 +99,6 @@ const BookingForm = ({ onSubmit }) => {
     });
   };
 
-  // Payment handlers
   const handleConfirmYes = async () => {
     setShowConfirmDialog(false);
     setIsProcessingPayment(true);
@@ -121,71 +119,90 @@ const BookingForm = ({ onSubmit }) => {
     }
   };
 
-  const handleKhaltiPayment = async () => {
-    return new Promise((resolve, reject) => {
-      const amountPaisa = calculateTotalPrice() * 100;
+const handleKhaltiPayment = async () => {
+  return new Promise((resolve, reject) => {
+    const amountPaisa = calculateTotalPrice() * 100;
+    console.log("Calculated Amount in Paisa:", amountPaisa);
+    if (amountPaisa <= 0) {
+      console.error("Invalid amount: Amount must be greater than 0");
+      toast.error("Invalid payment amount. Please select a valid parking spot.");
+      reject(new Error("Invalid payment amount"));
+      return;
+    }
 
-      const config = {
-        publicKey: "19c1199a4e9146a492cb21d6c7c96c15",
-        productIdentity: `parking_${Date.now()}`,
-        productName: "Parking Booking",
-        productUrl: window.location.href,
-        amount: amountPaisa,
-        eventHandler: {
-          onSuccess: async (payload) => {
-            try {
-              const verifyResponse = await axios.post(
-                "http://localhost:3000/api/verify-khalti-payment",
-                {
-                  token: payload.token,
-                  amount: calculateTotalPrice(),
-                }
-              );
+    const productIdentity = `parking_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
+    console.log("Product Identity:", productIdentity);
 
-              if (!verifyResponse.data.success) {
-                throw new Error(verifyResponse.data.error || "Payment verification failed");
+    const config = {
+      publicKey: "19c1199a4e916a492cb21d6c7c96c15",
+      productIdentity: productIdentity,
+      productName: "Parking Booking",
+      productUrl: "http://localhost:3000/booking-form",
+      amount: amountPaisa,
+      eventHandler: {
+        onSuccess: async (payload) => {
+          console.log("Payment Success Payload:", payload);
+          try {
+            const verifyResponse = await axios.post(
+              "http://localhost:3000/api/verify-khalti-payment",
+              {
+                pidx: payload.pidx,
+                amount: amountPaisa,
               }
-
-              await saveBooking({
-                ...formData,
-                paymentVerified: true,
-                paymentToken: payload.token,
-                pidx: payload.idx,
-              });
-
-              toast.success("Payment successful! Booking confirmed.");
-              navigateToSuccessPage();
-              resolve();
-            } catch (error) {
-              toast.error(error.message || "Payment verification failed");
-              reject(error);
+            );
+            console.log("Verification Response:", verifyResponse.data);
+            if (!verifyResponse.data.success) {
+              throw new Error(verifyResponse.data.error || "Payment verification failed");
             }
-          },
-          onError: (error) => {
-            toast.error(error.message || "Payment failed");
-            reject(new Error(error.message || "Payment failed"));
-          },
-          onClose: () => {
-            reject(new Error("Payment cancelled by user"));
-          },
+            await saveBooking({
+              ...formData,
+              paymentVerified: true,
+              paymentToken: payload.token,
+              pidx: payload.pidx,
+            });
+            toast.success("Payment successful! Booking confirmed.");
+            navigateToSuccessPage();
+            resolve();
+          } catch (error) {
+            console.error("Verification Error:", error);
+            toast.error(error.message || "Payment verification failed");
+            reject(error);
+          }
         },
-      };
+        onError: (error) => {
+          console.error("Khalti Checkout Error:", error);
+          toast.error(error.message || "Payment failed");
+          reject(new Error(error.message || "Payment failed"));
+        },
+        onClose: () => {
+          console.warn("Khalti checkout closed by user.");
+          reject(new Error("Payment cancelled by user"));
+        },
+      },
+    };
 
+    console.log("Khalti Config:", config);
+
+    try {
       const checkout = new window.KhaltiCheckout(config);
       checkout.show({ amount: amountPaisa });
-    });
-  };
+    } catch (e) {
+      console.error("Khalti Initialization Error:", e);
+      toast.error("Khalti payment initialization failed");
+      reject(e);
+    }
+  });
+};
 
   const saveBooking = async (bookingData) => {
     const token = localStorage.getItem("token");
 
-    // Format selectedDate to YYYY-MM-DD
     let formattedDate;
     if (selectedDate) {
       try {
         const dateObj = new Date(selectedDate);
         if (!isNaN(dateObj.getTime())) {
-          formattedDate = dateObj.toISOString().split("T")[0]; // Converts to YYYY-MM-DD
+          formattedDate = dateObj.toISOString().split("T")[0];
         } else {
           throw new Error("Invalid date format in selectedDate");
         }
@@ -203,14 +220,14 @@ const BookingForm = ({ onSubmit }) => {
       selectedSpots,
       startTime,
       endTime,
-      date: formattedDate, // Use formatted date
+      date: formattedDate,
       totalCost: calculateTotalPrice(),
       vehicleType:
         bookingData.vehicleType ||
         (selectedSpots[0]?.charAt(0) === "R" ? "4-wheeler" : "2-wheeler"),
     };
 
-    console.log("Booking payload:", payload); // Debug payload
+    console.log("Booking payload:", payload);
 
     try {
       const res = await axios.post("http://localhost:3000/api/parking/book", payload, {
@@ -382,7 +399,6 @@ const BookingForm = ({ onSubmit }) => {
         </div>
       </div>
 
-      {/* Navigation Buttons */}
       <div className="flex justify-between w-full max-w-7xl">
         <button
           onClick={handleBack}
@@ -401,7 +417,6 @@ const BookingForm = ({ onSubmit }) => {
         </button>
       </div>
 
-      {/* Confirmation Dialog */}
       {showConfirmDialog && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-designColor rounded-lg p-6 w-96 shadow-lg">

@@ -24,7 +24,7 @@ const ParkingLot2 = ({ discountRate }) => {
   const [showModal, setShowModal] = useState(false);
   const [activeStep, setActiveStep] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
-  const [currentLocation, setCurrentLocation] = useState(locationId || "Location 2");
+  const [currentLocation, setCurrentLocation] = useState(locationId || "Bouddha");
 
   const navigate = useNavigate();
 

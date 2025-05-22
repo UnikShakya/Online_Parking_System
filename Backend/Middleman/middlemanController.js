@@ -73,6 +73,29 @@ const getMiddlemen = async (req, res) => {
     }
 };
 
+// const getMiddlemanByLocation = async (req, res) => {
+//   try {
+//     const location = req.params.location;
+//     const validLocations = ['Patan', 'Bhaktapur', 'Bouddha']; // Add all valid locations
+    
+//     if (!validLocations.includes(location)) {
+//       return res.status(400).json({ 
+//         success: false, 
+//         message: 'Invalid location. Valid locations are: Patan, Bhaktapur, Bouddha' 
+//       });
+//     }
+
+//     const middlemen = await middlemanModel.find({ location }, 'username email _id');
+//     res.json({ success: true, middlemen });
+//   } catch (error) {
+//     console.error(`Error fetching middlemen from ${location}:`, error);
+//     res.status(500).json({ 
+//       success: false, 
+//       message: `Error fetching middlemen from ${location}` 
+//     });
+//   }
+// };
+
 // Get middlemen by Bouddha
 const getMiddlemanByBouddha = async (req, res) => {
   try {
@@ -96,23 +119,22 @@ const getMiddlemanByPatan = async (req, res) => {
 };
 
 // Get middlemen by Dharahara
-const getMiddlemanByDharahara = async (req, res) => {
+const getMiddlemanByBhaktapur = async (req, res) => {
   try {
-    const middlemen = await middlemanModel.find({ location: 'Dharahara' }, 'username email _id');
+    const middlemen = await middlemanModel.find({ location: 'Bhaktapur' }, 'username email _id');
     res.json({ success: true, middlemen });
   } catch (error) {
     console.error('Error fetching middlemen from Dharahara:', error);
-    res.status(500).json({ success: false, message: 'Error fetching middlemen from Dharahara' });
+    res.status(500).json({ success: false, message: 'Error fetching middlemen from Bhaktapur' });
   }
 };
 
 
-// // Get middleman by ID
+// Add this to your middlemanController.js
 // const getMiddlemanById = async (req, res) => {
 //   try {
 //     const middlemanId = req.params.id;
 
-//     // Validate ObjectId
 //     if (!mongoose.Types.ObjectId.isValid(middlemanId)) {
 //       return res.status(400).json({ success: false, message: 'Invalid middleman ID' });
 //     }
@@ -130,4 +152,4 @@ const getMiddlemanByDharahara = async (req, res) => {
 //   }
 // };
 
-module.exports = { signupMiddleman, getMiddlemen, getMiddlemanByDharahara, getMiddlemanByBouddha, getMiddlemanByPatan };
+module.exports = { signupMiddleman, getMiddlemen, getMiddlemanByBhaktapur, getMiddlemanByBouddha, getMiddlemanByPatan };

@@ -3,7 +3,7 @@ import { Outlet } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
 import Sidebar from './Sidebar';
 
-function MiddlemanMainLayout({ setShowLogin }) {
+function PatanMainLayout({ setShowLogin }) {
   const { id } = useParams(); // Capture the token in the URL
 
   return (
@@ -16,4 +16,4 @@ function MiddlemanMainLayout({ setShowLogin }) {
   );
 }
 
-export default MiddlemanMainLayout;
+export default PatanMainLayout;

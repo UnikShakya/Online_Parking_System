@@ -186,7 +186,7 @@ function Middleman() {
               <option value="">Select location</option>
               <option value="Bouddha">Bouddha</option>
               <option value="Patan">Patan</option>
-              <option value="Dharahara">Dharahara</option>
+              <option value="Bhaktapur">Bhaktapur</option>
             </select>
           </div>
 

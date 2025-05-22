@@ -2,91 +2,98 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 
-function Table() {
-  const { id } = useParams(); // Get middleman ID from URL param
+function PatanTable() {
   const [bookings, setBookings] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredBookings, setFilteredBookings] = useState([]);
-  const [location, setLocation] = useState('');
+  const [location, setLocation] = useState('Patan'); // Set default to Patan
+  const [patanMiddlemen, setPatanMiddlemen] = useState([]);
 
-  // Fetch middleman by ID to get location
+  // Fetch middlemen from Patan
   useEffect(() => {
-    const fetchMiddleman = async () => {
-      console.log('Fetching middleman with ID:', id);
+    const fetchPatanMiddlemen = async () => {
       try {
-        const token = localStorage.getItem('token'); // Get token from localStorage
-        if (!token) {
-          console.error('No token found in localStorage');
-          setLocation('Authentication required');
-          return;
-        }
-        const res = await axios.get(`http://localhost:3000/api/middleman/${id}`, {
+        console.log('Starting to fetch Patan middlemen...');
+        const response = await axios.get('http://localhost:3000/api/middleman/patan', {
           headers: {
-            Authorization: `Bearer ${token}`, // Add Authorization header
+            Authorization: `Bearer ${localStorage.getItem('token')}`, // Assuming authMiddleware requires a token
           },
         });
-        console.log('Middleman response:', res.data);
-        if (res.data && res.data.middleman && res.data.middleman.location) {
-          setLocation(res.data.middleman.location); // Should set to "Patan"
-        } else {
-          setLocation('Location not found');
-        }
+        console.log('Patan middlemen response:', response.data);
+        console.log('Patan middlemen IDs:', response.data.middlemen.map(m => m._id));
+        setPatanMiddlemen(response.data.middlemen);
       } catch (error) {
-        console.error('❌ Error fetching middleman:', error);
-        if (error.response) {
-          console.error('Response data:', error.response.data);
-          setLocation(`Error: ${error.response.data.message || 'Failed to load location'}`);
-        } else {
-          setLocation('Error loading location');
-        }
+        console.error('❌ Error fetching Patan middlemen:', error.response ? error.response.data : error.message);
       }
     };
+    fetchPatanMiddlemen();
+  }, []);
 
-    if (id) {
-      fetchMiddleman();
-    } else {
-      console.warn('⚠️ No ID passed to Table component');
-      setLocation('No ID provided');
-    }
-  }, [id]);
-
-  // Fetch bookings from API
+  // Fetch bookings and filter by Patan middlemen
   useEffect(() => {
     const fetchBookings = async () => {
-      console.log('Fetching bookings...');
+      console.log('Starting to fetch bookings...');
       try {
         const response = await axios.get('http://localhost:3000/api/booking/getBookings');
-        console.log('Bookings fetched:', response.data);
-        const bookingsWithStatus = response.data.map((booking) => ({
-          ...booking,
-          paid: booking.paymentMethod.toLowerCase() === 'digital' ? true : (booking.paid ?? false),
-        }));
+        console.log('Bookings response:', response.data);
+        console.log('Number of bookings received:', response.data.length);
+        
+        // Filter bookings where the middleman is in Patan
+        console.log('Filtering bookings with Patan middlemen IDs:', patanMiddlemen.map(m => m._id));
+        const bookingsWithStatus = response.data
+          .filter((booking) => {
+            const isMatch = patanMiddlemen.some((middleman) => {
+              const match = middleman._id === booking.middlemanId;
+              console.log(`Checking booking ${booking._id}: middlemanId=${booking.middlemanId}, matches=${match}`);
+              return match;
+            });
+            return isMatch;
+          })
+          .map((booking) => {
+            console.log(`Processing booking ${booking._id}:`, booking);
+            return {
+              ...booking,
+              paid: booking.paymentMethod.toLowerCase() === 'digital' ? true : (booking.paid ?? false),
+            };
+          });
+
+        console.log('Filtered bookings:', bookingsWithStatus);
+        console.log('Number of filtered bookings:', bookingsWithStatus.length);
         setBookings(bookingsWithStatus);
         setFilteredBookings(bookingsWithStatus);
       } catch (error) {
-        console.error('❌ Error fetching Bookings:', error);
+        console.error('❌ Error fetching bookings:', error.response ? error.response.data : error.message);
       }
     };
-    fetchBookings();
-  }, []);
 
-  // Filter bookings when searchQuery or bookings change
+    if (patanMiddlemen.length > 0) {
+      console.log('Patan middlemen available, fetching bookings...');
+      fetchBookings();
+    } else {
+      console.log('No Patan middlemen available yet, skipping booking fetch.');
+    }
+  }, [patanMiddlemen]);
+
+  // Filter bookings when searchQuery changes
   useEffect(() => {
+    console.log('Search query changed:', searchQuery);
     const filtered = bookings.filter(
       (booking) =>
         booking.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         booking.vehicleNumber.toLowerCase().includes(searchQuery.toLowerCase())
     );
+    console.log('Filtered bookings after search:', filtered);
     setFilteredBookings(filtered);
   }, [searchQuery, bookings]);
 
   // Handle status change for payment
   const handleStatusChange = (bookingId, newStatus) => {
     try {
-      console.log(`Status change for ${bookingId} -> ${newStatus}`);
+      console.log(`Updating status for booking ${bookingId} to ${newStatus}`);
       const updatedBookings = bookings.map((booking) => {
         if (booking._id === bookingId) {
           const isDigitalPayment = booking.paymentMethod.toLowerCase() === 'digital';
+          console.log(`Booking ${bookingId} paymentMethod: ${booking.paymentMethod}, isDigital: ${isDigitalPayment}`);
           return {
             ...booking,
             paid: isDigitalPayment ? true : newStatus === 'Paid',
@@ -94,6 +101,7 @@ function Table() {
         }
         return booking;
       });
+      console.log('Updated bookings:', updatedBookings);
       setBookings(updatedBookings);
       setFilteredBookings(updatedBookings);
     } catch (error) {
@@ -103,7 +111,7 @@ function Table() {
 
   return (
     <div className="min-h-screen bg-[#F0F0F0] p-6">
-      <h2 className="text-center font-semibold text-5xl">{location || 'Loading location...'}</h2>
+      <h2 className="text-center font-semibold text-5xl">{location}</h2>
 
       {/* Search Bar */}
       <div className="mb-6 md:flex-none w-2/3 flex justify-start">
@@ -179,4 +187,4 @@ function Table() {
   );
 }
 
-export default Table;
+export default PatanTable;

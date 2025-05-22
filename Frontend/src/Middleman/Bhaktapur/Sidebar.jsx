@@ -15,7 +15,7 @@ const Sidebar = ({ setShowLogin, id }) => {
     console.log("Sidebar useParams id:", id);
 
     // Helper function to create paths with the token
-    const middlemanPath = (path) => `/middleman/${id}${path ? `/${path}` : ''}`;
+    const middlemanPath = (path) => `/middleman/bhaktapur/${id}${path ? `/${path}` : ''}`;
 
     return (
         <aside className="h-screen w-64 bg-designColor text-white flex flex-col">

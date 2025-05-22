@@ -35,11 +35,13 @@ const loginUser = async (req, res) => {
         // Check if the credentials match the default middleman
         if (email === MIDDLEMAN_EMAIL && password === MIDDLEMAN_PASSWORD) {
             const token = createToken("default-middleman-id");
+            const location = "Patan";
             return res.json({
                 success: true,
                 token,
+                location: "Patan",
                 username: "middleman",
-                redirect: `/middleman/${token}`, // Redirect to middleman dashboard with token
+                redirect: `/middleman/${location}/${token}`, // Redirect to middleman dashboard with token
             });
         }
 
@@ -74,8 +76,11 @@ const loginUser = async (req, res) => {
         let redirectPath = '/'; // Default redirect for regular users
         if (user.role === 'admin') {
             redirectPath = `/admin/${token}`; // Redirect admin users to /admin/:id
-        } else if (user.role === 'middleman') {
-            redirectPath = `/middleman/${token}`; // Redirect middleman users to /middleman/:id
+        }// In your loginUser function, modify the middleman redirect section:
+        else if (user.role === 'middleman') {
+            // Convert location to lowercase to match route paths
+            const location = user.location?.toLowerCase() || 'patan'; // default if missing
+            redirectPath = `/middleman/${location}/${token}`;
         }
 
         // Return the response
@@ -148,42 +153,42 @@ const registerUser = async (req, res) => {
 };
 
 
-    const forgetPassword = async(req, res) =>{
-        try {
-            const {email} = req.body;
-            if(!email){
-                return res.status(400).send({ message: "Please enter your email" });
-            }
-
-            const checkUser = await userModel.findOne({email})
-            if(!checkUser){
-                return res.status(400).send({message: "User not found. Please Register"})
-            }
-
-            const token = jwt.sign({email}, process.env.JWT_SECRET)
-
-            const transporter  = nodemailer.createTransport({
-                service:"gmail",
-                secure:true,
-                auth:{
-                    user:process.env.MY_EMAIL,
-                    pass:process.env.MY_PASSWORD,
-                }
-
-            })
-
-            const reciever = {
-                from: "shakyaunik123@gmail.com",
-                to: email,
-                subject: "Password Reset request",
-                text: `Click on this link to reset password: ${process.env.CLIENT_URL}/reset-password/${token}`
-            }
-            await transporter.sendMail(reciever);
-            return res.status(200).send({message:"Password reset link successfully in your gmail"})
-        } catch (error) {
-            return res.status(500).send({message: "Something went wrong"})
+const forgetPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+        if (!email) {
+            return res.status(400).send({ message: "Please enter your email" });
         }
+
+        const checkUser = await userModel.findOne({ email })
+        if (!checkUser) {
+            return res.status(400).send({ message: "User not found. Please Register" })
+        }
+
+        const token = jwt.sign({ email }, process.env.JWT_SECRET)
+
+        const transporter = nodemailer.createTransport({
+            service: "gmail",
+            secure: true,
+            auth: {
+                user: process.env.MY_EMAIL,
+                pass: process.env.MY_PASSWORD,
+            }
+
+        })
+
+        const reciever = {
+            from: "shakyaunik123@gmail.com",
+            to: email,
+            subject: "Password Reset request",
+            text: `Click on this link to reset password: ${process.env.CLIENT_URL}/reset-password/${token}`
+        }
+        await transporter.sendMail(reciever);
+        return res.status(200).send({ message: "Password reset link successfully in your gmail" })
+    } catch (error) {
+        return res.status(500).send({ message: "Something went wrong" })
     }
+}
 
 
 const resetPassword = async (req, res) => {
@@ -256,9 +261,9 @@ const updateUser = async (req, res) => {
 
         // Validation
         if (!username || !email) {
-            return res.status(400).json({ 
-                success: false, 
-                message: "Username and email are required" 
+            return res.status(400).json({
+                success: false,
+                message: "Username and email are required"
             });
         }
 
@@ -269,37 +274,37 @@ const updateUser = async (req, res) => {
         );
 
         if (!updatedUser) {
-            return res.status(404).json({ 
-                success: false, 
-                message: "User not found" 
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
             });
         }
 
-        res.json({ 
-            success: true, 
+        res.json({
+            success: true,
             message: "User updated successfully",
-            user: updatedUser 
+            user: updatedUser
         });
     } catch (error) {
         console.error("Error updating user:", error);
-        
+
         // Handle specific errors
         if (error.name === 'CastError') {
-            return res.status(400).json({ 
-                success: false, 
-                message: "Invalid user ID format" 
+            return res.status(400).json({
+                success: false,
+                message: "Invalid user ID format"
             });
         }
         if (error.name === 'ValidationError') {
-            return res.status(400).json({ 
-                success: false, 
-                message: error.message 
+            return res.status(400).json({
+                success: false,
+                message: error.message
             });
         }
-        
-        res.status(500).json({ 
-            success: false, 
-            message: "Error updating user" 
+
+        res.status(500).json({
+            success: false,
+            message: "Error updating user"
         });
     }
 };
@@ -312,30 +317,30 @@ const deleteUser = async (req, res) => {
         const deletedUser = await userModel.findByIdAndDelete(id);
 
         if (!deletedUser) {
-            return res.status(404).json({ 
-                success: false, 
-                message: "User not found" 
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
             });
         }
 
-        res.json({ 
-            success: true, 
+        res.json({
+            success: true,
             message: "User deleted successfully",
-            user: deletedUser 
+            user: deletedUser
         });
     } catch (error) {
         console.error("Error deleting user:", error);
-        
+
         if (error.name === 'CastError') {
-            return res.status(400).json({ 
-                success: false, 
-                message: "Invalid user ID format" 
+            return res.status(400).json({
+                success: false,
+                message: "Invalid user ID format"
             });
         }
-        
-        res.status(500).json({ 
-            success: false, 
-            message: "Error deleting user" 
+
+        res.status(500).json({
+            success: false,
+            message: "Error deleting user"
         });
     }
 };

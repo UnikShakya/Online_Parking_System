@@ -14,6 +14,8 @@ function Users() {
     email: ""
   });
 
+const token = localStorage.getItem('token') || '';
+
   // Fetch data from API
   useEffect(() => {
     fetchUsers();
@@ -26,12 +28,16 @@ function Users() {
       let endpoint;
       switch (selectedRole) {
         case "user": endpoint = "/api/user/users"; break;
-        case "middleman": endpoint = "/api/middleman/middlemen"; break;
+        case "middleman": endpoint = "/api/middleman"; break;
         case "admin": endpoint = "/api/admin/admins"; break;
         default: throw new Error("Invalid role selected");
       }
 
-      const response = await axios.get(`http://localhost:3000${endpoint}`);
+const response = await axios.get(`http://localhost:3000${endpoint}`, {
+  headers: {
+    Authorization: `Bearer ${token}`
+  }
+});
       const data = Array.isArray(response.data) ? response.data : 
                  response.data[selectedRole] || response.data.data || 
                  response.data.users || response.data.middlemen || response.data.admins || [];
@@ -72,7 +78,7 @@ function Users() {
       }
 
       const response = await axios.put(
-        `http://localhost:4000/api/user/${userId}`,
+        `http://localhost:3000/api/user/${userId}`,
         editFormData,
         {
           headers: {
@@ -101,7 +107,7 @@ function Users() {
 const handleDelete = async (userId) => {
   if (!window.confirm(`Are you sure you want to delete this ${selectedRole}?`)) return;
   try {
-      const response = await axios.delete(`http://localhost:4000/api/user/${userId}`);
+      const response = await axios.delete(`http://localhost:3000/api/user/${userId}`);
       if (response.data.success) {
           fetchUsers();
       }
