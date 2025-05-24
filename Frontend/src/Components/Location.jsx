@@ -14,8 +14,8 @@ function Location() {
   // List of locations with coordinates and labels
   const locations = [
     {
-      name: 'Sundhara (Dharahara)',
-      position: [27.7007, 85.3119],
+      name: 'Bhaktapur',
+      position: [27.672544, 85.427052],
     },
     {
       name: 'Patan (Lalitpur)',

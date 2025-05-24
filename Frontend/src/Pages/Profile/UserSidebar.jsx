@@ -44,13 +44,6 @@ const UserSidebar = ({ setShowLogin }) => {
           </div>
         </Link>
 
-        <Link to="/profile/settings">
-          <div className="flex items-center space-x-4 hover:bg-gradient-to-r from-gradientStart to-gradientEnd p-2 rounded cursor-pointer">
-            <FaCogs />
-            <span>Settings</span>
-          </div>
-        </Link>
-
         <div
           onClick={logout}
           className="flex items-center space-x-4 hover:bg-gradient-to-r from-gradientStart to-gradientEnd p-2 rounded cursor-pointer"

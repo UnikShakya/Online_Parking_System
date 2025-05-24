@@ -142,8 +142,8 @@ function Selection({ setShowLogin }) {
         totalCost4Wheeler: fourWheelerData.totalCost,
         rates,
         discountRate: 0.2,
-        startTime: startTime.format("HH:mm A"),
-        endTime: endTime.format("HH:mm A"),
+        startTime: startTime.format("HH:mm"),
+        endTime: endTime.format("HH:mm"),
         parkingLotId,
         isPeak: twoWheelerData.isPeak,
         selectedDate: formattedDate, // Use the pre-formatted date
@@ -221,7 +221,7 @@ function Selection({ setShowLogin }) {
                     },
                     openPickerButton: { sx: { color: "#6b7280" } },
                   }}
-                  format="HH:mm A"
+                  format="HH:mm"
                 />
               </LocalizationProvider>
             </div>
@@ -247,7 +247,7 @@ function Selection({ setShowLogin }) {
                     },
                     openPickerButton: { sx: { color: "#6b7280" } },
                   }}
-                  format="HH:mm A"
+                  format="HH:mm"
                 />
               </LocalizationProvider>
             </div>

@@ -12,7 +12,7 @@ function Activity() {
                 const token = localStorage.getItem('token');
                 console.log("Token from localStorage:", token);
 
-                const response = await axios.get('http://localhost:3000/api/user/userActivities', {
+                const response = await axios.get('http://localhost:3000/api/user/activities', {
                     headers: {
                         'Authorization': `Bearer ${token}` // Ensure token is passed correctly
                     }

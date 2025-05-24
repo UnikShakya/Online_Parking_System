@@ -129,6 +129,17 @@ const getMiddlemanByBhaktapur = async (req, res) => {
   }
 };
 
+const getMiddlemanCount = async (req, res) => {
+  try {
+    const count = await middlemanModel.countDocuments();
+    res.json({ success: true, count });
+  } catch (error) {
+    console.error("Error counting middlemen:", error);
+    res.status(500).json({ success: false, message: "Error counting middlemen" });
+  }
+};
+
+
 
 // Add this to your middlemanController.js
 // const getMiddlemanById = async (req, res) => {
@@ -152,4 +163,4 @@ const getMiddlemanByBhaktapur = async (req, res) => {
 //   }
 // };
 
-module.exports = { signupMiddleman, getMiddlemen, getMiddlemanByBhaktapur, getMiddlemanByBouddha, getMiddlemanByPatan };
+module.exports = { signupMiddleman, getMiddlemen, getMiddlemanByBhaktapur, getMiddlemanByBouddha, getMiddlemanByPatan, getMiddlemanCount };

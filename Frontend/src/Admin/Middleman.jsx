@@ -20,11 +20,13 @@ function Middleman() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    console.log("Submit clicked", formData);  // Debugging line
+
     // Trim all fields
     const trimmedData = {
       username: formData.username.trim(),
       email: formData.email.trim(),
-      password: formData.password.trim(), // Also trim password to remove leading/trailing spaces
+      password: formData.password.trim(),
       location: formData.location.trim(),
     };
 
@@ -107,7 +109,7 @@ function Middleman() {
         localStorage.setItem("token", data.token);
         localStorage.setItem("username", data.username);
         setFormData({ username: '', email: '', password: '', location: '' });
-        console.log(data)
+        console.log(data);
       } else {
         toast.error(data.message || "Failed to add middleman");
       }
@@ -135,7 +137,7 @@ function Middleman() {
               onChange={handleChange}
               required
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              placeholder="Enter username (cannot start with number)"
+              placeholder="Enter username"
             />
           </div>
 
@@ -151,7 +153,7 @@ function Middleman() {
               onChange={handleChange}
               required
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              placeholder="Enter email (cannot start with number)"
+              placeholder="Enter email"
             />
           </div>
 
@@ -167,7 +169,7 @@ function Middleman() {
               onChange={handleChange}
               required
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              placeholder="Enter password (min 8 chars, no spaces)"
+              placeholder="Enter password"
             />
           </div>
 
@@ -201,10 +203,6 @@ function Middleman() {
         </form>
       </div>
 
-      <div className="mt-8">
-        <h2 className="text-2xl font-semibold mb-4 text-gray-600">Other Middleman Options</h2>
-        <p className="text-gray-600">Additional middleman management options can be added here.</p>
-      </div>
     </div>
   );
 }

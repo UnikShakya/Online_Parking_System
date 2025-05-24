@@ -2,36 +2,43 @@ const BookingModel = require('./bookingModel');
 const parkingLotModel = require('./ParkingLot/parkingLotModel');
 
 const booking = async (req, res) => {
+    const userId = req.user.id;
     try {
         console.log("Received Data:", req.body);
 
-        const { name, vehicleNumber, phoneNumber, paymentMethod, location, lotNumber, date, startTime, endTime } = req.body;
+        const { name, vehicleNumber, phoneNumber, paymentMethod, location, selectedSpots, date, startTime, endTime, totalCost, status } = req.body;
 
         // Basic validation
         if (!paymentMethod) {
             return res.status(400).json({ message: "Payment method is required" });
         }
-
+        // Convert selectedSpots array to comma-separated string
+        const spotsString = Array.isArray(selectedSpots)
+            ? selectedSpots.join(', ')
+            : selectedSpots;
         // Save new booking
         const newBooking = new BookingModel({
             name,
+            userId,
             vehicleNumber,
             phoneNumber,
             paymentMethod,
             location,
-            lotNumber,
+            selectedSpots: spotsString,
             date,
             startTime,
             endTime,
+            totalCost,
+            status
         });
 
         await newBooking.save();
 
-        // Update parking lot status
-        await ParkingLotModel.findOneAndUpdate(
-            { location, lotNumber, date, startTime, endTime },
-            { isBooked: true }
-        );
+        // // Update parking lot status
+        // await parkingLotModel.findOneAndUpdate(
+        //     { location, lotNumber, date, startTime, endTime },
+        //     { isBooked: true }
+        // );
 
         res.status(201).json(newBooking);
     } catch (error) {
@@ -40,7 +47,7 @@ const booking = async (req, res) => {
     }
 };
 
-const getBookings = async(req, res) => {
+const getBookings = async (req, res) => {
     try {
         const bookings = await BookingModel.find();
         res.status(200).json(bookings);
@@ -50,5 +57,71 @@ const getBookings = async(req, res) => {
     }
 };
 
+const updateBookingStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+        console.log(`Updating booking ${id} to status: ${status}`); // Add logging
 
-module.exports = { booking, getBookings };
+
+        // Validate status
+        if (!['Paid', 'Unpaid'].includes(status)) {
+            return res.status(400).json({ message: "Invalid status value" });
+        }
+
+        const updatedBooking = await BookingModel.findByIdAndUpdate(
+            id,
+            { status },
+            { new: true, runValidators: true }
+        );
+
+        if (!updatedBooking) {
+            return res.status(404).json({ message: 'Booking not found' });
+        }
+        console.log('Updated booking:', updatedBooking); // Log result
+
+
+        res.status(200).json(updatedBooking);
+    } catch (error) {
+        console.error('Error updating booking status:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+
+// In your booking controller file
+const extendBookings = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { endTime, date } = req.body;
+
+    // Validate inputs
+    if (!endTime || !date) {
+      return res.status(400).json({ message: "End time and date are required" });
+    }
+
+    // Find and update the booking
+    const updatedBooking = await BookingModel.findByIdAndUpdate(
+      id,
+      { 
+        endTime,
+        date,
+        updatedAt: new Date() // Track when it was modified
+      },
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedBooking) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+
+    res.json({
+      message: "Booking extended successfully",
+      updatedBooking
+    });
+  } catch (error) {
+    console.error("Error extending booking:", error);
+    res.status(500).json({ message: "Failed to extend booking" });
+  }
+};
+
+module.exports = { booking, getBookings, updateBookingStatus, extendBookings };

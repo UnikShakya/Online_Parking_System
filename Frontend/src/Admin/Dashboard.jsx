@@ -1,7 +1,7 @@
 import React from 'react'
 import ManageUser from './Info Card/ManageUser'
 import ManageBookings from './Info Card/ManageBookings'
-import ManageParking from './Info Card/ManageParking'
+import ManageParking from './Info Card/ManageMiddleman'
 import Activity from './Activity'
 import PieChartComponent from './PieChart'
 

@@ -67,7 +67,7 @@ const BookingForm = ({ onSubmit }) => {
     if (/^\s*$/.test(name)) return "Name cannot contain only spaces.";
     if (/^\d+$/.test(name)) return "Name cannot contain only numbers.";
     if (/^\s*$/.test(vehicleNumber)) return "Vehicle number cannot contain only spaces.";
-    if (!/^[a-zA-Z0-9]+$/.test(vehicleNumber)) return "Vehicle number should only contain letters and numbers.";
+    if (!/^[0-9]+$/.test(vehicleNumber)) return "Vehicle number should contain only numbers"; 
     if (!/^\d{10}$/.test(phoneNumber)) return "Phone number should be exactly 10 digits.";
     if (!selectedDate) return "Please select a valid date.";
     if (paymentMethod === "khalti" && !khaltiLoaded) return "Payment system is loading. Please try again in a moment.";
@@ -194,56 +194,95 @@ const handleKhaltiPayment = async () => {
   });
 };
 
-  const saveBooking = async (bookingData) => {
-    const token = localStorage.getItem("token");
+const saveBooking = async (bookingData) => {
+  const token = localStorage.getItem("token");
 
-    let formattedDate;
-    if (selectedDate) {
-      try {
-        const dateObj = new Date(selectedDate);
-        if (!isNaN(dateObj.getTime())) {
-          formattedDate = dateObj.toISOString().split("T")[0];
-        } else {
-          throw new Error("Invalid date format in selectedDate");
-        }
-      } catch (err) {
-        console.error("Date formatting error:", err);
-        throw new Error("Please provide a valid date");
-      }
-    } else {
-      throw new Error("Selected date is missing");
-    }
-
-    const payload = {
-      ...bookingData,
-      location: currentLocation,
-      selectedSpots,
-      startTime,
-      endTime,
-      date: formattedDate,
-      totalCost: calculateTotalPrice(),
-      vehicleType:
-        bookingData.vehicleType ||
-        (selectedSpots[0]?.charAt(0) === "R" ? "4-wheeler" : "2-wheeler"),
-    };
-
-    console.log("Booking payload:", payload);
-
+  let formattedDate;
+  if (selectedDate) {
     try {
-      const res = await axios.post("http://localhost:3000/api/parking/book", payload, {
+      const dateObj = new Date(selectedDate);
+      if (!isNaN(dateObj.getTime())) {
+        formattedDate = dateObj.toISOString().split("T")[0];
+      } else {
+        throw new Error("Invalid date format in selectedDate");
+      }
+    } catch (err) {
+      console.error("Date formatting error:", err);
+      throw new Error("Please provide a valid date");
+    }
+  } else {
+    throw new Error("Selected date is missing");
+  }
+
+    // Convert selectedSpots array to string if needed
+  const spotsString = Array.isArray(selectedSpots) 
+    ? selectedSpots.join(', ') 
+    : selectedSpots;
+
+  const payload = {
+    ...bookingData,
+    location: currentLocation,
+    selectedSpots: spotsString,
+    date: formattedDate,
+    startTime,
+    endTime,
+    totalCost: calculateTotalPrice(),
+    vehicleType:
+      bookingData.vehicleType ||
+      (selectedSpots[0]?.charAt(0) === "R" ? "4-wheeler" : "2-wheeler"),
+    name: bookingData.name,
+    vehicleNumber: bookingData.vehicleNumber,
+    phoneNumber: bookingData.phoneNumber,
+    paymentMethod: bookingData.paymentMethod,
+    // paymentVerified: bookingData.paymentVerified || false,
+    // paymentToken: bookingData.paymentToken || "",
+    // pidx: bookingData.pidx || ""
+  };
+
+  console.log("Booking payload:", payload);
+
+  try {
+    const parkingResponse = await axios.post(
+      "http://localhost:3000/api/parking/book",
+      payload,
+      {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      });
-      return res.data;
-    } catch (error) {
-      console.error("Error saving booking:", {
-        status: error.response?.status,
-        data: error.response?.data,
-      });
-      throw new Error(error.response?.data?.message || "Booking failed");
-    }
-  };
+      }
+    );
+
+    const bookingResponse = await axios.post(
+      "http://localhost:3000/api/booking/",
+      {
+        name: payload.name,
+        vehicleNumber: payload.vehicleNumber,
+        phoneNumber: payload.phoneNumber,
+        paymentMethod: payload.paymentMethod,
+        location: payload.location,
+        selectedSpots: payload.selectedSpots, // Assuming selectedSpots is an array
+        date: payload.date,
+        startTime: payload.startTime,
+        endTime: payload.endTime,
+        vehicleType: payload.vehicleType,
+        totalCost: payload.totalCost
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    return { parking: parkingResponse.data, booking: bookingResponse.data };
+  } catch (error) {
+    console.error("Error saving booking:", {
+      status: error.response?.status,
+      data: error.response?.data,
+    });
+    throw new Error(error.response?.data?.message || "Booking failed");
+  }
+};
 
   const handleCashPayment = async () => {
     try {
@@ -417,15 +456,12 @@ const handleKhaltiPayment = async () => {
         </button>
       </div>
 
+ 
       {showConfirmDialog && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-designColor rounded-lg p-6 w-96 shadow-lg">
-            <h3 className="text-lg font-bold text-white mb-4">Confirm Booking</h3>
-            <p className="text-white mb-6">
-              {formData.paymentMethod === "khalti"
-                ? "You will be redirected to Khalti payment. Are you sure?"
-                : "Are you sure you want to confirm this booking?"}
-            </p>
+          <div className="bg-white rounded-lg p-6 w-80 shadow-lg">
+            <h3 className="text-lg font-bold text-gray-800 mb-4">Confirm Booking</h3>
+            <p className="text-gray-700 mb-6">Are you sure you want to book?</p>
             <div className="flex justify-end space-x-4">
               <button
                 onClick={handleConfirmNo}
@@ -439,7 +475,7 @@ const handleKhaltiPayment = async () => {
                 className="bg-gradient-to-r from-gradientStart to-gradientEnd text-white px-4 py-2 rounded hover:opacity-80 transition-opacity"
                 disabled={isProcessingPayment}
               >
-                {isProcessingPayment ? "Processing..." : "Yes"}
+                Yes
               </button>
             </div>
           </div>

@@ -12,6 +12,11 @@ router.get("/booked-location2", parkingController.bookedLotLocation2);
 router.get("/booked-location3", parkingController.bookedLotLocation3);
 router.put("/cancel/:id", parkingController.cancelBooking);
 router.put("/extend/:id", parkingController.extendBooking);
+router.get("/extended", parkingController.getExtendedBookings);
+router.get("/extended/patan", authMiddleware, parkingController.getExtendedBookingsByPatan);
+// router.get("/extended/location", authMiddleware, parkingController.getExtendedBookingsByLocation);
+router.get("/extended/bouddha",authMiddleware, parkingController.getExtendedBookingsByBouddha);
+router.get("/extended/bhaktapur",authMiddleware, parkingController.getExtendedBookingsByBhaktapur);
 router.get("/countBooking/:id", parkingController.getBookingCountByUser);
 
 module.exports = router;

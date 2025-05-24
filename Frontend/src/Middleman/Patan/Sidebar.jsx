@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FaChartBar, FaFolder, FaCar, FaFile, FaUsers, FaCogs, FaHome, FaRupeeSign } from "react-icons/fa";
+import { FaChartBar, FaFolder, FaCar, FaFile, FaUsers, FaCogs, FaHome, FaRupeeSign, FaTimes, FaClock } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 
 const Sidebar = ({ setShowLogin, id }) => {
@@ -39,6 +39,13 @@ const Sidebar = ({ setShowLogin, id }) => {
                         </li>
                     </Link>
 
+                    {/* Extend */}
+                    <Link to={middlemanPath("extend")}>
+                        <li className="flex items-center space-x-4 hover:bg-gradient-to-r from-gradientStart to-gradientEnd p-2 rounded cursor-pointer">
+                            <FaClock />
+                            <span>Extend</span>
+                        </li>
+                    </Link>
                     {/* Middleman */}
                     <Link to={middlemanPath("middleman")}>
                         <li className="flex items-center space-x-4 hover:bg-gradient-to-r from-gradientStart to-gradientEnd p-2 rounded cursor-pointer">

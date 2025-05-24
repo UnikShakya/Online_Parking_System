@@ -16,22 +16,64 @@ function Settings() {
     }));
   };
 
+  const validateForm = () => {
+    const { username, email, password } = formData;
+
+    // Trim spaces
+    const trimmedUsername = username.trim();
+    const trimmedEmail = email.trim();
+    const trimmedPassword = password.trim();
+
+    // Username validation
+    if (!trimmedUsername) {
+      toast.error('Username cannot be blank or only spaces');
+      return false;
+    }
+    if (/^\d/.test(trimmedUsername)) {
+      toast.error('Username cannot start with a number');
+      return false;
+    }
+
+    // Email validation
+    if (!trimmedEmail) {
+      toast.error('Email cannot be blank');
+      return false;
+    }
+    if (/^\d/.test(trimmedEmail)) {
+      toast.error('Email cannot start with a number');
+      return false;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(trimmedEmail)) {
+      toast.error('Please enter a valid email');
+      return false;
+    }
+
+    // Password validation
+    if (!trimmedPassword) {
+      toast.error('Password cannot be blank');
+      return false;
+    }
+    if (trimmedPassword.length < 8) {
+      toast.error('Password must be at least 8 characters');
+      return false;
+    }
+
+    return true;
+  };
+
   const handleSubmit = async (e) => {
-    
     e.preventDefault();
 
-    try {
-      console.log('Submitting form with data:', formData); // Log form data being sent
-      const token = localStorage.getItem('token');
-      console.log('Token retrieved from localStorage:', token); // Log the token
+    if (!validateForm()) return;
 
+    try {
+      const token = localStorage.getItem('token');
       if (!token) {
-        console.log('No token found in localStorage');
         toast.error('Please log in as an admin first');
         return;
       }
 
-      console.log('Making fetch request to signup-admin endpoint');
       const response = await fetch('http://localhost:3000/api/admin/signup-admin', {
         method: 'POST',
         headers: {
@@ -41,24 +83,17 @@ function Settings() {
         body: JSON.stringify(formData),
       });
 
-      console.log('Response status:', response.status); // Log HTTP status
       const data = await response.json();
-      console.log('Response data:', data); // Log the full response from the server
 
       if (response.ok) {
-        console.log('Admin creation successful:', data);
         toast.success(data.message);
         localStorage.setItem('token', data.token);
         localStorage.setItem('username', data.username);
-        console.log('New token stored:', data.token);
-        console.log('New username stored:', data.username);
-        setFormData({ username: '', email: '', password: '' }); // Clear form data
+        setFormData({ username: '', email: '', password: '' });
       } else {
-        console.log('Admin creation failed:', data.message);
         toast.error(data.message);
       }
     } catch (error) {
-      console.error('Error during fetch:', error.message); // Log any fetch errors
       toast.error('Error creating admin: ' + error.message);
     }
   };
@@ -129,10 +164,6 @@ function Settings() {
         </form>
       </div>
 
-      <div className="mt-8">
-        <h2 className="text-2xl font-semibold mb-4 text-gray-600">Other Settings</h2>
-        <p className="text-gray-600">Additional settings can be added here.</p>
-      </div>
     </div>
   );
 }

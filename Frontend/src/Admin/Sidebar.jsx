@@ -84,15 +84,6 @@ const Sidebar = ({ setShowLogin, id }) => {
               </li>
             </Link>
           </ul>
-
-          {/* Booking */}
-          <Link to={adminPath("booking")}>
-            <li className="flex items-center space-x-4 hover:bg-gradient-to-r from-gradientStart to-gradientEnd p-2 rounded cursor-pointer">
-              <FaFile />
-              <span>Booking</span>
-            </li>
-          </Link>
-
           {/* Users */}
           <Link to={adminPath("users")}>
             <li className="flex items-center space-x-4 hover:bg-gradient-to-r from-gradientStart to-gradientEnd p-2 rounded cursor-pointer">

@@ -1,7 +1,9 @@
 const schedule = require("node-schedule");
 const User = require("../User/userModel");
 const ParkingLot = require("./parkingLotModel");
+const Booking = require('../Booking/bookingModel')
 const nodemailer = require("nodemailer");
+const mongoose = require("mongoose")
 
 
 // Get all parking lots
@@ -112,7 +114,7 @@ exports.bookLot = async (req, res) => {
           <li><strong>Location:</strong> ${location}</li>
           <li><strong>Date:</strong> ${formattedDate}</li>
           <li><strong>Time:</strong> ${startTime} to ${endTime}</li>
-          <li><strong>Spot:</strong> ${selectedSpots}</li>
+          <li><strong>Spot:</strong>  ${Array.isArray(selectedSpots) ? selectedSpots.join(", ") : selectedSpots}</li>
         </ul>
         <p>Thank you for using our service!</p>
       `
@@ -120,20 +122,8 @@ exports.bookLot = async (req, res) => {
 
     await transporter.sendMail(mailOptions);
 
-    // Create new booking record
-    // const newBooking = new Booking({
-    //   user: userId,
-    //   location,
-    //   date,
-    //   startTime,
-    //   endTime,
-    //   spot: selectedSpots
-    // });
 
-    // await newBooking.save();
  // ⏰ Schedule reminder 30 minutes before the end time
-
-
  const endDateTime = new Date(`${date}T${endTime.padStart(5, '0')}:00`);
  const reminderTime = new Date(endDateTime.getTime() - 30 * 60000); // 30 minutes before the end time
 
@@ -148,7 +138,7 @@ exports.bookLot = async (req, res) => {
          <p>Your parking session at <strong>${location}</strong> will end in 30 minutes.</p>
          <ul>
            <li><strong>Date:</strong> ${formattedDate}</li>
-           <li><strong>Spot:</strong> ${selectedSpots}</li>
+           <li><strong>Spot:</strong>  ${Array.isArray(selectedSpots) ? selectedSpots.join(", ") : selectedSpots}</li>
            <li><strong>Time:</strong> ${startTime} to ${endTime}</li>
          </ul>
          <p>We hope your time is going smoothly. Please make arrangements to pick up your vehicle.</p>
@@ -177,7 +167,7 @@ exports.bookLot = async (req, res) => {
           <p>Your parking session at <strong>${location}</strong> has ended 😢.</p>
           <ul>
             <li><strong>Date:</strong> ${formattedDate}</li>
-            <li><strong>Spot:</strong> ${selectedSpots.join(", ")}</li>
+            <li><strong>Spot:</strong>  ${Array.isArray(selectedSpots) ? selectedSpots.join(", ") : selectedSpots}</li>
             <li><strong>Time:</strong> ${startTime} to ${endTime}</li>
           </ul>
           <p>If you need more time, you can extend your booking.</p>
@@ -246,34 +236,39 @@ exports.bookedLotLocation3 = async (req, res) => {
     res.status(500).json({ message: "Error fetching booked spots in Location 3" });
   }
 };
-exports.cancelBooking = async(req, res)=>{
-   try {
-    const bookingId = req.params.id;
+exports.cancelBooking = async (req, res) => {
+  const bookingId = req.params.id; // Use id like extendBooking
 
-    const updated = await ParkingLot.findByIdAndUpdate(
-      bookingId,
-      {
-        $set: { isBooked: false },
-        $unset: {
-          userId: "",
-          date: "",
-          startTime: "",
-          endTime: ""
-        }
-      },
-      { new: true }
-    );
+  try {
+    console.log("Cancelling booking for ID:", bookingId);
 
-    if (!updated) {
-      return res.status(404).json({ message: "Booking not found." });
+    // Validate ObjectId
+    if (!mongoose.isValidObjectId(bookingId)) {
+      return res.status(400).json({ message: 'Invalid booking ID' });
     }
 
-    res.status(200).json({ message: "Booking cancelled successfully.", booking: updated });
-  } catch (err) {
-    console.error("Cancel Error:", err);
-    res.status(500).json({ message: "Error cancelling booking." });
+    const booking = await ParkingLot.findById(bookingId);
+    if (!booking) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+
+    // Cancel the booking
+    booking.isBooked = false;
+    booking.date = undefined; // Remove date
+    booking.startTime = undefined; // Remove startTime
+    booking.endTime = undefined; // Remove endTime
+    booking.extended = false; // Reset extended status
+
+    await booking.save();
+    console.log("Cancelled booking:", booking);
+
+    res.status(200).json({ message: 'Booking cancelled successfully', updatedBooking: booking });
+  } catch (error) {
+    console.error('Cancel error:', error);
+    res.status(500).json({ message: 'Server error while cancelling booking', error: error.message });
   }
-}
+};
+
 exports.extendBooking = async (req, res) => {
   const bookingId = req.params.id;
   const { date, endTime } = req.body;
@@ -291,6 +286,8 @@ exports.extendBooking = async (req, res) => {
 
     booking.date = date;
     booking.endTime = endTime;
+    booking.extended = true; // <-- Add this line
+
 
     await booking.save();
 
@@ -298,6 +295,91 @@ exports.extendBooking = async (req, res) => {
   } catch (error) {
     console.error('Extend error:', error);
     res.status(500).json({ message: 'Server error while extending booking.' });
+  }
+}
+exports.getExtendedBookings = async (req, res) => {
+  try {
+    const bookings = await ParkingLot.find({ extended: true })
+      .populate({
+        path: 'userId',
+        select: 'username email', // Changed from 'name' to 'username'
+        model: 'User' // Explicitly specify the model
+      })
+      .lean(); // Convert to plain JavaScript objects
+
+    console.log("Populated bookings:", bookings); // Debug log
+
+    res.json(bookings);
+  } catch (error) {
+    console.error("Population error:", error);
+    res.status(500).json({ 
+      message: 'Error fetching extended bookings',
+      error: error.message 
+    });
+  }
+}
+exports.getExtendedBookingsByPatan = async (req, res) => {
+  try {
+    const bookings = await ParkingLot.find({ extended: true, location: "Patan" })
+      .populate({
+        path: 'userId',
+        select: 'username email', // Changed from 'name' to 'username'
+        model: 'User' // Explicitly specify the model
+      })
+      .lean(); // Convert to plain JavaScript objects
+
+    console.log("Populated bookings:", bookings); // Debug log
+
+    res.json(bookings);
+  } catch (error) {
+    console.error("Population error:", error);
+    res.status(500).json({ 
+      message: 'Error fetching extended bookings',
+      error: error.message 
+    });
+  }
+}
+
+exports.getExtendedBookingsByBouddha = async (req, res) => {
+  try {
+    const bookings = await ParkingLot.find({ extended: true, location: "Bouddha" })
+      .populate({
+        path: 'userId',
+        select: 'username email', // Changed from 'name' to 'username'
+        model: 'User' // Explicitly specify the model
+      })
+      .lean(); // Convert to plain JavaScript objects
+
+    console.log("Populated bookings:", bookings); // Debug log
+
+    res.json(bookings);
+  } catch (error) {
+    console.error("Population error:", error);
+    res.status(500).json({ 
+      message: 'Error fetching extended bookings',
+      error: error.message 
+    });
+  }
+}
+exports.getExtendedBookingsByBhaktapur = async (req, res) => {
+  try {
+    const bookings = await ParkingLot.find({ extended: true, location: "Bhaktapur" })
+      .populate({
+        path: 'userId',
+        select: 'username email', // Changed from 'name' to 'username'
+        model: 'User' // Explicitly specify the model
+      })
+      .lean(); // Convert to plain JavaScript objects
+
+    console.log("Populated bookings:", bookings); // Debug log
+
+    res.json(bookings);
+  } catch (error) {
+    console.error("Population error:", error);
+    res.status(500).json({ 
+      message: 'Error fetching extended bookings',
+      error: error.message 
+    });
   }
 }
 

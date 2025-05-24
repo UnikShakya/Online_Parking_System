@@ -9,7 +9,6 @@ import BookingTicket from './Pages/BookingTicket';
 import ForgetPassword from './Pages/ForgetPassword';
 import ResetPassword from './Pages/ResetPassword';
 import BookingForm from './Pages/BookingForm';
-import Booking from './Admin/Booking';
 import Home from './Pages/Home';
 import TravelForm from './Components/Calendar';
 import Stepper from './Components/Stepper';
@@ -26,13 +25,13 @@ import ProfileLayout from './Pages/Profile/ProfileLayout';
 import UpcomingBookings from './Pages/Profile/UpcomingBookings';
 import BookingHistory from './Pages/Profile/BookingHistory';
 // import ProfileOverview from './Pages/Profile/ProfileOverview';
-import UserSettings from './Pages/Profile/UserSettings';
 import UserDashboard from './Pages/Profile/UserDashboard';
 import PatanMainLayout from './Middleman/Patan/PatanMainLayout';
 import BhaktapurMainLayout from './Middleman/Bhaktapur/BhaktapurMainLayout';
 import PatanTable from './Middleman/Patan/PatanTable';
 import PatanParkingLot from './Middleman/Patan/PatanParkingLot';
 import PatanMiddlemen from './Middleman/Patan/PatanMiddlemen';
+import PatanExtend from './Middleman/Patan/PatanExtend';
 import BhaktapurTable from './Middleman/Bhaktapur/BhaktapurTable';
 import BhaktapurParkingLot from './Middleman/Bhaktapur/BhaktapurParkingLot';
 import BhaktapurMiddlemen from './Middleman/Bhaktapur/BhaktapurMiddlemen';
@@ -40,6 +39,8 @@ import BouddhaMainLayout from './Middleman/Bouddha/BouddhaMainLayout';
 import BouddhaTable from './Middleman/Bouddha/BouddhaTable';
 import BouddhaParkingLot from './Middleman/Bouddha/BouddhaParkingLot';
 import BouddhaMiddlemen from './Middleman/Bouddha/BouddhaMiddlemen';
+import BouddhaExtend from './Middleman/Bouddha/BouddhaExtend';
+import BhaktapurExtend from './Middleman/Bhaktapur/BhaktapurExtend';
 
 
 export const RecoveryContext = createContext();
@@ -87,14 +88,12 @@ function App() {
   <Route index element={<UserDashboard />} />
   <Route path="upcoming" element={<UpcomingBookings />} />
   <Route path="history" element={<BookingHistory />} />
-  <Route path="settings" element={<UserSettings />} />
 </Route>
 
 
   {/* Admin Route for /admin/:id with nested routes */}
   <Route path="/admin/:id" element={<MainLayout setShowLogin={setShowLogin} />}>
     <Route index element={<Dashboard />} />
-    <Route path="booking" element={<Booking />} />
     <Route path="middleman" element={<Middleman />} />
     <Route path="users" element={<Users />} />
     <Route path="parkingcost" element={<ParkingCost />} />
@@ -105,17 +104,20 @@ function App() {
     <Route path="/middleman/patan/:id" element={<PatanMainLayout setShowLogin={setShowLogin} />}>
     <Route index element={<PatanTable />} />
     <Route path="parkinglot" element={<PatanParkingLot/>} />
+    <Route path="extend" element={<PatanExtend/>} />
     <Route path="middleman" element={<PatanMiddlemen/>} />
     </Route>
 
     <Route path="/middleman/bhaktapur/:id" element={<BhaktapurMainLayout setShowLogin={setShowLogin}/>}>
     <Route index element={<BhaktapurTable/>}/>
+    <Route path="extend" element={<BhaktapurExtend/>}/>
     <Route path="parkinglot" element={<BhaktapurParkingLot/>}/>
     <Route path="middleman" element={<BhaktapurMiddlemen/>}/>
     </Route>
 
     <Route path="/middleman/bouddha/:id" element={<BouddhaMainLayout setShowLogin={setShowLogin}/>}>
     <Route index element={<BouddhaTable/>}/>
+    <Route path="extend" element={<BouddhaExtend/>}/>
     <Route path="parkinglot" element={<BouddhaParkingLot/>}/>
     <Route path="middleman" element={<BouddhaMiddlemen/>}/>
     </Route>

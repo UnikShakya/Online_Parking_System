@@ -131,29 +131,30 @@ app.get("/api/userCount", async (req, res) => {
 });
 
 // Endpoint to get user activities
-app.get("/api/user/userActivities", async (req, res) => {
-    try {
-        const users = await userModel.find({});
+app.get("/api/user/activities", async (req, res) => {
+  try {
+    const users = await userModel.find({});
 
-        if (users.length === 0) {
-            return res.status(404).json({ success: false, message: "No users found" });
-        }
-
-        const activities = users.map((user) => {
-            const userActivities = user.activities || [];
-            return {
-                username: user.username,
-                activity: `${user.username} signed up in ParkEase`,
-                timestamp: userActivities.map((activity) => activity.timestamp),
-            };
-        });
-
-        res.json({ activities });
-    } catch (error) {
-        console.error("Error fetching activities:", error);
-        res.status(500).json({ success: false, message: "Error fetching activities", error: error.message });
+    if (!users.length) {
+      return res.status(404).json({ success: false, message: "No users found" });
     }
+
+    const activities = users.map((user) => {
+      const timestamps = (user.activities || []).map((activity) => activity.timestamp);
+      return {
+        username: user.username,
+        activity: `${user.username} signed up in ParkEase`,
+        timestamp: timestamps,
+      };
+    });
+
+    res.json({ success: true, activities });
+  } catch (error) {
+    console.error("Error fetching activities:", error);
+    res.status(500).json({ success: false, message: "Error fetching activities", error: error.message });
+  }
 });
+
 
 // Endpoint to log ticket scans
 app.post("/api/log-ticket", (req, res) => {
