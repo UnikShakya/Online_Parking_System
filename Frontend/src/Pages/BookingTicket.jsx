@@ -30,17 +30,17 @@ function BookingTicket() {
   const qrData = JSON.stringify(ticketDetails);
   const ticketRef = useRef();
 
-  const handleDownload = () => {
-    const element = ticketRef.current;
-    const options = {
-      filename: `Booking_Ticket_${ticketDetails.bookingId}.pdf`,
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-      html2canvas: { scale: 4 },
-      image: { type: 'jpeg', quality: 0.98 },
-      margin: [40, 0, 0, 0]
+    const handleDownload = () => {
+        const element = ticketRef.current;
+        const options = {
+            filename: `Booking_Ticket_${ticketDetails.bookingId}.pdf`,
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+            html2canvas: { scale: 4 },
+            image: { type: 'jpeg', quality: 0.98 },
+            margin: [0, 40,0, 0]
+        };
+        html2pdf().from(element).set(options).save();
     };
-    html2pdf().from(element).set(options).save();
-  };
 
   return (
     <div className="p-5 bg-designColor text-textColor max-h-max flex flex-col items-center">

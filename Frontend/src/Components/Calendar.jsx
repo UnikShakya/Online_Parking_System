@@ -4,18 +4,17 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { TimePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
-import 'dayjs/locale/en'; // Optional: For English locale formatting
+import 'dayjs/locale/en'; 
 
 
 const Calendar = () => {
   const [startDate, setStartDate] = useState(null);
   const [returnDate, setReturnDate] = useState(null);
-  const [returnTime, setReturnTime] = useState(null); // State for return time
+  const [returnTime, setReturnTime] = useState(null); 
 
-  // Optional: Customize the date format
   const customFormat = (date) => {
     if (!date) return '';
-    return date.format('DD/MM/YYYY'); // Matches dd/mm/yy but with full year
+    return date.format('DD/MM/YYYY'); 
   };
 
   return (
@@ -56,17 +55,17 @@ const Calendar = () => {
                       '&.Mui-focused fieldset': { borderColor: '#3b82f6' },
                     },
                     '& .MuiInputLabel-root': {
-                      color: '#6b7280', // Matches your gray-500 icon color
+                      color: '#6b7280',
                     },
                   },
                 },
                 openPickerButton: {
                   sx: {
-                    color: '#6b7280', // Matches your gray-500 icon color
+                    color: '#6b7280', 
                   },
                 },
               }}
-              format="DD/MM/YYYY" // Sets the display format
+              format="DD/MM/YYYY"
             />
           </LocalizationProvider>
         </div>
@@ -77,7 +76,7 @@ const Calendar = () => {
             label= "Start Time"
               value={returnTime}
               onChange={(newValue) => setReturnTime(newValue)}
-              minutesStep={1} // Allows 1-minute increments in the picker
+              minutesStep={1} 
               slotProps={{
                 textField: {
                   variant: 'standard',
@@ -89,17 +88,17 @@ const Calendar = () => {
                       '&.Mui-focused fieldset': { borderColor: '#3b82f6' },
                     },
                     '& .MuiInputLabel-root': {
-                      color: '#6b7280', // Matches your gray-500 icon color
+                      color: '#6b7280', 
                     },
                   },
                 },
                 openPickerButton: {
                   sx: {
-                    color: '#6b7280', // Matches your gray-500 icon color
+                    color: '#6b7280', 
                   },
                 },
               }}
-              format="HH:mm A" // 24-hour format
+              format="HH:mm A" 
             />
           </LocalizationProvider>
         </div>

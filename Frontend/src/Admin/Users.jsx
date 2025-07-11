@@ -121,7 +121,6 @@ const handleDelete = async (userId) => {
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">Manage Users</h1>
 
-      {/* Role selection dropdown */}
       <div className="mb-6">
         <label htmlFor="role-select" className="block text-sm font-medium text-gray-700 mb-1">
           Filter by Role:
@@ -138,7 +137,6 @@ const handleDelete = async (userId) => {
         </select>
       </div>
 
-      {/* Error message display */}
       {error && (
         <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
           {error}
@@ -151,7 +149,6 @@ const handleDelete = async (userId) => {
         </div>
       )}
 
-      {/* Loading state */}
       {loading && (
         <div className="flex justify-center items-center h-32">
           <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500"></div>

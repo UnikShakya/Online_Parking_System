@@ -7,7 +7,6 @@ function PatanTable() {
   const [filteredBookings, setFilteredBookings] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load saved statuses from localStorage
   const getSavedStatuses = () => {
     try {
       return JSON.parse(localStorage.getItem('PatanBookingStatuses')) || {};
@@ -24,7 +23,6 @@ function PatanTable() {
         const response = await axios.get('http://localhost:3000/api/booking/getBookings');
         const savedStatuses = getSavedStatuses();
         
-        // Filter bookings for Patan location and apply saved statuses
         const PatanBookings = response.data
           .filter(booking => booking.location === "Patan")
           .map(booking => ({
@@ -44,7 +42,6 @@ function PatanTable() {
     fetchBookings();
   }, []);
 
-  // Filter bookings when searchQuery changes
   useEffect(() => {
     const filtered = bookings.filter(
       booking =>
@@ -57,7 +54,6 @@ function PatanTable() {
 
   // Handle status change and save to localStorage
   const handleStatusChange = (bookingId, newStatus) => {
-    // Update state
     const updatedBookings = bookings.map(booking => {
       if (booking._id === bookingId && booking.paymentMethod.toLowerCase() !== "khalti") {
         return {
@@ -85,7 +81,6 @@ function PatanTable() {
     <div className="min-h-screen bg-[#F0F0F0] p-6">
       <h2 className="text-center font-semibold text-5xl mb-6">Patan Parking Bookings</h2>
 
-      {/* Search Bar */}
       <div className="mb-6">
         <input
           type="text"

@@ -38,7 +38,6 @@ bookingSchema.pre('save', function(next) {
     next();
 });
 
-// Check if model already exists before defining
 const Booking = mongoose.models.Booking || mongoose.model('Booking', bookingSchema);
 
 module.exports = Booking;

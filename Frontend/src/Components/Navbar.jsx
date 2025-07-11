@@ -75,9 +75,7 @@ function Navbar({ setShowLogin }) {
           </ul>
         </div>
 
-        {/* Login/Logout and Hamburger (Mobile: Hamburger on Right) */}
         <div className="flex items-center gap-4">
-          {/* Login/Logout Section */}
           <div className="flex items-center">
             {!localStorage.getItem("token") ? (
               <button
@@ -104,7 +102,6 @@ function Navbar({ setShowLogin }) {
             )}
           </div>
 
-          {/* Hamburger Icon (Mobile Only, Right Side) */}
           <div className="lg:hidden">
             <button onClick={toggleMenu} aria-label="Toggle navigation menu">
               {isMenuOpen ? <IoClose size={30} /> : <IoMenu size={30} />}
@@ -113,7 +110,6 @@ function Navbar({ setShowLogin }) {
         </div>
       </div>
 
-      {/* Mobile Menu (Only Navigation Links) */}
       {isMenuOpen && (
         <div className="lg:hidden bg-bodyColor w-full absolute top-20 left-0 z-10">
           <ul className="flex flex-col gap-6 p-4 font-medium text-lg">

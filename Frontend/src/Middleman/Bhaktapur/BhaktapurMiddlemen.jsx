@@ -8,7 +8,6 @@ function BhaktapurMiddlemen() {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  // Check for token on component mount
   useEffect(() => {
     const token = localStorage.getItem('token');
     console.log('Initial token check:', token);
@@ -61,7 +60,6 @@ function BhaktapurMiddlemen() {
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">Bhaktapur Middlemen</h1>
 
-      {/* Error message display */}
       {error && (
         <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
           {error}
@@ -74,7 +72,6 @@ function BhaktapurMiddlemen() {
         </div>
       )}
 
-      {/* Loading state */}
       {loading && (
         <div className="flex justify-center items-center h-32">
           <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500"></div>

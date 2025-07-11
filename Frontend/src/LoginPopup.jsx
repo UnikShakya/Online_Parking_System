@@ -136,7 +136,7 @@ const LoginPopup = ({ setShowLogin }) => {
                     </div>
                 </div>
 
-                {currState === "Login" && (
+                {/* {currState === "Login" && (
                     <div>
                         <Link
                             to="/forget-password"
@@ -145,7 +145,7 @@ const LoginPopup = ({ setShowLogin }) => {
                             Forgot password?
                         </Link>
                     </div>
-                )}
+                )} */}
 
                 {currState === "Sign Up" && (
                     <div className="login-popup-condition">

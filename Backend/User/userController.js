@@ -10,29 +10,27 @@ const createToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '3d' });
 };
 
-const ADMIN_EMAIL = 'admin@gmail.com'; // Predefined admin email
-const ADMIN_PASSWORD = 'admin123'; // Predefined admin password
+const ADMIN_EMAIL = 'admin@gmail.com'; 
+const ADMIN_PASSWORD = 'admin123'; 
 
-const MIDDLEMAN_EMAIL = 'parkease@gmail.com'; // Predefined admin email
-const MIDDLEMAN_PASSWORD = 'parkease' // Predefined admin password
+const MIDDLEMAN_EMAIL = 'parkease@gmail.com'; 
+const MIDDLEMAN_PASSWORD = 'parkease' 
 
 //login user
 const loginUser = async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        // Check if the credentials match the default admin
         if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
             const token = createToken("default-admin-id");
             return res.json({
                 success: true,
                 token,
                 username: "admin",
-                redirect: `/admin/${token}`, // Redirect to admin dashboard
+                redirect: `/admin/${token}`, 
             });
         }
 
-        // Check if the credentials match the default middleman
         if (email === MIDDLEMAN_EMAIL && password === MIDDLEMAN_PASSWORD) {
             const token = createToken("default-middleman-id");
             const location = "Patan";
@@ -41,45 +39,37 @@ const loginUser = async (req, res) => {
                 token,
                 location: "Patan",
                 username: "middleman",
-                redirect: `/middleman/${location}/${token}`, // Redirect to middleman dashboard with token
+                redirect: `/middleman/${location}/${token}`, 
             });
         }
 
-        // Check in userModel (regular users)
         let user = await userModel.findOne({ email });
 
-        // If not found in userModel, check in adminModel
         if (!user) {
             user = await adminModel.findOne({ email });
         }
 
-        // If not found in adminModel, check in middlemanModel
         if (!user) {
-            user = await middlemanModel.findOne({ email });  // Ensure we check the correct collection
+            user = await middlemanModel.findOne({ email });  
         }
 
-        // If user not found in any collection
         if (!user) {
             return res.status(404).json({ success: false, message: "User does not exist" });
         }
 
-        // Check if the password matches
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(401).json({ success: false, message: "Invalid credentials" });
         }
 
-        // Create a token
         const token = createToken(user._id);
 
-        // Determine the redirect path based on the user's role
-        let redirectPath = '/'; // Default redirect for regular users
+        let redirectPath = '/'; 
         if (user.role === 'admin') {
-            redirectPath = `/admin/${token}`; // Redirect admin users to /admin/:id
-        }// In your loginUser function, modify the middleman redirect section:
+            redirectPath = `/admin/${token}`; 
+        }
         else if (user.role === 'middleman') {
-            // Convert location to lowercase to match route paths
-            const location = user.location?.toLowerCase() || 'patan'; // default if missing
+            const location = user.location?.toLowerCase() || 'patan'; 
             redirectPath = `/middleman/${location}/${token}`;
         }
 
@@ -89,7 +79,7 @@ const loginUser = async (req, res) => {
             token,
             username: user.username,
             role: user.role,
-            redirect: redirectPath, // Use the correct redirect path based on role\
+            redirect: redirectPath, 
             location: user.location
         });
     } catch (error) {
@@ -215,17 +205,15 @@ const resetPassword = async (req, res) => {
         // Verify JWT Token
         const decode = jwt.verify(token, process.env.JWT_SECRET);
 
-        // Find user by email from decoded token
         const user = await userModel.findOne({ email: decode.email });
         if (!user) {
             return res.status(404).send({ message: "User not found" });
         }
 
         // Hash the new password using bcrypt
-        const newHashPassword = await bcrypt.hash(password, 10); // 10 is the salt rounds
+        const newHashPassword = await bcrypt.hash(password, 10); 
         user.password = newHashPassword;
 
-        // Save only the password without modifying other fields
         await user.save();
 
         return res.status(200).send({ message: "Password reset successfully" });
@@ -257,7 +245,7 @@ const verifyAdmin = async (req, res, next) => {
 
 const getUsers = async (req, res) => {
     try {
-        const users = await userModel.find({}, "username email _id"); // Exclude _id if not needed
+        const users = await userModel.find({}, "username email _id");
         res.json({ success: true, users });
     } catch (error) {
         console.error("Error fetching users:", error);
@@ -282,7 +270,7 @@ const updateUser = async (req, res) => {
         const updatedUser = await userModel.findByIdAndUpdate(
             id,
             { username, email },
-            { new: true, runValidators: true } // Return updated doc and run schema validators
+            { new: true, runValidators: true } 
         );
 
         if (!updatedUser) {
@@ -300,7 +288,6 @@ const updateUser = async (req, res) => {
     } catch (error) {
         console.error("Error updating user:", error);
 
-        // Handle specific errors
         if (error.name === 'CastError') {
             return res.status(400).json({
                 success: false,

@@ -1,6 +1,5 @@
 // import { createContext, useContext, useState } from "react";
 
-// // Create Context
 // const ParkingContext = createContext();
 
 // // Create Provider Component
@@ -15,5 +14,4 @@
 //     );
 // };
 
-// // Custom Hook to use Context
 // export const useParking = () => useContext(ParkingContext);

@@ -11,20 +11,18 @@ function Home({ setShowLogin }) {
   const { hash } = useLocation();
 
   useEffect(() => {
-    // Wait for the DOM to be fully rendered
     const scrollToSection = () => {
       if (hash) {
-        const sectionId = hash.replace("#", ""); // e.g., '#location' -> 'location'
+        const sectionId = hash.replace("#", "");
         const element = document.getElementById(sectionId);
         if (element) {
-          const offset = 100; // Adjusted for navbar height and padding
+          const offset = 100; 
           const elementPosition = element.getBoundingClientRect().top + window.scrollY;
           window.scrollTo({
             top: elementPosition - offset,
             behavior: "smooth",
           });
         } else {
-          // Retry after a delay to handle dynamic rendering
           setTimeout(() => {
             const retryElement = document.getElementById(sectionId);
             if (retryElement) {
@@ -34,14 +32,13 @@ function Home({ setShowLogin }) {
                 behavior: "smooth",
               });
             }
-          }, 500); // Increased delay for map rendering
+          }, 500);
         }
       } else {
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
     };
 
-    // Run after initial render and map load
     const timeout = setTimeout(scrollToSection, 100);
     return () => clearTimeout(timeout);
   }, [hash]);

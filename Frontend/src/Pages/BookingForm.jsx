@@ -5,7 +5,6 @@ import ConnectedCircles from "../Components/Stepper";
 import { toast } from "react-toastify";
 
 const BookingForm = ({ onSubmit }) => {
-  // State management
   const [formData, setFormData] = useState({
     name: "",
     vehicleNumber: "",
@@ -18,7 +17,6 @@ const BookingForm = ({ onSubmit }) => {
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [khaltiLoaded, setKhaltiLoaded] = useState(false);
 
-  // Get data from navigation state
   const { state } = useLocation();
   const totalCost4Wheeler = Number(state?.totalCost4Wheeler) || 0;
   const totalCost2Wheeler = Number(state?.totalCost2Wheeler) || 0;
@@ -29,7 +27,6 @@ const BookingForm = ({ onSubmit }) => {
   const selectedDate = state?.selectedDate || "";
   const navigate = useNavigate();
 
-  // Check if Khalti script is loaded
   useEffect(() => {
     const checkKhalti = () => {
       if (window.KhaltiCheckout) {
@@ -49,7 +46,6 @@ const BookingForm = ({ onSubmit }) => {
 
   const calculateTotalPrice = () => selectedSpots.reduce((sum, spot) => sum + calculatePrice(spot), 0);
 
-  // Form handlers
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -214,7 +210,6 @@ const saveBooking = async (bookingData) => {
     throw new Error("Selected date is missing");
   }
 
-    // Convert selectedSpots array to string if needed
   const spotsString = Array.isArray(selectedSpots) 
     ? selectedSpots.join(', ') 
     : selectedSpots;
@@ -260,7 +255,7 @@ const saveBooking = async (bookingData) => {
         phoneNumber: payload.phoneNumber,
         paymentMethod: payload.paymentMethod,
         location: payload.location,
-        selectedSpots: payload.selectedSpots, // Assuming selectedSpots is an array
+        selectedSpots: payload.selectedSpots, 
         date: payload.date,
         startTime: payload.startTime,
         endTime: payload.endTime,

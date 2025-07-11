@@ -12,7 +12,7 @@ import { useParkingCost } from "../Context/ParkingCostContext";
 function Selection({ setShowLogin }) {
   const today = dayjs();
   const [selectedDate, setSelectedDate] = useState(null);
-  const [formattedDate, setFormattedDate] = useState(""); // For storing formatted date
+  const [formattedDate, setFormattedDate] = useState("");
   const [location, setLocation] = useState("");
   const [startTime, setStartTime] = useState(null);
   const [endTime, setEndTime] = useState(null);
@@ -59,7 +59,6 @@ function Selection({ setShowLogin }) {
 
   const handleDateChange = (newValue) => {
     setSelectedDate(newValue);
-    // Format and store the date immediately
     setFormattedDate(newValue ? dayjs(newValue).format("YYYY-MM-DD") : "");
     
     if (newValue && newValue.isBefore(today, "day")) {
@@ -114,7 +113,7 @@ function Selection({ setShowLogin }) {
       setError("Please select a parking lot");
       return;
     }
-    if (!formattedDate) {  // Check formattedDate instead of selectedDate
+    if (!formattedDate) {  
       setError("Please select a date");
       return;
     }
@@ -146,7 +145,7 @@ function Selection({ setShowLogin }) {
         endTime: endTime.format("HH:mm"),
         parkingLotId,
         isPeak: twoWheelerData.isPeak,
-        selectedDate: formattedDate, // Use the pre-formatted date
+        selectedDate: formattedDate, 
         location,
       },
     });

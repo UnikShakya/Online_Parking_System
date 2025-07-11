@@ -2,7 +2,7 @@ import React from 'react';
 import { FaMapMarkerAlt } from 'react-icons/fa';
 
 function FavLocation() {
-  const location = 'Location 1'; // Mock data
+  const location = 'Location 1'; 
 
   return (
     <div className="bg-gradient-to-r from-green-500 to-green-600 p-6 rounded-lg shadow-md text-white hover:shadow-lg transform transition duration-300 hover:scale-105 cursor-pointer">

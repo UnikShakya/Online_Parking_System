@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const parkingLotSchema = new mongoose.Schema({
   location: String,
   // vehicleType: { type: String, required: true },
-  date: String, // "YYYY-MM-DD"
+  date: String, 
   startTime: String,
   endTime: String,
   selectedSpots: { type: String, required: true },
@@ -11,8 +11,8 @@ const parkingLotSchema = new mongoose.Schema({
   extended:{type: Boolean, default: false},
   userId: { 
     type: mongoose.Schema.Types.ObjectId, 
-    ref: 'User', // Reference to the User model
-    required: false, // Optional initially, can be populated after booking
+    ref: 'User',
+    required: false, 
   },
 });
 

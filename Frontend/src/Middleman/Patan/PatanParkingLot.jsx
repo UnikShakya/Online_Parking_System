@@ -20,7 +20,6 @@ const PatanParkingLot = () => {
         );
         setParkingLots(filteredParkingLots);
 
-        // Safe check for booked data array
         const bookedData = Array.isArray(bookedResponse.data) ? bookedResponse.data : [];
         const bookedSpotNumbers = bookedData
           .map(spot => spot.selectedSpots)
@@ -31,7 +30,7 @@ const PatanParkingLot = () => {
         setLastUpdated(new Date().toLocaleTimeString());
       } catch (err) {
         console.error("Error fetching data:", err);
-        setBookedSpots([]); // fallback
+        setBookedSpots([]); 
       } finally {
         setIsLoading(false);
       }

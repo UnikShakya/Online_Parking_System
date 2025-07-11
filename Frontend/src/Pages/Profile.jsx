@@ -3,33 +3,32 @@ import axios from 'axios';
 import { FaParking, FaCalendarAlt, FaClock, FaSearchLocation } from 'react-icons/fa';
 
 function Profile() {
-  const [bookings, setBookings] = useState([]); // Initialize bookings as an empty array
+  const [bookings, setBookings] = useState([]); 
   const username = localStorage.getItem('username');
   const token = localStorage.getItem('token'); // JWT token stored at login
 
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/profile/my-bookings', { // Updated endpoint
+        const response = await axios.get('http://localhost:3000/api/profile/my-bookings', { 
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
-        // Ensure response data is not undefined or null
         if (response && response.data) {
-          setBookings(response.data); // Assuming bookings are directly in response.data
+          setBookings(response.data); 
         } else {
-          setBookings([]); // Fallback to empty array if data is invalid
+          setBookings([]); 
         }
       } catch (error) {
         console.error("Error fetching bookings:", error);
-        setBookings([]); // Fallback to empty if error
+        setBookings([]); 
       }
     };
 
     fetchBookings();
-  }, [token]); // Adding token as dependency to refetch if the token changes
+  }, [token]);
 
   return (
     <div className="bg-designColor text-white min-h-screen">
@@ -39,7 +38,7 @@ function Profile() {
         </h2>
         <h3 className="text-2xl font-semibold text-center mb-12 text-gray-400">Your Bookings</h3>
 
-        {bookings && bookings.length > 0 ? ( // Ensure bookings is not undefined
+        {bookings && bookings.length > 0 ? ( 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {bookings.map((booking, index) => (
               <div

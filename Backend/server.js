@@ -4,23 +4,23 @@ const bcrypt = require("bcrypt");
 const dotenv = require("dotenv");
 const userRouter = require("./User/userRoute");
 const userModel = require("./User/userModel");
-const adminModel = require("./adminModel"); // Import adminModel
-const middlemanModel = require("./Middleman/middlemanModel"); // Import middlemanModel
+const adminModel = require("./adminModel"); 
+const middlemanModel = require("./Middleman/middlemanModel"); 
 const middlemanRouter = require("./Middleman/middlemanRoute")
 const bookingRoute = require("./bookingRoute");
 const bookingModel = require("./bookingModel");
-const database = require("./database"); // Import the database function
-const adminRouter = require("./adminRoute"); // Import adminRouter
+const database = require("./database"); 
+const adminRouter = require("./adminRoute"); 
 const paymentRouter = require("./Payment/paymentRoute");
-const axios = require('axios'); // Add near your other routes in server.js
+const axios = require('axios');
 const parkingRouter = require("./ParkingLot/parkingRoute");
-const profileRoute = require('./Profile/profileRoute'); // adjust path
+const profileRoute = require('./Profile/profileRoute'); 
 
 
 
 // Connect to MongoDB
-database(); // Call the database function to connect to MongoDB
-dotenv.config(); // Load environment variables
+database(); 
+dotenv.config(); 
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -29,14 +29,13 @@ const port = process.env.PORT || 3000;
 app.use(express.json());
 app.use(
     cors({
-        origin: "http://localhost:5174", // Your client URL
+        origin: "http://localhost:5174", 
         methods: ["GET", "POST", "PUT", "DELETE"],
-        credentials: true, // Allow credentials (cookies, etc.)
+        credentials: true, 
     })
 );
 
 
-// Create default admin if not exists
 const createDefaultAdmin = async () => {
     try {
         const admin = await adminModel.findOne({ email: "admin@gmail.com" });
@@ -47,7 +46,7 @@ const createDefaultAdmin = async () => {
                 username: "admin",
                 email: "admin@gmail.com",
                 password: hashedPassword,
-                role: "admin", // Set role to "admin"
+                role: "admin",
             });
 
             await newAdmin.save();
@@ -58,7 +57,6 @@ const createDefaultAdmin = async () => {
     }
 };
 
-// Create default middleman if not exists
 const createDefaultmiddleman = async () => {
     try {
         const middleman = await middlemanModel.findOne({ email: "parkease@gmail.com" });
@@ -69,7 +67,7 @@ const createDefaultmiddleman = async () => {
                 username: "middleman",
                 email: "parkease@gmail.com",
                 password: hashedPassword,
-                role: "middleman", // Set role to "middleman"
+                role: "middleman", 
                 location: "Bouddha"
             });
 
@@ -81,24 +79,21 @@ const createDefaultmiddleman = async () => {
     }
 };
 
-// Create default admin and middleman on server start
 createDefaultAdmin();
 createDefaultmiddleman();
 
-// Routes
 app.get("/", (req, res) => {
     res.send("API Working");
 });
 
-app.use("/api/user", userRouter); // User routes
-app.use("/api/booking", bookingRoute); // Booking routes
-app.use("/api/admin", adminRouter); // Admin routes
-app.use("/api/middleman", middlemanRouter); // Middleman routes
-app.use('/api/payments', paymentRouter); //payment routes
+app.use("/api/user", userRouter); 
+app.use("/api/booking", bookingRoute); 
+app.use("/api/admin", adminRouter); 
+app.use("/api/middleman", middlemanRouter);
+app.use('/api/payments', paymentRouter); 
 app.use('/api/parking', parkingRouter)
 app.use('/api/profile', profileRoute)
 
-// Load Cron Job to send reminder emails
 // require("./reminderCron")
 
 // const API_URL = 'https://pay.periwin.com/api/payment/process/initiate/';
@@ -120,7 +115,6 @@ app.use('/api/profile', profileRoute)
 //     }
 //   });
 
-// Endpoint to get user count
 app.get("/api/userCount", async (req, res) => {
     try {
         const userCount = await userModel.countDocuments();
@@ -130,7 +124,6 @@ app.get("/api/userCount", async (req, res) => {
     }
 });
 
-// Endpoint to get user activities
 app.get("/api/user/activities", async (req, res) => {
   try {
     const users = await userModel.find({});
@@ -156,14 +149,12 @@ app.get("/api/user/activities", async (req, res) => {
 });
 
 
-// Endpoint to log ticket scans
 app.post("/api/log-ticket", (req, res) => {
     const ticketData = req.body;
     console.log("Ticket Scanned:", ticketData);
     res.status(200).send({ message: "Ticket logged successfully" });
 });
 
-// Endpoint to get booking count
 app.get("/api/bookingCount", async (req, res) => {
     try {
         const bookingCount = await bookingModel.countDocuments();
@@ -205,7 +196,6 @@ app.get("/api/bookingCount", async (req, res) => {
 //   }
 // });
 
-// Start the server
 app.listen(port, () => {
     console.log(`Server started on http://localhost:${port}`);
     // console.log('PeriPay Config:', {

@@ -8,11 +8,9 @@ const booking = async (req, res) => {
 
         const { name, vehicleNumber, phoneNumber, paymentMethod, location, selectedSpots, date, startTime, endTime, totalCost, status } = req.body;
 
-        // Basic validation
         if (!paymentMethod) {
             return res.status(400).json({ message: "Payment method is required" });
         }
-        // Convert selectedSpots array to comma-separated string
         const spotsString = Array.isArray(selectedSpots)
             ? selectedSpots.join(', ')
             : selectedSpots;
@@ -61,10 +59,8 @@ const updateBookingStatus = async (req, res) => {
     try {
         const { id } = req.params;
         const { status } = req.body;
-        console.log(`Updating booking ${id} to status: ${status}`); // Add logging
+        console.log(`Updating booking ${id} to status: ${status}`); 
 
-
-        // Validate status
         if (!['Paid', 'Unpaid'].includes(status)) {
             return res.status(400).json({ message: "Invalid status value" });
         }
@@ -78,7 +74,7 @@ const updateBookingStatus = async (req, res) => {
         if (!updatedBooking) {
             return res.status(404).json({ message: 'Booking not found' });
         }
-        console.log('Updated booking:', updatedBooking); // Log result
+        console.log('Updated booking:', updatedBooking); 
 
 
         res.status(200).json(updatedBooking);
@@ -88,26 +84,23 @@ const updateBookingStatus = async (req, res) => {
     }
 };
 
-// In your booking controller file
 const extendBookings = async (req, res) => {
   try {
     const { id } = req.params;
     const { endTime, date } = req.body;
 
-    // Validate inputs
     if (!endTime || !date) {
       return res.status(400).json({ message: "End time and date are required" });
     }
 
-    // Find and update the booking
     const updatedBooking = await BookingModel.findByIdAndUpdate(
       id,
       { 
         endTime,
         date,
-        updatedAt: new Date() // Track when it was modified
+        updatedAt: new Date() 
       },
-      { new: true } // Return the updated document
+      { new: true } 
     );
 
     if (!updatedBooking) {

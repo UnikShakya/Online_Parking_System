@@ -4,19 +4,15 @@ import footer from "../assets/footer.jpg";
 function Footer() {
   return (
     <footer className="relative text-white py-10">
-      {/* Background Image */}
       <img
         src={footer}
         alt="Background"
         className="absolute inset-0 w-full h-full object-cover"
       />
 
-      {/* Overlay to improve readability */}
       <div className="absolute inset-0 bg-designColor bg-opacity-90"></div>
 
-      {/* Content */}
       <div className="relative container mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8">
-        {/* Company Info */}
         <div>
           <div className="flex items-center mb-4">
             <h2 className="text-2xl font-bold"><span className='text-gradientStart'>P</span>ark<span className='text-gradientStart'>E</span>ase</h2>

@@ -6,19 +6,18 @@ function ManageBookings() {
 const [bookingCount, setBookingCount] = useState(0);
 
 useEffect(() => {
-  // Function to  fetchBookingCount  from the backend
   const fetchBookingCount = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/api/bookingCount');  // Adjust URL based on your backend
+      const response = await axios.get('http://localhost:3000/api/bookingCount');  
       if (response.data && response.data.bookingCount !== undefined) {
         setBookingCount(response.data.bookingCount);
       } else {
         console.error('Invalid response format', response);
-        setBookingCount(0);  // Fallback value
+        setBookingCount(0); 
       }
     } catch (error) {
       console.error('Error fetching user count:', error);
-      setBookingCount(0);  // Fallback value on error
+      setBookingCount(0); 
     }
   };
 

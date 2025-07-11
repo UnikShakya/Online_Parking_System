@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 const ParkingLot = require("./ParkingLot/parkingLotModel");
-const database = require("./database"); // Import the database function
-
+const database = require("./database");
 database();
 
 const locations = ["Location 1", "Location 2", "Location 3"];
@@ -41,7 +40,7 @@ const generateLots = () => {
 
 const seed = async () => {
   try {
-    await ParkingLot.deleteMany(); // Clear old data
+    await ParkingLot.deleteMany();
     const lots = generateLots();
     await ParkingLot.insertMany(lots);
     console.log("✅ Parking lots seeded successfully!");

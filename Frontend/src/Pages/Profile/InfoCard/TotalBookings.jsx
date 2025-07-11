@@ -13,7 +13,7 @@ function TotalBookings() {
         setLoading(true);
 
         // Pass JWT token in headers to authorize user
-        const token = localStorage.getItem('token'); // or wherever you store the JWT
+        const token = localStorage.getItem('token');
 
         const response = await axios.get('http://localhost:3000/api/profile/my-bookings/count', {
           headers: {

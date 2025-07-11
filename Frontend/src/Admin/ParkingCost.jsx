@@ -6,12 +6,10 @@ import { useParkingCost } from '../Context/ParkingCostContext';
 function ParkingCost() {
   const { twoWheelerNum,fourWheelerNum,setTwoWheelerNum,setFourWheelerNum  } = useParkingCost();
 
-  // Local state for input fields
   const [localTwoWheelerCost, setLocalTwoWheelerCost] = useState(twoWheelerNum);
   const [localFourWheelerCost, setLocalFourWheelerCost] = useState(fourWheelerNum);
   const [error, setError] = useState("");
 
-  // Input change handler with validation
   const handleChange = (e, setLocalCost) => {
     const value = e.target.value;
     if (value === "" || /^[0-9]*\.?[0-9]*$/.test(value)) {
@@ -20,7 +18,6 @@ function ParkingCost() {
     }
   };
 
-  // Form submission handler
   const handleUpdate = () => {
     if (localTwoWheelerCost === "" || localFourWheelerCost === "") {
       setError("Please enter valid numbers for both vehicle types");
@@ -35,7 +32,6 @@ function ParkingCost() {
       return;
     }
 
-    // Update global context
     setTwoWheelerNum(twoWheelerNum);
     setFourWheelerNum(fourWheelerNum);
     setError("");
@@ -74,14 +70,12 @@ function ParkingCost() {
           />
         </div>
 
-        {/* Error Message */}
         {error && (
           <div className="mb-4 text-red-300 text-center text-sm font-medium">
             {error}
           </div>
         )}
 
-        {/* Submit Button */}
         <button
           onClick={handleUpdate}
           className="w-full bg-white text-indigo-600 font-bold py-2 rounded-lg hover:bg-gray-200 transition-all"

@@ -20,9 +20,8 @@ function Middleman() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log("Submit clicked", formData);  // Debugging line
+    console.log("Submit clicked", formData);  
 
-    // Trim all fields
     const trimmedData = {
       username: formData.username.trim(),
       email: formData.email.trim(),
@@ -30,7 +29,6 @@ function Middleman() {
       location: formData.location.trim(),
     };
 
-    // Check for empty fields
     if (!trimmedData.username) {
       toast.error("Username is required");
       return;
@@ -51,7 +49,6 @@ function Middleman() {
       return;
     }
 
-    // Username validations
     const cleanedUsername = trimmedData.username.replace(/\s/g, '');
     if (!cleanedUsername) {
       toast.error("Username cannot be just spaces");
@@ -63,7 +60,6 @@ function Middleman() {
       return;
     }
 
-    // Email validations
     if (/^\d/.test(trimmedData.email)) {
       toast.error("Email cannot start with a number");
       return;
@@ -75,7 +71,6 @@ function Middleman() {
       return;
     }
 
-    // Password validations
     if (trimmedData.password.length < 8) {
       toast.error("Password must be at least 8 characters long");
       return;

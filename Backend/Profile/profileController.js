@@ -3,7 +3,6 @@ const parkingLotModel = require('../ParkingLot/parkingLotModel')
 const moment = require('moment')
 // const Payment = require("../Payment/PaymentModel");
 
-// // Get bookings of the logged-in user
 // const getUserBookings = async (req, res) => {
 //     try {
 //       const userId = req.user.id; // This comes from the auth middleware
@@ -20,11 +19,11 @@ const moment = require('moment')
 // };
   
 // module.exports = {
-//     getUserBookings // Make sure this matches exactly with the function name
+//     getUserBookings
 // };
 
 const getUserBookings = async (req, res) => {
-  console.log("User ID from token:", req.user.id); // Log the user ID
+  console.log("User ID from token:", req.user.id); 
   try {
     const userBookings = await parkingLotModel.find({ userId: req.user.id });
     
@@ -40,20 +39,16 @@ const getUserBookings = async (req, res) => {
 };
 
 const getUpcomingBookings = async (req, res) => {
-  console.log("User ID from token:", req.user.id); // Log the user ID
+  console.log("User ID from token:", req.user.id); 
   try {
-    // Current Nepal time (+0545)
     const currentNepalTime = moment().utcOffset('+0545');
     console.log("Current Nepal Time:", currentNepalTime.format('YYYY-MM-DD HH:mm'));
 
-    // Fetch all bookings for the user
     const userBookings = await parkingLotModel.find({ userId: req.user.id });
     console.log("Total bookings fetched:", userBookings.length);
 
-    // Filter bookings for future dates/times
     const upcomingBookings = userBookings.filter((booking) => {
       try {
-        // Combine date and startTime into a datetime string
         const bookingDateTime = moment(`${booking.date} ${booking.startTime}`, 'YYYY-MM-DD HH:mm');
         // console.log(`Booking ID: ${booking._id}, DateTime: ${bookingDateTime.format('YYYY-MM-DD HH:mm')}, Valid: ${bookingDateTime.isValid()}`);
 
@@ -80,13 +75,13 @@ const getUpcomingBookings = async (req, res) => {
 };
 
 const getUserBookingCount = async (req, res) => {
-  console.log("User ID from token:", req.user.id); // Log the user ID
+  console.log("User ID from token:", req.user.id); 
 
   try {
     // Count documents where userId matches the logged-in user
     const bookingCount = await parkingLotModel.countDocuments({ userId: req.user.id });
 
-    res.json({ bookingCount }); // Return count as JSON
+    res.json({ bookingCount });
   } catch (err) {
     console.error("Error fetching user booking count:", err);
     res.status(500).json({ message: "Failed to fetch booking count" });

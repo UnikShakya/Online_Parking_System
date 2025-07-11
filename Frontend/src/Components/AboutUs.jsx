@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import aboutUsImage from "../assets/aboutUs.png"; // Make sure this path is correct
+import aboutUsImage from "../assets/aboutUs.png"; 
 
 function AboutUs() {
     const [activeSection, setActiveSection] = useState(null);
@@ -10,7 +10,6 @@ function AboutUs() {
   return (
     <section id='about-us' className="max-w-7xl mx-auto px-6 py-12">
       <div className="flex flex-col lg:flex-row items-center gap-12">
-        {/* Image Section - Full width on mobile, half on desktop */}
         <div className="w-full lg:w-1/2">
           <img 
             src={aboutUsImage} 
@@ -19,9 +18,7 @@ function AboutUs() {
           />
         </div>
 
-        {/* Content Section */}
         <div className="w-full lg:w-1/2 space-y-6">
-          {/* Main Heading */}
           <div className="space-y-6">
             <h1 className="text-4xl md:text-5xl font-semibold text-gray-900 leading-tight">
               Looking for a thorough ParkEase service?
@@ -31,11 +28,8 @@ function AboutUs() {
             </p>
           </div>
 
-{/* History and Locations Section */}
 <div className="flex flex-col md:flex-row gap-8 pt-6">
-  {/* History Section */}
   <div className="w-full md:w-2/3 space-y-2">
-    {/* History Card */}
     <div 
       className="p-4 rounded-lg bg-[#F7F7F7] border border-gray-200 cursor-pointer transition-all duration-300 ease-in-out hover:shadow-md"
       onClick={() => toggleSection('history')}
@@ -87,7 +81,6 @@ function AboutUs() {
       </div>
   </div>
 
-  {/* Team Members Section */}
   <div className="w-full md:w-1/3 flex items-center justify-center transition-all duration-300 hover:scale-[1.02]">
     <div className="text-center p-6 border-2 bg-black rounded-lg w-full h-full flex items-center justify-center hover:shadow-lg transition-all duration-300">
       <h3 className="text-3xl font-bold text-white">50+ Team Members</h3>

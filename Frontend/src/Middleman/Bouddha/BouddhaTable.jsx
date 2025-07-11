@@ -7,7 +7,6 @@ function BouddhaTable() {
   const [filteredBookings, setFilteredBookings] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load saved statuses from localStorage
   const getSavedStatuses = () => {
     try {
       return JSON.parse(localStorage.getItem('bouddhaBookingStatuses')) || {};
@@ -24,7 +23,6 @@ function BouddhaTable() {
         const response = await axios.get('http://localhost:3000/api/booking/getBookings');
         const savedStatuses = getSavedStatuses();
         
-        // Filter bookings for Bouddha location and apply saved statuses
         const bouddhaBookings = response.data
           .filter(booking => booking.location === "Bouddha")
           .map(booking => ({
@@ -45,7 +43,6 @@ function BouddhaTable() {
     fetchBookings();
   }, []);
 
-  // Filter bookings when searchQuery changes
   useEffect(() => {
     const filtered = bookings.filter(
       booking =>
@@ -58,7 +55,6 @@ function BouddhaTable() {
 
   // Handle status change and save to localStorage
   const handleStatusChange = (bookingId, newStatus) => {
-    // Update state
     const updatedBookings = bookings.map(booking => {
       if (booking._id === bookingId && booking.paymentMethod.toLowerCase() !== "khalti") {
         return {
@@ -86,7 +82,6 @@ function BouddhaTable() {
     <div className="min-h-screen bg-[#F0F0F0] p-6">
       <h2 className="text-center font-semibold text-5xl mb-6">Bouddha Parking Bookings</h2>
 
-      {/* Search Bar */}
       <div className="mb-6">
         <input
           type="text"
@@ -162,7 +157,6 @@ function BouddhaTable() {
         </div>
       </div>
 
-      {/* Summary Footer */}
       <div className="mt-6 flex justify-between items-center">
         <div className="text-sm text-gray-600">
           Total Bookings: {filteredBookings.length}

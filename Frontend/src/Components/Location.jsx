@@ -11,7 +11,6 @@ L.Icon.Default.mergeOptions({
 });
 
 function Location() {
-  // List of locations with coordinates and labels
   const locations = [
     {
       name: 'Bhaktapur',

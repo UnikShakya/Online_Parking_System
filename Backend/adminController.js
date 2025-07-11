@@ -9,10 +9,9 @@ const createToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "1h" });
 };
 
-const ADMIN_EMAIL = "admin@gmail.com"; // Predefined admin email
-const ADMIN_PASSWORD = "admin123"; // Predefined admin password
+const ADMIN_EMAIL = "admin@gmail.com"; 
+const ADMIN_PASSWORD = "admin123"; 
 
-// // Middleware to verify default admin
 // const verifyDefaultAdmin = async (req, res, next) => {
 //     const { email, password } = req.body;
 
@@ -23,18 +22,16 @@ const ADMIN_PASSWORD = "admin123"; // Predefined admin password
 //     next();
 // };
 
-// Signup Admin (Only default admin can create new admins)
+// Signup Admin 
 const signupAdmin = async (req, res) => {
     const { username, email, password } = req.body;
 
     try {
-        // Check if admin already exists
         const exists = await adminModel.findOne({ email });
         if (exists) {
             return res.status(409).json({ success: false, message: "Admin already exists" });
         }
 
-        // Validate email format & password strength
         if (!validator.isEmail(email)) {
             return res.json({ success: false, message: "Please enter a valid email" });
         }
@@ -46,20 +43,17 @@ const signupAdmin = async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        // Create new admin object
         const newAdmin = new adminModel({
             username,
             email,
             password: hashedPassword,
         });
 
-        // Save the new admin to MongoDB
         const savedAdmin = await newAdmin.save();
 
         // Create a token for the new admin
         const token = createToken(savedAdmin._id);
 
-        // Return success response
         res.status(201).json({
             success: true,
             message: "Admin created successfully",
@@ -83,15 +77,14 @@ const getAdmins = async (req, res) => {
 };
 
 const getAdminById = async (req, res) => {
-    const { id } = req.params; // Extract the id from the route params
+    const { id } = req.params; 
 
-    // Check if the ID in the URL matches the ID in the token
     if (req.user._id !== id) {
         return res.status(403).json({ success: false, message: 'Not Authorized to access this admin' });
     }
 
     try {
-        const admin = await adminModel.findById(id); // Fetch the admin by ID from the database
+        const admin = await adminModel.findById(id); 
 
         if (!admin) {
             return res.status(404).json({ success: false, message: 'Admin not found' });

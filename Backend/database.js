@@ -12,4 +12,4 @@ const database = async () => {
     }
 };
 
-module.exports = database; // Make sure this line is correct
+module.exports = database; 

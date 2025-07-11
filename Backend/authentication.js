@@ -14,8 +14,7 @@ const authMiddleware = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     console.log('Decoded JWT:', decoded);
 
-    // Temporarily skipping database check
-    req.user = { id: decoded.id }; // still attach something useful
+    req.user = { id: decoded.id }; 
     next();
 
     // const middleman = await middlemanModel.findById(decoded.id);

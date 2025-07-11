@@ -13,7 +13,6 @@ const UserSidebar = ({ setShowLogin }) => {
 
   return (
 <aside className="w-64 bg-designColor text-textColor flex flex-col h-screen fixed left-0 top-0">
-        {/* App Logo */}
       <div className="flex justify-center py-6">
         <h1 className="text-2xl font-bold">
           <span className="text-gradientStart">P</span>ark
@@ -21,7 +20,6 @@ const UserSidebar = ({ setShowLogin }) => {
         </h1>
       </div>
 
-      {/* Sidebar Navigation */}
       <nav className="flex-1 px-4 space-y-3">
         <Link to="/profile">
           <div className="flex items-center space-x-4 hover:bg-gradient-to-r from-gradientStart to-gradientEnd p-2 rounded cursor-pointer">

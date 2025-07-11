@@ -185,7 +185,6 @@ const ParkingLot = ({ discountRate }) => {
           </div>
         </div>
 
-        {/* Divider */}
         <div className="border-t-4 border-dashed border-gray-300 my-6"></div>
 
         {/* 4-Wheeler Parking Section */}
@@ -220,7 +219,6 @@ const ParkingLot = ({ discountRate }) => {
         </div>
       </div>
 
-      {/* Book Now Button */}
       <div className="flex flex-col items-center mt-4 mb-12">
         <button
           className="bg-gradient-to-r from-gradientStart to-gradientEnd hover:opacity-70 text-white font-bold py-3 px-8 rounded-full text-lg transition duration-300 transform hover:scale-105 shadow-lg"
@@ -233,7 +231,6 @@ const ParkingLot = ({ discountRate }) => {
         )}
       </div>
 
-      {/* Booking Confirmation Modal */}
       {showModal && (
             <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50">
               <div className="bg-gray-900 text-white w-11/12 max-w-4xl rounded-xl p-8 relative shadow-2xl transform transition-all duration-300">
@@ -322,8 +319,8 @@ const ParkingSpot = ({ spot, selectedSpots, bookedSpots, onClick, is4Wheeler = f
           : "bg-blue-400 cursor-pointer"
       } ${
         is4Wheeler
-          ? "w-20 h-32 m-1" // Larger spots for 4-wheelers
-          : "w-12 h-8 m-1"   // Smaller spots for 2-wheelers
+          ? "w-20 h-32 m-1" 
+          : "w-12 h-8 m-1"   
       } relative transition-all duration-200 hover:opacity-90`}
     >
       <span className={`font-bold ${

@@ -8,31 +8,28 @@ function Activity() {
     useEffect(() => {
         const fetchActivities = async () => {
             try {
-                // Check token in localStorage
                 const token = localStorage.getItem('token');
                 console.log("Token from localStorage:", token);
 
                 const response = await axios.get('http://localhost:3000/api/user/activities', {
                     headers: {
-                        'Authorization': `Bearer ${token}` // Ensure token is passed correctly
+                        'Authorization': `Bearer ${token}` 
                     }
                 });
 
-                console.log("Full Response Data from Backend:", response.data); // Debugging
+                console.log("Full Response Data from Backend:", response.data); 
 
-                // Assuming the structure is correct, let's extract the activities
                 if (response.data.activities && Array.isArray(response.data.activities)) {
-                    // Extracting actions (simple strings now)
                     const extractedActions = response.data.activities
-                        .map(activity => activity.activity); // Get activity strings (not objects)
+                        .map(activity => activity.activity); 
 
-                    setRecentActivities(extractedActions); // Store only actions
+                    setRecentActivities(extractedActions);
                 } else {
-                    setRecentActivities([]); // If no activities
+                    setRecentActivities([]); 
                 }
             } catch (error) {
                 console.error("Error fetching activities:", error);
-                setRecentActivities([]); // Set empty list on error
+                setRecentActivities([]); Z
             } finally {
                 setLoading(false);
             }

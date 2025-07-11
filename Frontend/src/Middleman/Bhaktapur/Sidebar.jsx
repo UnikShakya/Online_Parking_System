@@ -6,15 +6,14 @@ const Sidebar = ({ setShowLogin, id }) => {
     const navigate = useNavigate();
 
     const logout = () => {
-        localStorage.removeItem("token");  // Remove the token on logout
-        localStorage.removeItem("username");  // Remove the username on logout
-        setShowLogin(true);  // Show the login popup again
+        localStorage.removeItem("token");  
+        localStorage.removeItem("username");  
+        setShowLogin(true); 
         navigate("/");
     };
     // Check what id contains
     console.log("Sidebar useParams id:", id);
 
-    // Helper function to create paths with the token
     const middlemanPath = (path) => `/middleman/bhaktapur/${id}${path ? `/${path}` : ''}`;
 
     return (
@@ -30,7 +29,7 @@ const Sidebar = ({ setShowLogin, id }) => {
 
             {/* Navigation Links */}
             <nav className="flex-1 px-4">
-                <ul className="my-2 space-y-3"> {/* Add space-y-3 for gap between top-level items */}
+                <ul className="my-2 space-y-3"> 
                     {/* Dashboard */}
                     <Link to={middlemanPath("")}>
                         <li className="flex items-center space-x-4 hover:bg-gradient-to-r from-gradientStart to-gradientEnd p-2 rounded cursor-pointer">
@@ -45,7 +44,6 @@ const Sidebar = ({ setShowLogin, id }) => {
                         </li>
                     </Link>
 
-                    {/* Middleman */}
                     <Link to={middlemanPath("middleman")}>
                         <li className="flex items-center space-x-4 hover:bg-gradient-to-r from-gradientStart to-gradientEnd p-2 rounded cursor-pointer">
                             <FaFolder />
@@ -53,7 +51,6 @@ const Sidebar = ({ setShowLogin, id }) => {
                         </li>
                     </Link>
 
-                    {/* ParkingLot Dropdown */}
                     <Link to={middlemanPath("parkinglot")}>
 
                         <li
@@ -64,8 +61,6 @@ const Sidebar = ({ setShowLogin, id }) => {
                         </li>
                     </Link>
 
-
-                    {/* Logout */}
                     <li
                         onClick={logout}
                         className="flex items-center space-x-4 hover:bg-gradient-to-r from-gradientStart to-gradientEnd p-2 rounded cursor-pointer"

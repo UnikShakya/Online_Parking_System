@@ -50,7 +50,7 @@ const ParkingLot3 = ({ discountRate }) => {
       const bookedSpotNumbers = bookedResponse.data
         .map(spot => spot.selectedSpots)
         .filter(Boolean)
-        .flat(); // Flatten nested arrays like [[1, 2], [3]] => [1, 2, 3]
+        .flat(); 
 
       console.log("Flattened Booked Spot Numbers:", bookedSpotNumbers);
       setBookedSpots(bookedSpotNumbers);
@@ -241,7 +241,6 @@ const ParkingLot3 = ({ discountRate }) => {
             </div>
           </div>
 
-          {/* Book Now Button */}
           <div className="flex flex-col items-center mt-4 mb-12">
             <button
               className="bg-gradient-to-r from-gradientStart to-gradientEnd hover:opacity-70 text-white font-bold py-3 px-8 rounded-full text-lg transition duration-300 transform hover:scale-105 shadow-lg"
@@ -254,7 +253,6 @@ const ParkingLot3 = ({ discountRate }) => {
             )}
           </div>
 
-          {/* Booking Confirmation Modal */}
           {showModal && (
             <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50">
               <div className="bg-gray-900 text-white w-11/12 max-w-4xl rounded-xl p-8 relative shadow-2xl transform transition-all duration-300">

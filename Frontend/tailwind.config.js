@@ -23,8 +23,8 @@ module.exports = {
         textColor: "#fff",
         // designColor: "#D7FC69",
         designColor:"#1f203e",
-        gradientStart: "#FF5733", // Orange-red for gradient start
-        gradientEnd: "#8B5CF6",   // Purple for gradient end
+        gradientStart: "#FF5733", 
+        gradientEnd: "#8B5CF6",  
       },
     },
   },

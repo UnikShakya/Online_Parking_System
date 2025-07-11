@@ -31,7 +31,6 @@ const ParkingLots = () => {
         );
         setParkingLots(filteredParkingLots);
 
-        // Safe check for booked data array
         const bookedData = Array.isArray(bookedResponse.data) ? bookedResponse.data : [];
         const bookedSpotNumbers = bookedData
           .map(spot => spot.selectedSpots)
@@ -41,7 +40,7 @@ const ParkingLots = () => {
 
       } catch (err) {
         console.error("Error fetching data:", err);
-        setBookedSpots([]); // fallback
+        setBookedSpots([]);
       } finally {
         setIsLoading(false);
       }
@@ -141,7 +140,6 @@ const ParkingLots = () => {
         Admin Parking View - {currentLocation}
       </h1>
 
-      {/* Location Selector */}
       <div className="flex space-x-4 mb-8">
         {["Patan", "Bouddha", "Bhaktapur"].map(loc => (
           <button

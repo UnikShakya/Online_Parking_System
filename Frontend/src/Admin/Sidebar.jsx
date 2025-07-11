@@ -3,19 +3,17 @@ import { FaChartBar, FaFolder, FaCar, FaFile, FaUsers, FaCogs, FaHome, FaRupeeSi
 import { Link, useNavigate } from "react-router-dom";
 
 const Sidebar = ({ setShowLogin, id }) => {
-  const [isParkingOpen, setIsParkingOpen] = useState(false); // State to control Parking dropdown visibility
+  const [isParkingOpen, setIsParkingOpen] = useState(false); 
   const navigate = useNavigate();
 
   const logout = () => {
-    localStorage.removeItem("token");  // Remove the token on logout
-    localStorage.removeItem("username");  // Remove the username on logout
-    setShowLogin(true);  // Show the login popup again
+    localStorage.removeItem("token"); 
+    localStorage.removeItem("username");  
+    setShowLogin(true);  
     navigate("/");
   };
-    // Check what id contains
     console.log("Sidebar useParams id:", id);
 
-    // Helper function to create paths with the token
     const adminPath = (path) => `/admin/${id}${path ? `/${path}` : ''}`;
 
   return (
@@ -31,8 +29,7 @@ const Sidebar = ({ setShowLogin, id }) => {
 
       {/* Navigation Links */}
       <nav className="flex-1 px-4">
-        <ul className="my-2 space-y-3"> {/* Add space-y-3 for gap between top-level items */}
-          {/* Dashboard */}
+        <ul className="my-2 space-y-3"> 
           <Link to={adminPath("")}>
             <li className="flex items-center space-x-4 hover:bg-gradient-to-r from-gradientStart to-gradientEnd p-2 rounded cursor-pointer">
               <FaChartBar />
@@ -40,7 +37,6 @@ const Sidebar = ({ setShowLogin, id }) => {
             </li>
           </Link>
 
-          {/* Middleman */}
           <Link to={adminPath("middleman")}>
             <li className="flex items-center space-x-4 hover:bg-gradient-to-r from-gradientStart to-gradientEnd p-2 rounded cursor-pointer">
               <FaFolder />
@@ -48,16 +44,14 @@ const Sidebar = ({ setShowLogin, id }) => {
             </li>
           </Link>
 
-          {/* Parking Dropdown */}
           <li
             className="flex items-center space-x-4 hover:bg-gradient-to-r from-gradientStart to-gradientEnd p-2 rounded cursor-pointer"
-            onClick={() => setIsParkingOpen(!isParkingOpen)}  // Toggle dropdown visibility
+            onClick={() => setIsParkingOpen(!isParkingOpen)} 
           >
             <FaCar />
             <span>Parking &gt;</span>
           </li>
 
-          {/* Dropdown Items */}
           <ul
             className={`space-y-2 pl-6 transition-all duration-300 ease-in-out overflow-hidden ${
               isParkingOpen ? 'h-auto' : 'h-0'
@@ -68,7 +62,6 @@ const Sidebar = ({ setShowLogin, id }) => {
               transitionTimingFunction: "ease-in-out",
             }}
           >
-            {/* Parking Lot */}
             <Link to={adminPath("parkinglot")}>
               <li className="flex items-center space-x-4 hover:bg-gradient-to-r from-gradientStart to-gradientEnd p-2 rounded cursor-pointer">
                 <FaCar />
@@ -76,7 +69,6 @@ const Sidebar = ({ setShowLogin, id }) => {
               </li>
             </Link>
 
-            {/* Parking Cost */}
             <Link to={adminPath("parkingcost")}>
               <li className="flex items-center space-x-4 hover:bg-gradient-to-r from-gradientStart to-gradientEnd p-2 rounded cursor-pointer">
                 <FaRupeeSign />
@@ -84,7 +76,6 @@ const Sidebar = ({ setShowLogin, id }) => {
               </li>
             </Link>
           </ul>
-          {/* Users */}
           <Link to={adminPath("users")}>
             <li className="flex items-center space-x-4 hover:bg-gradient-to-r from-gradientStart to-gradientEnd p-2 rounded cursor-pointer">
               <FaUsers />
@@ -92,7 +83,6 @@ const Sidebar = ({ setShowLogin, id }) => {
             </li>
           </Link>
 
-          {/* Settings */}
           <Link to={adminPath("settings")}>
             <li className="flex items-center space-x-4 hover:bg-gradient-to-r from-gradientStart to-gradientEnd p-2 rounded cursor-pointer">
               <FaCogs />
@@ -100,7 +90,6 @@ const Sidebar = ({ setShowLogin, id }) => {
             </li>
           </Link>
 
-          {/* Logout */}
           <li
             onClick={logout}
             className="flex items-center space-x-4 hover:bg-gradient-to-r from-gradientStart to-gradientEnd p-2 rounded cursor-pointer"

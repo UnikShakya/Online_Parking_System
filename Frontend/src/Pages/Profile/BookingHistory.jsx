@@ -53,47 +53,15 @@ function BookingHistory() {
     fetchBookings();
   }, [token]);
 
-const cancelBooking = async (bookingId) => {
-  const confirmCancel = window.confirm("Are you sure you want to cancel this booking?");
-  if (!confirmCancel) return;
+  const removeBooking = (bookingId) => {
+    const confirmDelete = window.confirm("Are you sure you want to remove this booking from your history?");
+    if (!confirmDelete) return;
 
-  try {
-    console.log(`Cancelling booking with ID: ${bookingId}`);
-    const response = await axios.put(
-      `http://localhost:3000/api/parking/cancel/${bookingId}`,
-      {}, // No body needed for cancellation
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
+    setBookings((prevBookings) =>
+      prevBookings.filter((booking) => booking._id !== bookingId)
     );
-
-    console.log("Cancel response:", response.data);
-
-    if (response.data.message.includes("successfully")) {
-      console.log("Booking cancelled successfully:", bookingId);
-      setBookings((prevBookings) =>
-        prevBookings.filter((booking) => booking._id !== bookingId)
-      );
-      toast.success("Booking cancelled successfully");
-    } else {
-      console.warn("Unexpected response format:", response.data);
-      setError("Received unexpected response from server");
-      toast.error("Failed to cancel booking");
-    }
-  } catch (error) {
-    console.error("Error cancelling booking:", {
-      error: error.message,
-      response: error.response?.data,
-      config: error.config,
-    });
-    setError(
-      error.response?.data?.message || "Failed to cancel booking. Please try again."
-    );
-    toast.error(error.response?.data?.message || "Failed to cancel booking");
-  }
-};
+    toast.success("Booking removed from history");
+  };
 
   const openExtendModal = (booking) => {
     const formattedEndTime = booking.endTime.slice(0, 5);
@@ -164,11 +132,10 @@ const cancelBooking = async (bookingId) => {
     navigate('/booking-ticket', {
       state: {
         name: booking.name || username || 'NA',
-        // vehicleNumber: booking.vehicleNumber || 'NA',
         selectedSpots: booking.selectedSpots,
         startTime: booking.startTime,
         endTime: booking.endTime,
-        totalAmount: booking.totalAmount || '0', // Default to '0' if not available
+        totalAmount: booking.totalAmount || '0',
         selectedDate: booking.date,
       },
     });
@@ -205,25 +172,13 @@ const cancelBooking = async (bookingId) => {
                     <p className="flex items-center gap-2"><FaRegClock /> End Time: {booking.endTime}</p>
                   </div>
                   <div className="">
-                    {/* <button
-                      onClick={() => openExtendModal(booking)}
-                      className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-200"
-                    >
-                      Extend
-                    </button> */}
                     <button
-                      onClick={() => cancelBooking(booking._id)}
-                                className="text-red-500 hover:text-red-700 transition-colors p-2 ml-2"
-                                title="Delete"
+                      onClick={() => removeBooking(booking._id)}
+                      className="text-red-500 hover:text-red-700 transition-colors p-2 ml-2"
+                      title="Delete"
                     >
-                                <MdDelete size={40} />
+                      <MdDelete size={40} />
                     </button>
-                    {/* <button
-                      onClick={() => viewTicket(booking)}
-                      className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition duration-200"
-                    >
-                      View Ticket
-                    </button> */}
                   </div>
                 </div>
               </li>
@@ -235,7 +190,6 @@ const cancelBooking = async (bookingId) => {
           </div>
         )}
 
-        {/* Extend Booking Modal */}
         {showExtendModal && currentBooking && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-md w-full">

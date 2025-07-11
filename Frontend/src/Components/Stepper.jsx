@@ -25,10 +25,8 @@ function ConnectedCircles() {
             >
               {step === 1 ? '✓' : step}
             </div>
-          {/* </Link> */}
           <div className="mt-2 text-sm text-textColor">{label}</div>
           
-          {/* Connecting Line */}
           {index < steps.length - 1 && (
             <div
               className={`absolute h-1 top-[40%] transform -translate-y-1/2 ${

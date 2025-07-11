@@ -37,7 +37,6 @@ function PatanExtend() {
         },
       });
       
-      // Filter out bookings that don't have required data or aren't actually booked
       const validBookings = response.data.filter(booking => 
         booking.extended === true && 
         booking.isBooked === true && 
@@ -62,7 +61,6 @@ function PatanExtend() {
     }
   };
 
-  // Format time to ensure consistent display (HH:MM)
   const formatTime = (time) => {
     if (!time) return '--:--';
     if (time.includes(':')) return time;
@@ -74,7 +72,6 @@ function PatanExtend() {
     <div className="p-4 max-w-6xl mx-auto">
       <h1 className="text-2xl font-bold mb-6 text-gray-800">Extended Bookings - Patan</h1>
 
-      {/* Error message display */}
       {error && (
         <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded">
           <div className="flex justify-between items-center">
@@ -89,14 +86,12 @@ function PatanExtend() {
         </div>
       )}
 
-      {/* Loading state */}
       {loading && (
         <div className="flex justify-center items-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
         </div>
       )}
 
-      {/* Extended bookings list */}
       {!loading && (
         <div className="bg-white rounded-lg shadow overflow-hidden">
           <ul className="divide-y divide-gray-200">

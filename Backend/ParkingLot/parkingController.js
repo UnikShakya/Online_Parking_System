@@ -1,7 +1,7 @@
 const schedule = require("node-schedule");
 const User = require("../User/userModel");
 const ParkingLot = require("./parkingLotModel");
-const Booking = require('../Booking/bookingModel')
+const Booking = require('../bookingModel')
 const nodemailer = require("nodemailer");
 const mongoose = require("mongoose")
 
@@ -16,7 +16,6 @@ exports.getAllLot = async (req, res) => {
     res.status(500).json({ message: "Server error while fetching lot." });
   }
 };
-// Get all parking lots for Location 2
 exports.getAllLotLocation2 = async (req, res) => {
   try {
     const lot = await ParkingLot.find({ location: "Bouddha" });
@@ -26,7 +25,7 @@ exports.getAllLotLocation2 = async (req, res) => {
     res.status(500).json({ message: "Server error while fetching lot." });
   }
 };
-// Get all parking lots for Location 2
+
 exports.getAllLotLocation3 = async (req, res) => {
   try {
     const lot = await ParkingLot.find({ location: "Bhaktapur" });
@@ -37,7 +36,6 @@ exports.getAllLotLocation3 = async (req, res) => {
   }
 };
 
-// Book a specific parking lot
 exports.bookLot = async (req, res) => {
   const { location, date, startTime, endTime, selectedSpots } = req.body;
   const userId = req.user.id;
@@ -45,11 +43,9 @@ exports.bookLot = async (req, res) => {
     // Validate and format the date
   let formattedDate;
   try {
-    // First check if date is already in YYYY-MM-DD format
     if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
       formattedDate = date;
     } else {
-      // Parse other date formats
       const dateObj = new Date(date);
       if (isNaN(dateObj.getTime())) {
         throw new Error("Invalid date format");
@@ -64,7 +60,7 @@ exports.bookLot = async (req, res) => {
   }
 
   console.log("Booking request:", req.body);
-  console.log("selectedSpots type:", typeof selectedSpots); // Should log 'string'
+  console.log("selectedSpots type:", typeof selectedSpots); 
   console.log("Formatted date:", formattedDate);
 
   try {
@@ -89,11 +85,9 @@ exports.bookLot = async (req, res) => {
     await lot.save();
     console.log("✅ Lot updated:", lot);
 
-    // 🔍 Fetch user email
     const user = await User.findById(userId);
     const email = user.email;
 
-    // ✉️ Setup Nodemailer transporter
     const transporter = nodemailer.createTransport({
       service: "gmail",
       secure: true,
@@ -123,9 +117,8 @@ exports.bookLot = async (req, res) => {
     await transporter.sendMail(mailOptions);
 
 
- // ⏰ Schedule reminder 30 minutes before the end time
  const endDateTime = new Date(`${date}T${endTime.padStart(5, '0')}:00`);
- const reminderTime = new Date(endDateTime.getTime() - 30 * 60000); // 30 minutes before the end time
+ const reminderTime = new Date(endDateTime.getTime() - 30 * 60000); 
 
  if (reminderTime > new Date()) {
    schedule.scheduleJob(reminderTime, async function () {
@@ -156,7 +149,6 @@ exports.bookLot = async (req, res) => {
    console.log("Reminder time is in the past. Reminder not scheduled.");
  }
 
-     // ⏰ Schedule an email when the parking time ends
      schedule.scheduleJob(endDateTime, async function () {
       const endTimeUpOptions = {
         from: process.env.MY_EMAIL,
@@ -202,7 +194,7 @@ exports.bookedLot = async (req, res) => {
     res.status(500).json({ message: 'Error fetching booked spots', error: error.message });
   }
 };
-// Get all booked spots for Location 2
+
 exports.bookedLotLocation2 = async (req, res) => {
   try {
     const bookedSpots = await ParkingLot.find({ 
@@ -219,7 +211,7 @@ exports.bookedLotLocation2 = async (req, res) => {
     res.status(500).json({ message: "Error fetching booked spots in Location 2" });
   }
 };
-// Get all booked spots for Location 2
+
 exports.bookedLotLocation3 = async (req, res) => {
   try {
     const bookedSpots = await ParkingLot.find({ 
@@ -279,14 +271,13 @@ exports.extendBooking = async (req, res) => {
       return res.status(404).json({ message: 'Booking not found' });
     }
 
-    // Ensure new endTime is greater than existing one
     if (new Date(`1970-01-01T${endTime}:00Z`) <= new Date(`1970-01-01T${booking.endTime}:00Z`)) {
       return res.status(400).json({ message: 'New end time must be later than the current end time.' });
     }
 
     booking.date = date;
     booking.endTime = endTime;
-    booking.extended = true; // <-- Add this line
+    booking.extended = true; 
 
 
     await booking.save();
@@ -302,12 +293,12 @@ exports.getExtendedBookings = async (req, res) => {
     const bookings = await ParkingLot.find({ extended: true })
       .populate({
         path: 'userId',
-        select: 'username email', // Changed from 'name' to 'username'
-        model: 'User' // Explicitly specify the model
+        select: 'username email', 
+        model: 'User' 
       })
-      .lean(); // Convert to plain JavaScript objects
+      .lean(); 
 
-    console.log("Populated bookings:", bookings); // Debug log
+    console.log("Populated bookings:", bookings); 
 
     res.json(bookings);
   } catch (error) {
@@ -323,12 +314,12 @@ exports.getExtendedBookingsByPatan = async (req, res) => {
     const bookings = await ParkingLot.find({ extended: true, location: "Patan" })
       .populate({
         path: 'userId',
-        select: 'username email', // Changed from 'name' to 'username'
-        model: 'User' // Explicitly specify the model
+        select: 'username email', 
+        model: 'User' 
       })
-      .lean(); // Convert to plain JavaScript objects
+      .lean(); 
 
-    console.log("Populated bookings:", bookings); // Debug log
+    console.log("Populated bookings:", bookings); 
 
     res.json(bookings);
   } catch (error) {
@@ -345,12 +336,12 @@ exports.getExtendedBookingsByBouddha = async (req, res) => {
     const bookings = await ParkingLot.find({ extended: true, location: "Bouddha" })
       .populate({
         path: 'userId',
-        select: 'username email', // Changed from 'name' to 'username'
-        model: 'User' // Explicitly specify the model
+        select: 'username email', 
+        model: 'User' 
       })
-      .lean(); // Convert to plain JavaScript objects
+      .lean(); 
 
-    console.log("Populated bookings:", bookings); // Debug log
+    console.log("Populated bookings:", bookings); 
 
     res.json(bookings);
   } catch (error) {
@@ -366,12 +357,12 @@ exports.getExtendedBookingsByBhaktapur = async (req, res) => {
     const bookings = await ParkingLot.find({ extended: true, location: "Bhaktapur" })
       .populate({
         path: 'userId',
-        select: 'username email', // Changed from 'name' to 'username'
-        model: 'User' // Explicitly specify the model
+        select: 'username email',
+        model: 'User' 
       })
-      .lean(); // Convert to plain JavaScript objects
+      .lean();
 
-    console.log("Populated bookings:", bookings); // Debug log
+    console.log("Populated bookings:", bookings); 
 
     res.json(bookings);
   } catch (error) {

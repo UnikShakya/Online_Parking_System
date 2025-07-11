@@ -98,7 +98,6 @@ const payment = async (req, res) => {
   } catch (error) {
     console.error('Error saving booking:', error);
     
-    // Handle duplicate bookings or other DB errors
     if (error.code === 11000) {
       return res.status(400).json({ 
         error: "Duplicate booking detected" 
@@ -112,5 +111,4 @@ const payment = async (req, res) => {
 };
 
 
-// Update exports
 module.exports = { verifyPayment, payment };

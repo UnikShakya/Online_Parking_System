@@ -11,7 +11,6 @@ function ContactUs() {
     const [errMsg, setErrMsg] = useState("");
     const [successMsg, setSuccessMsg] = useState("");
 
-    // Name validation - only letters and spaces
     const validateName = (name) => {
         return /^[a-zA-Z\s]*$/.test(name);
     };
@@ -41,7 +40,6 @@ function ContactUs() {
                 setter(value);
             }
         }
-        // For other fields
         else {
             setter(value.trimStart());
         }
@@ -50,7 +48,6 @@ function ContactUs() {
     const handleSend = async (e) => {
         e.preventDefault();
 
-        // Trim all inputs
         const trimmedName = name.trim();
         const trimmedEmail = email.trim();
         const trimmedPhone = phone.trim();
@@ -86,11 +83,9 @@ function ContactUs() {
             return;
         }
 
-        // Reset messages
         setErrMsg("");
         setSuccessMsg("");
 
-        // Prepare form data for submission
         const formData = new FormData();
         formData.append("access_key", "93bbedf5-801c-4e52-a7c8-c15e3683a521");
         formData.append("name", trimmedName);
@@ -118,7 +113,6 @@ function ContactUs() {
                 setPhone("");
                 setMessage("");
                 
-                // Clear success message after 5 seconds
                 setTimeout(() => {
                     setSuccessMsg("");
                 }, 5000);

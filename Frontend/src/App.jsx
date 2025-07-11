@@ -6,8 +6,8 @@ import { ToastContainer } from 'react-toastify';
 import { StoreProvider } from './Context/StoreContext';
 import MainLayout from './Admin/MainLayout';
 import BookingTicket from './Pages/BookingTicket';
-import ForgetPassword from './Pages/ForgetPassword';
-import ResetPassword from './Pages/ResetPassword';
+// import ForgetPassword from './Pages/ForgetPassword';
+// import ResetPassword from './Pages/ResetPassword';
 import BookingForm from './Pages/BookingForm';
 import Home from './Pages/Home';
 import TravelForm from './Components/Calendar';
@@ -76,11 +76,11 @@ function App() {
           <Route path="/pagination" element={<Stepper />} />
           <Route path="/parking-lot" element={<ParkingLotWrapper />} />
           <Route path="/booking-ticket" element={<BookingTicket />} />
-          <Route path="/forget-password" element={<ForgetPassword />} />
+          {/* <Route path="/forget-password" element={<ForgetPassword />} /> */}
           {/* <Route path="/middleman/:id" element={<Table/>} /> */}
           {/* <Route path="/profile" element={<Profile/>} /> */}
           <Route path="/calendar" element={<TravelForm />} />
-          <Route path="/reset-password/:token" element={<ResetPassword />} />
+          {/* <Route path="/reset-password/:token" element={<ResetPassword />} /> */}
           <Route path="/bookingform" element={<BookingForm onSubmit={handleFormSubmit}/>} />
 
           <Route path="/profile" element={<ProfileLayout setShowLogin={setShowLogin} />}>

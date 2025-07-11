@@ -168,25 +168,25 @@ const handleExtendBooking = async () => {
   }
 };
 
-  const viewTicket = (booking) => {
-    navigate('/booking-ticket', {
-      state: {
-        name: booking.name || username || 'NA',
-        // vehicleNumber: booking.vehicleNumber || 'NA',
-        selectedSpots: booking.selectedSpots,
-        startTime: booking.startTime,
-        endTime: booking.endTime,
-        totalAmount: booking.totalAmount || '0', // Default to '0' if not available
-        selectedDate: booking.date,
-      },
-    });
-  };
+  // const viewTicket = (booking) => {
+  //   navigate('/booking-ticket', {
+  //     state: {
+  //       name: booking.name || username || 'NA',
+  //       // vehicleNumber: booking.vehicleNumber || 'NA',
+  //       selectedSpots: booking.selectedSpots,
+  //       startTime: booking.startTime,
+  //       endTime: booking.endTime,
+  //       totalAmount: booking.totalAmount || '0', // Default to '0' if not available
+  //       selectedDate: booking.date,
+  //     },
+  //   });
+  // };
 
   return (
     <div className="text-designColor">
       <div className="max-w-4xl mx-auto px-4">
         <h2 className="text-4xl font-bold text-center">
-          👋 Welcome, <span className="bg-gradient-to-r from-gradientStart to-gradientEnd bg-clip-text text-transparent">{username}</span>
+          Welcome, <span className="bg-gradient-to-r from-gradientStart to-gradientEnd bg-clip-text text-transparent">{username}</span>
         </h2>
         <h3 className="text-xl font-semibold text-center mb-8 text-designColor">Your Booking History</h3>
 
@@ -225,12 +225,12 @@ const handleExtendBooking = async () => {
                     >
                       Cancel
                     </button>
-                    <button
+                    {/* <button
                       onClick={() => viewTicket(booking)}
                       className="px-4 py-3 bg-green-500 text-white rounded-md hover:bg-green-600 transition duration-200"
                     >
                       View Ticket
-                    </button>
+                    </button> */}
                   </div>
                 </div>
               </li>
@@ -242,7 +242,6 @@ const handleExtendBooking = async () => {
           </div>
         )}
 
-        {/* Extend Booking Modal */}
         {showExtendModal && currentBooking && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-md w-full">
