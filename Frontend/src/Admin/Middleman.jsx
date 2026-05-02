@@ -88,7 +88,7 @@ function Middleman() {
         return;
       }
 
-      const response = await fetch("http://localhost:3000/api/middleman/signup-middleman", {
+      const response = await fetch("https://online-parking-system-backend.onrender.com/api/middleman/signup-middleman", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
