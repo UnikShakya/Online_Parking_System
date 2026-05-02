@@ -30,7 +30,7 @@ function BhaktapurExtend() {
         return;
       }
       
-      const response = await axios.get("http://localhost:3000/api/parking/extended/bhaktapur", {
+      const response = await axios.get("https://online-parking-system-backend.onrender.com/api/parking/extended/bhaktapur", {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
