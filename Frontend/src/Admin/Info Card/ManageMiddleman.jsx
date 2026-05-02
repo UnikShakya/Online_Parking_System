@@ -7,7 +7,7 @@ function ManageMiddleman() {
   useEffect(() => {
     const fetchMiddlemanCount = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/middleman/count');
+        const response = await axios.get('https://online-parking-system-backend.onrender.com/api/middleman/count');
         if (response.data.success) {
           setMiddlemanCount(response.data.count);
         }
