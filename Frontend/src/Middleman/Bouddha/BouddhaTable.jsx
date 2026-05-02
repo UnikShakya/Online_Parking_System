@@ -20,7 +20,7 @@ function BouddhaTable() {
     const fetchBookings = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get('http://localhost:3000/api/booking/getBookings');
+        const response = await axios.get('https://online-parking-system-backend.onrender.com/api/booking/getBookings');
         const savedStatuses = getSavedStatuses();
         
         const bouddhaBookings = response.data
