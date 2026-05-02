@@ -10,7 +10,7 @@ function Profile() {
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/profile/my-bookings', { 
+        const response = await axios.get('https://online-parking-system-backend.onrender.com/api/profile/my-bookings', { 
           headers: {
             Authorization: `Bearer ${token}`,
           },
