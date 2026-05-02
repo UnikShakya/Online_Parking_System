@@ -11,7 +11,7 @@ function Activity() {
                 const token = localStorage.getItem('token');
                 console.log("Token from localStorage:", token);
 
-                const response = await axios.get('http://localhost:3000/api/user/activities', {
+                const response = await axios.get('https://online-parking-system-backend.onrender.com/api/user/activities', {
                     headers: {
                         'Authorization': `Bearer ${token}` 
                     }
