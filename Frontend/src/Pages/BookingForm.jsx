@@ -133,14 +133,14 @@ const handleKhaltiPayment = async () => {
       publicKey: "19c1199a4e916a492cb21d6c7c96c15",
       productIdentity: productIdentity,
       productName: "Parking Booking",
-      productUrl: "http://localhost:3000/booking-form",
+      productUrl: "https://online-parking-system-backend.onrender.com/booking-form",
       amount: amountPaisa,
       eventHandler: {
         onSuccess: async (payload) => {
           console.log("Payment Success Payload:", payload);
           try {
             const verifyResponse = await axios.post(
-              "http://localhost:3000/api/verify-khalti-payment",
+              "https://online-parking-system-backend.onrender.com/api/verify-khalti-payment",
               {
                 pidx: payload.pidx,
                 amount: amountPaisa,
@@ -238,7 +238,7 @@ const saveBooking = async (bookingData) => {
 
   try {
     const parkingResponse = await axios.post(
-      "http://localhost:3000/api/parking/book",
+      "https://online-parking-system-backend.onrender.com/api/parking/book",
       payload,
       {
         headers: {
@@ -248,7 +248,7 @@ const saveBooking = async (bookingData) => {
     );
 
     const bookingResponse = await axios.post(
-      "http://localhost:3000/api/booking/",
+      "https://online-parking-system-backend.onrender.com/api/booking/",
       {
         name: payload.name,
         vehicleNumber: payload.vehicleNumber,
