@@ -33,7 +33,7 @@ const token = localStorage.getItem('token') || '';
         default: throw new Error("Invalid role selected");
       }
 
-const response = await axios.get(`http://localhost:3000${endpoint}`, {
+const response = await axios.get(`https://online-parking-system-backend.onrender.com${endpoint}`, {
   headers: {
     Authorization: `Bearer ${token}`
   }
