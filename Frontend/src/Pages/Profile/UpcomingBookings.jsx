@@ -29,7 +29,7 @@ function UpcomingBookings() {
 
       try {
         console.log("Fetching bookings...");
-        const response = await axios.get('http://localhost:3000/api/profile/my-upcomingbookings', {
+        const response = await axios.get('https://online-parking-system-backend.onrender.com/api/profile/my-upcomingbookings', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
