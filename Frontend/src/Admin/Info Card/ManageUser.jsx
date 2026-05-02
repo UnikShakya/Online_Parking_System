@@ -7,7 +7,7 @@ function ManageUser() {
   useEffect(() => {
     const fetchUserCount = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/userCount');  
+        const response = await axios.get('https://online-parking-system-backend.onrender.com/api/userCount');  
         if (response.data && response.data.userCount !== undefined) {
           setUserCount(response.data.userCount);
         } else {
