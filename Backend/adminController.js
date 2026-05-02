@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const adminModel = require("./adminModel"); // Use adminModel
 const validator = require("validator");
 const authMiddleware = require("./authentication");

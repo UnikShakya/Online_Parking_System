@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const middlemanModel = require("./middlemanModel"); 
 const mongoose = require('mongoose'); 
 
