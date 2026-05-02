@@ -16,14 +16,14 @@ const ParkingLots = () => {
         let parkingResponse, bookedResponse;
 
         if (currentLocation === "Patan") {
-          parkingResponse = await axios.get("http://localhost:3000/api/parking");
-          bookedResponse = await axios.get("http://localhost:3000/api/parking/booked");
+          parkingResponse = await axios.get("https://online-parking-system-backend.onrender.com/api/parking");
+          bookedResponse = await axios.get("https://online-parking-system-backend.onrender.com/api/parking/booked");
         } else if (currentLocation === "Bouddha") {
-          parkingResponse = await axios.get("http://localhost:3000/api/parking/location2");
-          bookedResponse = await axios.get("http://localhost:3000/api/parking/booked-location2");
+          parkingResponse = await axios.get("https://online-parking-system-backend.onrender.com/api/parking/location2");
+          bookedResponse = await axios.get("https://online-parking-system-backend.onrender.com/api/parking/booked-location2");
         } else if (currentLocation === "Bhaktapur") {
-          parkingResponse = await axios.get("http://localhost:3000/api/parking/location3");
-          bookedResponse = await axios.get("http://localhost:3000/api/parking/booked-location3");
+          parkingResponse = await axios.get("https://online-parking-system-backend.onrender.com/api/parking/location3");
+          bookedResponse = await axios.get("https://online-parking-system-backend.onrender.com/api/parking/booked-location3");
         }
 
         const filteredParkingLots = parkingResponse.data.filter(
