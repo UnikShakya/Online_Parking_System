@@ -30,7 +30,7 @@ function BouddhaExtend() {
         return;
       }
       
-      const response = await axios.get("http://localhost:3000/api/parking/extended/bouddha", {
+      const response = await axios.get("https://online-parking-system-backend.onrender.com/api/parking/extended/bouddha", {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
