@@ -15,7 +15,7 @@ function TotalBookings() {
         // Pass JWT token in headers to authorize user
         const token = localStorage.getItem('token');
 
-        const response = await axios.get('http://localhost:3000/api/profile/my-bookings/count', {
+        const response = await axios.get('https://online-parking-system-backend.onrender.com/api/profile/my-bookings/count', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
