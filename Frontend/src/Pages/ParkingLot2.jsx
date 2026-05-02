@@ -33,7 +33,7 @@ const ParkingLot2 = ({ discountRate }) => {
     setIsLoading(true);
     try {
       // Fetch all parking lots
-      const parkingResponse = await axios.get("http://localhost:3000/api/parking/location2");
+      const parkingResponse = await axios.get("https://online-parking-system-backend.onrender.com/api/parking/location2");
       console.log("Parking API Response:", parkingResponse.data);
 
       const filteredParkingLots = parkingResponse.data.filter(
@@ -43,7 +43,7 @@ const ParkingLot2 = ({ discountRate }) => {
       setParkingLots(filteredParkingLots);
 
       // Fetch booked spots
-      const bookedResponse = await axios.get("http://localhost:3000/api/parking/booked-location2");
+      const bookedResponse = await axios.get("https://online-parking-system-backend.onrender.com/api/parking/booked-location2");
       console.log("Booked Spots Response:", bookedResponse.data);
 
       const bookedSpotNumbers = bookedResponse.data
