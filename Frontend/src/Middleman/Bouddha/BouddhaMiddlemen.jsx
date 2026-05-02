@@ -32,7 +32,7 @@ function BouddhaMiddlemen() {
         return;
       }
       console.log('Fetching Bouddha middlemen...');
-      const response = await axios.get("http://localhost:3000/api/middleman/bouddha", {
+      const response = await axios.get("https://online-parking-system-backend.onrender.com/api/middleman/bouddha", {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
