@@ -32,7 +32,7 @@ function BhaktapurMiddlemen() {
         return;
       }
       console.log('Fetching Bhaktapur middlemen...');
-      const response = await axios.get("http://localhost:3000/api/middleman/bhaktapur", {
+      const response = await axios.get("https://online-parking-system-backend.onrender.com/api/middleman/bhaktapur", {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
