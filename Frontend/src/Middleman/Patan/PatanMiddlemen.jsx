@@ -32,7 +32,7 @@ function patanMiddlemen() {
         return;
       }
       console.log('Fetching patan middlemen...');
-      const response = await axios.get("http://localhost:3000/api/middleman/patan", {
+      const response = await axios.get("https://online-parking-system-backend.onrender.com/api/middleman/patan", {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
