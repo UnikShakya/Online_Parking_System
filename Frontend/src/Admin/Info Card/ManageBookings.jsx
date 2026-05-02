@@ -8,7 +8,7 @@ const [bookingCount, setBookingCount] = useState(0);
 useEffect(() => {
   const fetchBookingCount = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/api/bookingCount');  
+      const response = await axios.get('https://online-parking-system-backend.onrender.com/api/bookingCount');  
       if (response.data && response.data.bookingCount !== undefined) {
         setBookingCount(response.data.bookingCount);
       } else {
