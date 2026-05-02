@@ -12,8 +12,8 @@ const PatanParkingLot = () => {
       setIsLoading(true);
       try {
         // Fetch Patan parking lots
-        const parkingResponse = await axios.get("http://localhost:3000/api/parking");
-        const bookedResponse = await axios.get("http://localhost:3000/api/parking/booked");
+        const parkingResponse = await axios.get("https://online-parking-system-backend.onrender.com/api/parking");
+        const bookedResponse = await axios.get("https://online-parking-system-backend.onrender.com/api/parking/booked");
 
         const filteredParkingLots = parkingResponse.data.filter(
           spot => spot.location === "Patan"
