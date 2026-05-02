@@ -12,8 +12,8 @@ const BouddhaParkingLot = () => {
       setIsLoading(true);
       try {
         // Fetch Bouddha parking lots
-        const parkingResponse = await axios.get("http://localhost:3000/api/parking/location2");
-        const bookedResponse = await axios.get("http://localhost:3000/api/parking/booked-location2");
+        const parkingResponse = await axios.get("https://online-parking-system-backend.onrender.com/api/parking/location2");
+        const bookedResponse = await axios.get("https://online-parking-system-backend.onrender.com/api/parking/booked-location2");
 
         const filteredParkingLots = parkingResponse.data.filter(
           spot => spot.location === "Bouddha"
