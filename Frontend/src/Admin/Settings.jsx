@@ -74,7 +74,7 @@ function Settings() {
         return;
       }
 
-      const response = await fetch('http://localhost:3000/api/admin/signup-admin', {
+      const response = await fetch('https://online-parking-system-backend.onrender.com/api/admin/signup-admin', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
